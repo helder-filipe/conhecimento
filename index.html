@@ -203,47 +203,65 @@
       const nodesArray = [];
       const edgesArray = [];
 
-      // Criar um Set com todos os IDs válidos para confirmar que a nota de destino existe
-      const idsValidos = new Set(notas.map(n => String(n.ID || '').trim()));
+      console.log("--- DADOS RECEBIDOS DO GOOGLE SHEETS ---", notas);
+
+      // Criar um Mapa com todos os IDs limpos
+      const idsExistentes = new Set();
+      notas.forEach(n => {
+        // Tenta encontrar a propriedade do ID mesmo que tenha maiúsculas/minúsculas diferentes
+        const idChave = Object.keys(n).find(k => k.toLowerCase() === 'id');
+        const idValor = idChave ? String(n[idChave]).trim() : '';
+        if (idValor) idsExistentes.add(idValor);
+      });
 
       notas.forEach(nota => {
-        const idStr = String(nota.ID || '').trim();
+        // Procura insensível a maiúsculas/minúsculas para ID e LinksPara
+        const chaveID = Object.keys(nota).find(k => k.toLowerCase() === 'id');
+        const chaveLinks = Object.keys(nota).find(k => k.toLowerCase() === 'linkspara');
+        const chaveTitulo = Object.keys(nota).find(k => k.toLowerCase() === 'titulo');
+
+        const idStr = chaveID ? String(nota[chaveID]).trim() : '';
+        const linksStr = chaveLinks ? String(nota[chaveLinks]).trim() : '';
+        const tituloStr = chaveTitulo ? String(nota[chaveTitulo]).trim() : `Nota ${idStr}`;
+
         if (!idStr) return;
-        
-        // 1. Criar o Nó (Bolinha)
+
+        // 1. Adicionar Nó (Bolinha)
         nodesArray.push({
           id: idStr,
-          label: nota.Titulo || `Nota ${idStr}`,
+          label: tituloStr,
           shape: 'dot',
-          size: 16,
+          size: 18,
           color: {
-            background: '#6366f1', // Indigo 500
-            border: '#818cf8',     // Indigo 400
+            background: '#6366f1',
+            border: '#818cf8',
             highlight: { background: '#a855f7', border: '#c084fc' }
           },
-          font: { color: '#f1f5f9', size: 12, face: 'sans-serif' }
+          font: { color: '#f1f5f9', size: 12 }
         });
 
-        // 2. Criar as Arestas/Linhas de Conexão
-        if (nota.LinksPara) {
-          // Divide por vírgula e limpa todos os espaços ou quebras de linha
-          const links = String(nota.LinksPara).split(',');
-          
-          links.forEach(linkTarget => {
-            const targetId = String(linkTarget).trim();
+        // 2. Adicionar Ligações (Arestas)
+        if (linksStr) {
+          const links = linksStr.split(',');
+          links.forEach(destino => {
+            const destinoLimpo = String(destino).trim();
             
-            // Só cria a linha se o ID de destino existir e não for vazio
-            if (targetId && idsValidos.has(targetId)) {
+            if (destinoLimpo) {
+              console.log(`Tentando ligar [${idStr}] ---> [${destinoLimpo}]`);
+              
               edgesArray.push({
                 from: idStr,
-                to: targetId,
-                color: { color: '#818cf8', highlight: '#a855f7' },
-                arrows: { to: { enabled: true, scaleFactor: 0.6 } }
+                to: destinoLimpo,
+                color: { color: '#a5b4fc', highlight: '#c084fc' },
+                width: 2,
+                arrows: { to: { enabled: true, scaleFactor: 0.8 } }
               });
             }
           });
         }
       });
+
+      console.log("--- LIGAÇÕES CRIADAS ---", edgesArray);
 
       const container = document.getElementById('graph-container');
       const data = {
@@ -253,21 +271,17 @@
 
       const options = {
         nodes: { borderWidth: 2 },
-        edges: { 
-          width: 2, 
-          smooth: { type: 'continuous' } 
-        },
+        edges: { smooth: { type: 'continuous' } },
         physics: {
           enabled: true,
-          stabilization: false,
           barnesHut: {
-            gravitationalConstant: -3000,
+            gravitationalConstant: -4000,
             centralGravity: 0.3,
-            springLength: 100,
+            springLength: 120,
             springConstant: 0.04
           }
         },
-        interaction: { hover: true, tooltipDelay: 200 }
+        interaction: { hover: true }
       };
 
       if (networkInstance) {
@@ -276,11 +290,9 @@
 
       networkInstance = new vis.Network(container, data, options);
 
-      // Evento ao clicar num nó do mapa
       networkInstance.on("click", function (params) {
         if (params.nodes.length > 0) {
-          const clickedId = params.nodes[0];
-          destacarECentrarCartao(clickedId);
+          destacarECentrarCartao(params.nodes[0]);
         }
       });
     }
