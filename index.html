@@ -8,7 +8,7 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Vis Network (Para o Mapa de Nós / Grafo estilo Obsidian) -->
+  <!-- Vis Network (Para o Mapa de Nós) -->
   <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 
   <style>
@@ -57,12 +57,18 @@
 
     <!-- Secção do Grafo (Vis Network) -->
     <section>
-      <div class="flex justify-between items-center mb-3">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
         <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
           <span>🕸️</span> Mapa de Conexões (Graph View)
         </h2>
         <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
       </div>
+
+      <!-- Legenda de Cores por Categoria -->
+      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs text-slate-300">
+        <!-- Preenchido via JavaScript -->
+      </div>
+
       <div id="graph-container" class="shadow-2xl relative">
         <div id="graph-loader" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 rounded-xl z-10">
           <span class="text-sm text-indigo-400 font-medium">A sincronizar com Google Sheets...</span>
@@ -102,6 +108,19 @@
           </div>
         </div>
 
+        <!-- Categoria e Subcategoria -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Categoria (Coluna I)</label>
+            <input type="text" id="nova-categoria" placeholder="Ex: Marketing, Programação, Padel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Subcategoria (Coluna J)</label>
+            <input type="text" id="nova-subcategoria" placeholder="Ex: SEO, JavaScript, Tática" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Conteúdo / Ideia Atómica</label>
           <textarea id="novo-conteudo" rows="3" required placeholder="Escreve o resumo atómico ou reflexão principal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
@@ -133,7 +152,7 @@
     <!-- Secção de Filtros / Pesquisa -->
     <section class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-slate-800">
       <div class="w-full sm:w-96">
-        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, conteúdo ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, categoria, conteúdo ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
       </div>
       <div class="text-xs text-slate-400">
         Total de notas: <span id="total-notas" class="font-bold text-indigo-400">0</span>
@@ -145,9 +164,7 @@
       <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
         <span>📝</span> Notas Atómicas
       </h2>
-      <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- Renderizado dinamicamente pelo JavaScript -->
-      </div>
+      <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
 
     <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA -->
@@ -170,6 +187,40 @@
     let mapaNotas = new Map();
     let networkInstance = null;
 
+    // PALETA DE CORES PARA CATEGORIAS
+    const PALETA_CORES = [
+      { bg: '#6366f1', border: '#818cf8' }, // Índigo
+      { bg: '#10b981', border: '#34d399' }, // Esmeralda / Verde
+      { bg: '#f59e0b', border: '#fbbf24' }, // Âmbar / Laranja
+      { bg: '#ec4899', border: '#f472b6' }, // Rosa
+      { bg: '#06b6d4', border: '#22d3ee' }, // Ciano
+      { bg: '#8b5cf6', border: '#a78bfa' }, // Roxo
+      { bg: '#ef4444', border: '#f87171' }  // Vermelho
+    ];
+
+    const mapaCoresCategorias = new Map();
+
+    function obterValorPropriedade(objeto, chaveProcurada) {
+      if (!objeto) return '';
+      const chaveEncontrada = Object.keys(objeto).find(k => k.toLowerCase().replace(/\s+/g, '').includes(chaveProcurada.toLowerCase().replace(/\s+/g, '')));
+      return chaveEncontrada && objeto[chaveEncontrada] !== undefined ? String(objeto[chaveEncontrada]).trim() : '';
+    }
+
+    // 1. Função de obter cor garantindo que maiúsculas/minúsculas não criam cores diferentes
+    function obterCorCategoria(categoria) {
+      const catTexto = categoria ? String(categoria).trim() : 'Geral';
+      const catChave = catTexto.toLowerCase(); // Chave única em minúsculas
+      
+      if (!mapaCoresCategorias.has(catChave)) {
+        const indice = mapaCoresCategorias.size % PALETA_CORES.length;
+        mapaCoresCategorias.set(catChave, {
+          nomeExibicao: catTexto, // Guarda o nome original para a legenda
+          cores: PALETA_CORES[indice]
+        });
+      }
+      return mapaCoresCategorias.get(catChave);
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       carregarZettelkasten();
     });
@@ -187,7 +238,10 @@
         todasAsNotas = await resposta.json();
 
         mapaNotas.clear();
-        todasAsNotas.forEach(nota => mapaNotas.set(String(nota.ID).trim(), nota));
+        todasAsNotas.forEach(nota => {
+          const id = obterValorPropriedade(nota, 'id');
+          if (id) mapaNotas.set(id, nota);
+        });
 
         document.getElementById('total-notas').textContent = todasAsNotas.length;
         renderizarGrafo(todasAsNotas);
@@ -195,35 +249,39 @@
 
         if (statusText) statusText.textContent = `${todasAsNotas.length} notas carregadas`;
       } catch (erro) {
-        console.error('Erro ao obter dados do Google Sheets:', erro);
+        console.error('Erro ao obter dados:', erro);
         if (statusText) statusText.textContent = 'Erro de ligação';
       } finally {
         if (loader) loader.classList.add('hidden');
       }
     }
 
-    // 2. RENDERIZAR GRAFO (VIS NETWORK)
+
+    // RENDERIZAR GRAFO COM LIGAÇÕES E CORES POR CATEGORIA
+    // 2. Função de renderização do Grafo corrigida
     function renderizarGrafo(notas) {
       const nodesArray = [];
       const edgesArray = [];
+      
+      // Limpar mapa de cores para reaplicar com base nas notas atuais
+      mapaCoresCategorias.clear();
 
       const idsExistentes = new Set();
       notas.forEach(n => {
-        const chaveID = Object.keys(n).find(k => k.toLowerCase().trim() === 'id');
-        const idValor = chaveID ? String(n[chaveID]).trim() : '';
-        if (idValor) idsExistentes.add(idValor);
+        const idValor = obterValorPropriedade(n, 'id');
+        if (idValor) idsExistentes.add(String(idValor).trim());
       });
 
       notas.forEach(nota => {
-        const chaveID = Object.keys(nota).find(k => k.toLowerCase().trim() === 'id');
-        const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
-        const chaveTitulo = Object.keys(nota).find(k => k.toLowerCase().trim() === 'titulo');
-
-        const idStr = chaveID ? String(nota[chaveID]).trim() : '';
-        const linksStr = chaveLinks ? String(nota[chaveLinks]).trim() : '';
-        const tituloStr = chaveTitulo ? String(nota[chaveTitulo]).trim() : `Nota ${idStr}`;
+        const idStr = String(obterValorPropriedade(nota, 'id')).trim();
+        const linksStr = obterValorPropriedade(nota, 'linkspara');
+        const tituloStr = obterValorPropriedade(nota, 'titulo') || `Nota ${idStr}`;
+        const catStr = obterValorPropriedade(nota, 'categoria') || 'Geral';
 
         if (!idStr) return;
+
+        // Obtém o objeto de cor unificado para esta categoria
+        const infoCategoria = obterCorCategoria(catStr);
 
         nodesArray.push({
           id: idStr,
@@ -231,22 +289,22 @@
           shape: 'dot',
           size: 18,
           color: {
-            background: '#6366f1',
-            border: '#818cf8',
+            background: infoCategoria.cores.bg,
+            border: infoCategoria.cores.border,
             highlight: { background: '#a855f7', border: '#c084fc' }
           },
           font: { color: '#f1f5f9', size: 12 }
         });
 
         if (linksStr) {
-          const links = linksStr.split(',');
+          const links = linksStr.split(/[,;]+/);
           links.forEach(destino => {
             const destinoLimpo = String(destino).trim();
-            if (destinoLimpo && idsExistentes.has(destinoLimpo)) {
+            if (destinoLimpo && idsExistentes.has(destinoLimpo) && destinoLimpo !== idStr) {
               edgesArray.push({
                 from: idStr,
                 to: destinoLimpo,
-                color: { color: '#818cf8', highlight: '#c084fc' },
+                color: { color: '#818cf8', highlight: '#c084fc', inherit: false },
                 width: 2,
                 arrows: { to: { enabled: true, scaleFactor: 0.8 } }
               });
@@ -254,6 +312,19 @@
           });
         }
       });
+
+      // Renderizar Legenda perfeitamente alinhada com os nós
+      const legendaDiv = document.getElementById('categorias-legenda');
+      if (legendaDiv) {
+        legendaDiv.innerHTML = Array.from(mapaCoresCategorias.values()).map(item => {
+          return `
+            <span class="inline-flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.cores.bg}"></span>
+              <span class="font-medium">${item.nomeExibicao}</span>
+            </span>
+          `;
+        }).join('');
+      }
 
       const container = document.getElementById('graph-container');
       const data = {
@@ -266,86 +337,50 @@
         edges: { smooth: { type: 'continuous' } },
         physics: {
           enabled: true,
-          barnesHut: {
-            gravitationalConstant: -3000,
-            centralGravity: 0.3,
-            springLength: 100,
-            springConstant: 0.04
-          }
+          barnesHut: { gravitationalConstant: -3000, centralGravity: 0.3, springLength: 100, springConstant: 0.04 }
         },
         interaction: { hover: true, selectConnectedEdges: false }
       };
 
-      if (networkInstance) {
-        networkInstance.destroy();
-      }
+      if (networkInstance) networkInstance.destroy();
 
       networkInstance = new vis.Network(container, data, options);
 
-      // BLOQUEAR REDIRECIONAMENTOS ACIDENTAIS NO CLIQUE DO GRAFO
       networkInstance.on("selectNode", function (params) {
         if (params.nodes && params.nodes.length > 0) {
-          const idSelecionado = String(params.nodes[0]).trim();
-          abrirModalNota(idSelecionado);
+          abrirModalNota(String(params.nodes[0]).trim());
         }
       });
     }
 
-    // 3. PREVISUALIZAÇÃO DE MEDIA SEGURA
+    // 3. PREVISUALIZAÇÃO DE MEDIA
     function gerarPreviewMedia(url, plataforma) {
       if (!url) return '';
-      
       let urlValida = url.trim();
       if (!urlValida) return '';
-      
       if (!urlValida.startsWith('http://') && !urlValida.startsWith('https://')) {
         urlValida = 'https://' + urlValida;
       }
 
-      const regExpYT = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-      const matchYT = urlValida.match(regExpYT);
+      const matchYT = urlValida.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
 
       if (matchYT && matchYT[2].length === 11) {
         const videoId = matchYT[2];
-
         return `
           <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
             <div class="aspect-video w-full relative">
-              <iframe 
-                class="w-full h-full" 
-                src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin || 'https://localhost')}" 
-                title="YouTube video player" 
-                frameborder="0" 
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
-                allowfullscreen
-              ></iframe>
-            </div>
-            <div class="p-2 bg-slate-900/90 text-[11px] text-indigo-400 font-medium flex items-center justify-between border-t border-slate-800">
-              <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1">
-                <span>Abrir no YouTube</span>
-                <span>↗</span>
-              </a>
+              <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1" title="YouTube" frameborder="0" allowfullscreen></iframe>
             </div>
           </div>
         `;
       }
 
       const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
-
       return `
-        <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 transition-all hover:border-indigo-500/50 group">
+        <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 group">
           <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="block">
-            <div class="aspect-video w-full bg-slate-950 overflow-hidden relative flex items-center justify-center">
-              <img 
-                src="${imagemApiUrl}" 
-                alt="Miniatura do Recurso" 
-                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-center text-xs text-slate-500\'>🔗 Abrir ligação externa</div>';"
-              />
-            </div>
-            <div class="p-2 bg-slate-900/90 text-[11px] text-indigo-400 font-medium group-hover:text-indigo-300 flex items-center justify-between border-t border-slate-800">
-              <span class="truncate">Ver em ${plataforma || 'Recurso Original'}</span>
-              <span>↗</span>
+            <div class="aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+              <img src="${imagemApiUrl}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-slate-500\'>🔗 Abrir ligação externa</div>';" />
             </div>
           </a>
         </div>
@@ -354,25 +389,21 @@
 
     // 4. PREPARAR FORMULÁRIO PARA EDIÇÃO
     function prepararEdicao(idNota) {
-      const nota = todasAsNotas.find(n => String(n.ID).trim() === String(idNota).trim());
+      const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === String(idNota).trim());
       if (!nota) return;
 
-      document.getElementById('form-id').value = nota.ID;
-      document.getElementById('novo-titulo').value = nota.Titulo || '';
-      document.getElementById('novo-conteudo').value = nota.Conteudo || '';
-      document.getElementById('nova-plataforma').value = nota.Plataforma || 'Nota';
-      document.getElementById('novo-url').value = nota.UrlMedia || '';
-      document.getElementById('novas-tags').value = nota.Tags || '';
-      
-      const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
-      document.getElementById('novos-links').value = chaveLinks ? nota[chaveLinks] : '';
+      document.getElementById('form-id').value = obterValorPropriedade(nota, 'id');
+      document.getElementById('novo-titulo').value = obterValorPropriedade(nota, 'titulo');
+      document.getElementById('novo-conteudo').value = obterValorPropriedade(nota, 'conteudo');
+      document.getElementById('nova-plataforma').value = obterValorPropriedade(nota, 'plataforma') || 'Nota';
+      document.getElementById('nova-categoria').value = obterValorPropriedade(nota, 'categoria');
+      document.getElementById('nova-subcategoria').value = obterValorPropriedade(nota, 'subcategoria');
+      document.getElementById('novo-url').value = obterValorPropriedade(nota, 'urlmedia');
+      document.getElementById('novas-tags').value = obterValorPropriedade(nota, 'tags');
+      document.getElementById('novos-links').value = obterValorPropriedade(nota, 'linkspara');
 
-      const btnSubmeter = document.getElementById('btn-submeter');
-      if (btnSubmeter) btnSubmeter.innerHTML = '<span>✏️</span> Guardar Alterações';
-
-      const headerText = document.getElementById('form-titulo-header');
-      if (headerText) headerText.innerHTML = `<span>✏️</span> Editar Nota (${nota.ID})`;
-
+      document.getElementById('btn-submeter').innerHTML = '<span>✏️</span> Guardar Alterações';
+      document.getElementById('form-titulo-header').innerHTML = `<span>✏️</span> Editar Nota (${obterValorPropriedade(nota, 'id')})`;
       document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
     }
 
@@ -380,15 +411,11 @@
     function limparFormulario() {
       document.getElementById('form-nova-nota').reset();
       document.getElementById('form-id').value = '';
-      
-      const btnSubmeter = document.getElementById('btn-submeter');
-      if (btnSubmeter) btnSubmeter.innerHTML = '<span>💾</span> Guardar Nota no Zettelkasten';
-
-      const headerText = document.getElementById('form-titulo-header');
-      if (headerText) headerText.innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
+      document.getElementById('btn-submeter').innerHTML = '<span>💾</span> Guardar Nota no Zettelkasten';
+      document.getElementById('form-titulo-header').innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
     }
 
-    // 6. RENDERIZAR CARTÕES DE NOTAS
+    // 6. RENDERIZAR CARTÕES DE NOTAS (COM CATEGORIAS E SUBCATEGORIAS DESTAÇADAS)
     function renderizarCartoes(notas) {
       const container = document.getElementById('cards-container');
       container.innerHTML = '';
@@ -399,72 +426,60 @@
       }
 
       notas.forEach(nota => {
-        const idStr = String(nota.ID).trim();
-        const tagsArr = nota.Tags ? String(nota.Tags).split(',') : [];
-        
-        const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
-        const linksArr = chaveLinks && nota[chaveLinks] ? String(nota[chaveLinks]).split(',') : [];
+        const idStr = obterValorPropriedade(nota, 'id');
+        const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+        const conteudo = obterValorPropriedade(nota, 'conteudo');
+        const plataforma = obterValorPropriedade(nota, 'plataforma');
+        const categoria = obterValorPropriedade(nota, 'categoria');
+        const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+        const urlMedia = obterValorPropriedade(nota, 'urlmedia');
+        const tagsStr = obterValorPropriedade(nota, 'tags');
+        const linksStr = obterValorPropriedade(nota, 'linkspara');
 
-        const tagsHTML = tagsArr.map(tag => {
-          const t = tag.trim();
-          return t ? `<span class="bg-indigo-950/80 text-indigo-300 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono">#${t}</span>` : '';
-        }).join(' ');
+        const tagsArr = tagsStr ? tagsStr.split(',') : [];
+        const linksArr = linksStr ? linksStr.split(',') : [];
+
+        const tagsHTML = tagsArr.map(t => t.trim() ? `<span class="bg-indigo-950/80 text-indigo-300 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono">#${t.trim()}</span>` : '').join(' ');
 
         const linksHTML = linksArr.map(linkId => {
           const targetId = linkId.trim();
           if (!targetId) return '';
           const notaAlvo = mapaNotas.get(targetId);
-          const tituloAlvo = notaAlvo ? notaAlvo.Titulo : `Nota #${targetId}`;
-          return `
-            <button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1">
-              🔗 ${tituloAlvo}
-            </button>
-          `;
+          const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
+          return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
         }).filter(Boolean).join('');
 
         const cartao = document.createElement('div');
         cartao.id = `nota-${idStr}`;
-        cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg transition-all duration-300 hover:border-slate-600';
+        cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
 
         cartao.innerHTML = `
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-[11px] font-mono font-medium text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded border border-slate-700/50">ID: ${idStr}</span>
+              <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
               <div class="flex items-center gap-2">
-                ${nota.Plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${nota.Plataforma}</span>` : ''}
-                <button 
-                  type="button"
-                  onclick="abrirModalNota('${idStr}')" 
-                  class="text-xs text-indigo-400 hover:text-indigo-300 font-medium px-2 py-0.5 rounded bg-indigo-950/60 hover:bg-indigo-900/80 transition border border-indigo-800/50"
-                >
-                  👁️ Ver Nota
-                </button>
-                <button 
-                  type="button"
-                  onclick="prepararEdicao('${idStr}')" 
-                  class="text-xs text-slate-400 hover:text-indigo-400 font-medium px-2 py-0.5 rounded bg-slate-900/80 hover:bg-slate-700 transition border border-slate-700"
-                >
-                  ✏️ Editar
-                </button>
+                ${plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
+                <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
+                <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
               </div>
             </div>
 
-            <h3 class="text-base font-bold text-white leading-snug">${nota.Titulo || 'Sem Título'}</h3>
-            
-            <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">${nota.Conteudo || ''}</p>
+            <!-- EXIBIÇÃO DE CATEGORIA E SUBCATEGORIA -->
+            ${(categoria || subcategoria) ? `
+              <div class="flex items-center gap-1.5 text-xs font-semibold">
+                ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
+                ${subcategoria ? `<span class="text-slate-400">/ ${subcategoria}</span>` : ''}
+              </div>
+            ` : ''}
 
+            <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
+            <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">${conteudo}</p>
             ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
           </div>
 
           <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
-            ${nota.UrlMedia ? gerarPreviewMedia(nota.UrlMedia, nota.Plataforma) : ''}
-
-            ${linksHTML ? `
-              <div class="pt-1">
-                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Notas Conectadas:</span>
-                <div class="flex flex-col gap-1">${linksHTML}</div>
-              </div>
-            ` : ''}
+            ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
+            ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
           </div>
         `;
 
@@ -481,7 +496,6 @@
       btn.innerText = 'A guardar...';
 
       const idExistente = document.getElementById('form-id').value;
-      
       const agora = new Date();
       const idFinal = idExistente || (
         agora.getFullYear().toString() +
@@ -495,6 +509,8 @@
         ID: idFinal,
         Titulo: document.getElementById('novo-titulo').value,
         Plataforma: document.getElementById('nova-plataforma').value,
+        Categoria: document.getElementById('nova-categoria').value,
+        Subcategoria: document.getElementById('nova-subcategoria').value,
         Conteudo: document.getElementById('novo-conteudo').value,
         UrlMedia: document.getElementById('novo-url').value,
         Tags: document.getElementById('novas-tags').value,
@@ -511,8 +527,7 @@
         });
 
         limparFormulario();
-        alert('Nota guardada com sucesso! A recarregar o Zettelkasten...');
-        
+        alert('Nota guardada com sucesso!');
         setTimeout(() => carregarZettelkasten(), 1500);
 
       } catch (erro) {
@@ -527,10 +542,12 @@
     function filtrarNotas() {
       const termo = document.getElementById('input-busca').value.toLowerCase();
       const notasFiltradas = todasAsNotas.filter(nota => {
-        const titulo = String(nota.Titulo || '').toLowerCase();
-        const conteudo = String(nota.Conteudo || '').toLowerCase();
-        const tags = String(nota.Tags || '').toLowerCase();
-        return titulo.includes(termo) || conteudo.includes(termo) || tags.includes(termo);
+        const titulo = String(obterValorPropriedade(nota, 'titulo')).toLowerCase();
+        const conteudo = String(obterValorPropriedade(nota, 'conteudo')).toLowerCase();
+        const tags = String(obterValorPropriedade(nota, 'tags')).toLowerCase();
+        const cat = String(obterValorPropriedade(nota, 'categoria')).toLowerCase();
+        const subCat = String(obterValorPropriedade(nota, 'subcategoria')).toLowerCase();
+        return titulo.includes(termo) || conteudo.includes(termo) || tags.includes(termo) || cat.includes(termo) || subCat.includes(termo);
       });
 
       renderizarCartoes(notasFiltradas);
@@ -539,64 +556,57 @@
     // 9. ABRIR MODAL COM OS DETALHES DA NOTA
     function abrirModalNota(idNota) {
       const idLimpo = String(idNota).trim();
-      const nota = todasAsNotas.find(n => String(n.ID).trim() === idLimpo);
-
+      const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
       if (!nota) return;
 
       const modalCorpo = document.getElementById('modal-conteudo-corpo');
       const modalContainer = document.getElementById('modal-nota');
 
-      const tagsArr = nota.Tags ? String(nota.Tags).split(',') : [];
-      const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
-      const linksArr = chaveLinks && nota[chaveLinks] ? String(nota[chaveLinks]).split(',') : [];
+      const id = obterValorPropriedade(nota, 'id');
+      const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const plataforma = obterValorPropriedade(nota, 'plataforma');
+      const categoria = obterValorPropriedade(nota, 'categoria');
+      const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+      const urlMedia = obterValorPropriedade(nota, 'urlmedia');
+      const tagsStr = obterValorPropriedade(nota, 'tags');
+      const linksStr = obterValorPropriedade(nota, 'linkspara');
 
-      const tagsHTML = tagsArr.map(tag => {
-        const t = tag.trim();
-        return t ? `<span class="bg-indigo-950/80 text-indigo-300 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono">#${t}</span>` : '';
-      }).join(' ');
+      const tagsArr = tagsStr ? tagsStr.split(',') : [];
+      const linksArr = linksStr ? linksStr.split(',') : [];
+
+      const tagsHTML = tagsArr.map(t => t.trim() ? `<span class="bg-indigo-950/80 text-indigo-300 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono">#${t.trim()}</span>` : '').join(' ');
 
       const linksHTML = linksArr.map(linkId => {
         const targetId = linkId.trim();
         if (!targetId) return '';
         const notaAlvo = mapaNotas.get(targetId);
-        const tituloAlvo = notaAlvo ? notaAlvo.Titulo : `Nota #${targetId}`;
-        return `
-          <button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1 bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800">
-            🔗 ${tituloAlvo}
-          </button>
-        `;
+        const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
+        return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
       }).filter(Boolean).join('');
 
       modalCorpo.innerHTML = `
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${nota.ID}</span>
+            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
             <div class="flex items-center gap-3">
-              ${nota.Plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${nota.Plataforma}</span>` : ''}
-              <button 
-                type="button"
-                onclick="fecharModal(); prepararEdicao('${nota.ID}')" 
-                class="text-xs text-slate-300 hover:text-indigo-400 font-medium px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 transition border border-slate-700"
-              >
-                ✏️ Editar Nota
-              </button>
+              ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
+              <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700">✏️ Editar Nota</button>
             </div>
           </div>
 
-          <h2 class="text-xl font-bold text-white leading-snug">${nota.Titulo || 'Sem Título'}</h2>
-          
-          <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">${nota.Conteudo || ''}</p>
-
-          ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
-
-          ${nota.UrlMedia ? gerarPreviewMedia(nota.UrlMedia, nota.Plataforma) : ''}
-
-          ${linksHTML ? `
-            <div class="pt-3 border-t border-slate-800">
-              <span class="text-xs font-bold text-slate-400 tracking-wider block mb-2">NOTAS CONECTADAS:</span>
-              <div class="flex flex-wrap gap-2">${linksHTML}</div>
+          ${(categoria || subcategoria) ? `
+            <div class="text-xs font-semibold text-indigo-400">
+              ${categoria || ''} ${subcategoria ? `<span class="text-slate-500">/ ${subcategoria}</span>` : ''}
             </div>
           ` : ''}
+
+          <h2 class="text-xl font-bold text-white leading-snug">${titulo}</h2>
+          <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">${conteudo}</p>
+
+          ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+          ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
+          ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS CONECTADAS:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
         </div>
       `;
 
