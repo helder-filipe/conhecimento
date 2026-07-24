@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zettelkasten Knowledge Hub</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Vis Network (Para o Mapa de Nós / Grafo estilo Obsidian) -->
+  <script type="text/javascript" src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+
+  <style>
+    /* Estilos personalizados para o contentor do mapa de nós */
+    #graph-container {
+      width: 100%;
+      height: 480px;
+      background-color: #0f172a; /* Slate 900 */
+      border: 1px solid #334155; /* Slate 700 */
+      border-radius: 0.75rem;
+    }
+
+    /* Scrollbar personalizada para cartões */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+
+  <!-- Navegação / Cabeçalho -->
+  <header class="border-b border-slate-800 bg-slate-950/50 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+      <div>
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+          Zettelkasten Hub
+        </h1>
+        <p class="text-xs text-slate-400">Centro de Aprendizagem & Rede de Conhecimento</p>
+      </div>
+      <button onclick="carregarZettelkasten()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs px-3 py-2 rounded-lg transition-colors flex items-center gap-1 font-medium">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        Atualizar Dados
+      </button>
+    </div>
+  </header>
+
+  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
+
+    <!-- Secção do Grafo (Vis Network) -->
+    <section>
+      <div class="flex justify-between items-center mb-3">
+        <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+          <span>🕸️</span> Mapa de Conexões (Graph View)
+        </h2>
+        <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
+      </div>
+      <div id="graph-container" class="shadow-2xl relative">
+        <div id="graph-loader" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 rounded-xl z-10">
+          <span class="text-sm text-indigo-400 font-medium">A sincronizar com Google Sheets...</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Formulário para Criar Nova Nota -->
+    <section class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl">
+      <h2 class="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2">
+        <span>➕</span> Criar Nova Nota Zettelkasten
+      </h2>
+      
+      <form id="form-nova-nota" onsubmit="guardarNota(event)" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Título da Nota</label>
+            <input type="text" id="novo-titulo" required placeholder="Ex: Algoritmo de Busca em Grafos" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+          
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Plataforma / Origem</label>
+            <select id="nova-plataforma" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+              <option value="Nota">Nota Pessoal</option>
+              <option value="YouTube">YouTube</option>
+              <option value="Instagram">Instagram</option>
+              <option value="X">X (Twitter)</option>
+              <option value="Artigo">Artigo / Web</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Conteúdo / Idea Atómica</label>
+          <textarea id="novo-conteudo" rows="3" required placeholder="Escreve o resumo atómico ou reflexão principal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">URL do Recurso (Opcional)</label>
+            <input type="url" id="novo-url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Tags (separadas por vírgulas)</label>
+            <input type="text" id="novas-tags" placeholder="javascript, redes, zettelkasten" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Ligar a IDs (separados por vírgula)</label>
+            <input type="text" id="novos-links" placeholder="Ex: 202607241010, 202607241012" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+          </div>
+        </div>
+
+        <button type="submit" id="btn-submeter" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2">
+          <span>💾</span> Guardar Nota no Zettelkasten
+        </button>
+      </form>
+    </section>
+
+    <!-- Secção de Filtros / Pesquisa -->
+    <section class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-slate-800">
+      <div class="w-full sm:w-96">
+        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, conteúdo ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+      </div>
+      <div class="text-xs text-slate-400">
+        Total de notas: <span id="total-notas" class="font-bold text-indigo-400">0</span>
+      </div>
+    </section>
+
+    <!-- Grelha de Cartões (Notas Zettelkasten) -->
+    <section>
+      <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+        <span>📝</span> Notas Atómicas
+      </h2>
+      <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- Renderizado dinamicamente pelo JavaScript -->
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Lógica JavaScript -->
+  <script>
+    // ==========================================
+    // CONFIGURAÇÃO: Insere aqui o teu URL de Implantação do Google Apps Script
+    // ==========================================
+    const API_URL = 'https://script.google.com/macros/s/AKfycbx7FIf0ElU39cn7oFpSkim0m9u8ofNkjJNneBKnz2qQzYgJ6RxFFyNWu8LdrbtjtczZJg/exec';
+
+    let todasAsNotas = [];
+    let mapaNotas = new Map();
+    let networkInstance = null;
+
+    // Inicialização ao carregar a página
+    document.addEventListener('DOMContentLoaded', () => {
+      carregarZettelkasten();
+    });
+
+    // 1. CARREGAR DADOS DO GOOGLE SHEETS
+    async function carregarZettelkasten() {
+      const loader = document.getElementById('graph-loader');
+      const statusText = document.getElementById('graph-status');
+      
+      if (loader) loader.classList.remove('hidden');
+      if (statusText) statusText.textContent = 'A carregar...';
+
+      try {
+        const resposta = await fetch(API_URL);
+        todasAsNotas = await resposta.json();
+
+        // Mapear notas por ID para acesso rápido
+        mapaNotas.clear();
+        todasAsNotas.forEach(nota => mapaNotas.set(String(nota.ID).trim(), nota));
+
+        // Atualizar interface
+        document.getElementById('total-notas').textContent = todasAsNotas.length;
+        renderizarGrafo(todasAsNotas);
+        renderizarCartoes(todasAsNotas);
+
+        if (statusText) statusText.textContent = `${todasAsNotas.length} notas ligadas`;
+      } catch (erro) {
+        console.error('Erro ao obter dados do Google Sheets:', erro);
+        if (statusText) statusText.textContent = 'Erro de ligação';
+        document.getElementById('cards-container').innerHTML = `
+          <div class="col-span-full bg-red-950/40 border border-red-800 text-red-300 p-4 rounded-xl text-center text-sm">
+            Erro ao carregar notas. Verifica se configuraste corretamente o URL do Apps Script.
+          </div>
+        `;
+      } finally {
+        if (loader) loader.classList.add('hidden');
+      }
+    }
+
+    // 2. RENDERIZAR GRAFO (VIS NETWORK)
+    function renderizarGrafo(notas) {
+      const nodesArray = [];
+      const edgesArray = [];
+
+      notas.forEach(nota => {
+        const idStr = String(nota.ID).trim();
+        
+        // Adicionar nó
+        nodesArray.push({
+          id: idStr,
+          label: nota.Titulo || `Nota ${idStr}`,
+          shape: 'dot',
+          size: 16,
+          color: {
+            background: '#6366f1', // Indigo 500
+            border: '#818cf8',     // Indigo 400
+            highlight: { background: '#a855f7', border: '#c084fc' }
+          },
+          font: { color: '#f1f5f9', size: 12, face: 'sans-serif' }
+        });
+
+        // Adicionar arestas (links)
+        if (nota.LinksPara) {
+          const links = String(nota.LinksPara).split(',');
+          links.forEach(linkTarget => {
+            const targetId = linkTarget.trim();
+            if (targetId) {
+              edgesArray.push({
+                from: idStr,
+                to: targetId,
+                color: { color: '#475569', highlight: '#a855f7' },
+                arrows: { to: { enabled: true, scaleFactor: 0.5 } }
+              });
+            }
+          });
+        }
+      });
+
+      const container = document.getElementById('graph-container');
+      const data = {
+        nodes: new vis.DataSet(nodesArray),
+        edges: new vis.DataSet(edgesArray)
+      };
+
+      const options = {
+        nodes: { borderWidth: 2 },
+        edges: { width: 1.5, smooth: { type: 'continuous' } },
+        physics: {
+          stabilization: false,
+          barnesHut: {
+            gravitationalConstant: -2500,
+            centralGravity: 0.3,
+            springLength: 90,
+            springConstant: 0.04
+          }
+        },
+        interaction: { hover: true, tooltipDelay: 200 }
+      };
+
+      if (networkInstance) {
+        networkInstance.destroy();
+      }
+
+      networkInstance = new vis.Network(container, data, options);
+
+      // Evento de clique num nó no grafo
+      networkInstance.on("click", function (params) {
+        if (params.nodes.length > 0) {
+          const clickedId = params.nodes[0];
+          destacarECentrarCartao(clickedId);
+        }
+      });
+    }
+
+   
+    // FUNÇÃO DE PREVISUALIZAÇÃO CORRIGIDA (YOUTUBE + OUTRAS REDES)
+    function gerarPreviewMedia(url, plataforma) {
+    if (!url) return '';
+
+    // A) SE FOR YOUTUBE
+    const regExpYT = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const matchYT = url.match(regExpYT);
+
+    if (matchYT && matchYT[2].length === 11) {
+        const videoId = matchYT[2];
+        const thumbnailYT = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
+
+        return `
+        <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
+            <div class="aspect-video w-full relative">
+            <iframe 
+                class="w-full h-full" 
+                src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin || 'https://localhost')}" 
+                title="YouTube video player" 
+                frameborder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                allowfullscreen
+                onerror="this.parentElement.innerHTML='<a href=\'${url}\' target=\'_blank\' class=\'block relative aspect-video\'><img src=\'${thumbnailYT}\' class=\'w-full h-full object-cover\' /><div class=\'absolute inset-0 flex items-center justify-center bg-black/40\'><span class=\'text-white text-xs bg-red-600 px-3 py-1 rounded-full font-bold\'>▶ Ver no YouTube</span></div></a>';"
+            ></iframe>
+            </div>
+            <div class="p-2 bg-slate-900/90 text-[11px] text-indigo-400 font-medium flex items-center justify-between border-t border-slate-800">
+            <a href="${url}" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1">
+                <span>Abrir no YouTube</span>
+                <span>↗</span>
+            </a>
+            </div>
+        </div>
+        `;
+    }
+
+    // B) PARA OUTRAS REDES SOCIAIS (Instagram, X, Web)
+    const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&embed=image.url`;
+
+    return `
+        <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 transition-all hover:border-indigo-500/50 group">
+        <a href="${url}" target="_blank" rel="noopener noreferrer" class="block">
+            <div class="aspect-video w-full bg-slate-950 overflow-hidden relative flex items-center justify-center">
+            <img 
+                src="${imagemApiUrl}" 
+                alt="Miniatura do Recurso" 
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-center text-xs text-slate-500\'>🔗 Abrir ligação externa</div>';"
+            />
+            </div>
+            <div class="p-2 bg-slate-900/90 text-[11px] text-indigo-400 font-medium group-hover:text-indigo-300 flex items-center justify-between border-t border-slate-800">
+            <span class="truncate">Ver em ${plataforma || 'Recurso Original'}</span>
+            <span>↗</span>
+            </div>
+        </a>
+        </div>
+    `;
+    }
+
+// 2. FUNÇÃO RENDERIZAR CARTÕES DE NOTAS
+function renderizarCartoes(notas) {
+  const container = document.getElementById('cards-container');
+  container.innerHTML = '';
+
+  if (notas.length === 0) {
+    container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada.</p>`;
+    return;
+  }
+
+  notas.forEach(nota => {
+    const idStr = String(nota.ID).trim();
+    const tagsArr = nota.Tags ? String(nota.Tags).split(',') : [];
+    const linksArr = nota.LinksPara ? String(nota.LinksPara).split(',') : [];
+
+    // HTML das Tags
+    const tagsHTML = tagsArr.map(tag => {
+      const t = tag.trim();
+      return t ? `<span class="bg-indigo-950/80 text-indigo-300 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono">#${t}</span>` : '';
+    }).join(' ');
+
+    // HTML das Notas Conectadas (Links Zettelkasten)
+    const linksHTML = linksArr.map(linkId => {
+      const targetId = linkId.trim();
+      if (!targetId) return '';
+      const notaAlvo = mapaNotas.get(targetId);
+      const tituloAlvo = notaAlvo ? notaAlvo.Titulo : `Nota #${targetId}`;
+      return `
+        <button onclick="destacarECentrarCartao('${targetId}')" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1">
+          🔗 ${tituloAlvo}
+        </button>
+      `;
+    }).filter(Boolean).join('');
+
+    const cartao = document.createElement('div');
+    cartao.id = `nota-${idStr}`;
+    cartao.className = 'bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg transition-all duration-300 hover:border-slate-600';
+
+    cartao.innerHTML = `
+      <div class="space-y-3">
+        <div class="flex justify-between items-center">
+          <span class="text-[11px] font-mono font-medium text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded border border-slate-700/50">ID: ${idStr}</span>
+          ${nota.Plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${nota.Plataforma}</span>` : ''}
+        </div>
+
+        <h3 class="text-base font-bold text-white leading-snug">${nota.Titulo || 'Sem Título'}</h3>
+        
+        <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">${nota.Conteudo || ''}</p>
+
+        ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+      </div>
+
+      <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
+        <!-- Inserção da Miniatura/Embed de Media -->
+        ${nota.UrlMedia ? gerarPreviewMedia(nota.UrlMedia, nota.Plataforma) : ''}
+
+        <!-- Secção de Conexões entre Notas -->
+        ${linksHTML ? `
+          <div class="pt-1">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Notas Conectadas:</span>
+            <div class="flex flex-col gap-1">${linksHTML}</div>
+          </div>
+        ` : ''}
+      </div>
+    `;
+
+    container.appendChild(cartao);
+  });
+}
+
+    // 4. GUARDAR NOVA NOTA (SUBMISSÃO POST)
+    async function guardarNota(evento) {
+      evento.preventDefault();
+      
+      const btn = document.getElementById('btn-submeter');
+      btn.disabled = true;
+      btn.innerText = 'A guardar...';
+
+      const novaNota = {
+        Titulo: document.getElementById('novo-titulo').value,
+        Plataforma: document.getElementById('nova-plataforma').value,
+        Conteudo: document.getElementById('novo-conteudo').value,
+        UrlMedia: document.getElementById('novo-url').value,
+        Tags: document.getElementById('novas-tags').value,
+        LinksPara: document.getElementById('novos-links').value
+      };
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(novaNota)
+        });
+
+        document.getElementById('form-nova-nota').reset();
+        alert('Nota enviada com sucesso! A recarregar o grafo...');
+        
+        setTimeout(() => carregarZettelkasten(), 1500);
+
+      } catch (erro) {
+        console.error('Erro ao guardar nota:', erro);
+        alert('Erro ao guardar a nota.');
+      } finally {
+        btn.disabled = false;
+        btn.innerText = '💾 Guardar Nota no Zettelkasten';
+      }
+    }
+
+    // 5. PESQUISA EM TEMPO REAL
+    function filtrarNotas() {
+      const termo = document.getElementById('input-busca').value.toLowerCase();
+      const notasFiltradas = todasAsNotas.filter(nota => {
+        const titulo = String(nota.Titulo || '').toLowerCase();
+        const conteudo = String(nota.Conteudo || '').toLowerCase();
+        const tags = String(nota.Tags || '').toLowerCase();
+        return titulo.includes(termo) || conteudo.includes(termo) || tags.includes(termo);
+      });
+
+      renderizarCartoes(notasFiltradas);
+    }
+
+    // 6. DESTAR E CENTRAR CARTÃO AO CLICAR
+    function destacarECentrarCartao(idStr) {
+      const el = document.getElementById(`nota-${idStr}`);
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500');
+        setTimeout(() => {
+          el.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500');
+        }, 2500);
+      }
+    }
+  </script>
+</body>
+</html>
