@@ -198,15 +198,19 @@
       }
     }
 
-    // 2. RENDERIZAR GRAFO (VIS NETWORK)
+    // RENDERIZAR GRAFO COM LIMPEZA RIGOROSA DE IDS E LIGAÇÕES
     function renderizarGrafo(notas) {
       const nodesArray = [];
       const edgesArray = [];
 
+      // Criar um Set com todos os IDs válidos para confirmar que a nota de destino existe
+      const idsValidos = new Set(notas.map(n => String(n.ID || '').trim()));
+
       notas.forEach(nota => {
-        const idStr = String(nota.ID).trim();
+        const idStr = String(nota.ID || '').trim();
+        if (!idStr) return;
         
-        // Adicionar nó
+        // 1. Criar o Nó (Bolinha)
         nodesArray.push({
           id: idStr,
           label: nota.Titulo || `Nota ${idStr}`,
@@ -220,17 +224,21 @@
           font: { color: '#f1f5f9', size: 12, face: 'sans-serif' }
         });
 
-        // Adicionar arestas (links)
+        // 2. Criar as Arestas/Linhas de Conexão
         if (nota.LinksPara) {
+          // Divide por vírgula e limpa todos os espaços ou quebras de linha
           const links = String(nota.LinksPara).split(',');
+          
           links.forEach(linkTarget => {
-            const targetId = linkTarget.trim();
-            if (targetId) {
+            const targetId = String(linkTarget).trim();
+            
+            // Só cria a linha se o ID de destino existir e não for vazio
+            if (targetId && idsValidos.has(targetId)) {
               edgesArray.push({
                 from: idStr,
                 to: targetId,
-                color: { color: '#475569', highlight: '#a855f7' },
-                arrows: { to: { enabled: true, scaleFactor: 0.5 } }
+                color: { color: '#818cf8', highlight: '#a855f7' },
+                arrows: { to: { enabled: true, scaleFactor: 0.6 } }
               });
             }
           });
@@ -245,13 +253,17 @@
 
       const options = {
         nodes: { borderWidth: 2 },
-        edges: { width: 1.5, smooth: { type: 'continuous' } },
+        edges: { 
+          width: 2, 
+          smooth: { type: 'continuous' } 
+        },
         physics: {
+          enabled: true,
           stabilization: false,
           barnesHut: {
-            gravitationalConstant: -2500,
+            gravitationalConstant: -3000,
             centralGravity: 0.3,
-            springLength: 90,
+            springLength: 100,
             springConstant: 0.04
           }
         },
@@ -264,7 +276,7 @@
 
       networkInstance = new vis.Network(container, data, options);
 
-      // Evento de clique num nó no grafo
+      // Evento ao clicar num nó do mapa
       networkInstance.on("click", function (params) {
         if (params.nodes.length > 0) {
           const clickedId = params.nodes[0];
