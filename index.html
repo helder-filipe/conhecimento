@@ -72,13 +72,21 @@
       </div>
     </section>
 
-    <!-- Formulário para Criar Nova Nota -->
-    <section class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl">
-      <h2 class="text-lg font-bold text-indigo-400 mb-4 flex items-center gap-2">
-        <span>➕</span> Criar Nova Nota Zettelkasten
-      </h2>
+    <!-- Formulário para Criar/Editar Nota -->
+    <section id="form-container" class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl">
+      <div class="flex justify-between items-center mb-4">
+        <h2 id="form-titulo-header" class="text-lg font-bold text-indigo-400 flex items-center gap-2">
+          <span>➕</span> Criar Nova Nota Zettelkasten
+        </h2>
+        <button type="button" onclick="limparFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">
+          Limpar / Nova Nota
+        </button>
+      </div>
       
       <form id="form-nova-nota" onsubmit="guardarNota(event)" class="space-y-4">
+        <!-- Campo Escondido para Guardar o ID em Modo Edição -->
+        <input type="hidden" id="form-id" value="">
+
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Título da Nota</label>
@@ -98,7 +106,7 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Conteúdo / Idea Atómica</label>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Conteúdo / Ideia Atómica</label>
           <textarea id="novo-conteudo" rows="3" required placeholder="Escreve o resumo atómico ou reflexão principal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
         </div>
 
@@ -145,20 +153,33 @@
       </div>
     </section>
 
+    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA -->
+    <div id="modal-nota" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+      <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+        
+        <!-- Botão Fechar -->
+        <button onclick="fecharModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-lg transition-colors">
+          ✕
+        </button>
+
+        <!-- Conteúdo Dinâmico do Modal -->
+        <div id="modal-conteudo-corpo">
+          <!-- Preenchido via JavaScript -->
+        </div>
+
+      </div>
+    </div>
+
   </main>
 
   <!-- Lógica JavaScript -->
   <script>
-    // ==========================================
-    // CONFIGURAÇÃO: Insere aqui o teu URL de Implantação do Google Apps Script
-    // ==========================================
     const API_URL = 'https://script.google.com/macros/s/AKfycbx7FIf0ElU39cn7oFpSkim0m9u8ofNkjJNneBKnz2qQzYgJ6RxFFyNWu8LdrbtjtczZJg/exec';
 
     let todasAsNotas = [];
     let mapaNotas = new Map();
     let networkInstance = null;
 
-    // Inicialização ao carregar a página
     document.addEventListener('DOMContentLoaded', () => {
       carregarZettelkasten();
     });
@@ -175,16 +196,14 @@
         const resposta = await fetch(API_URL);
         todasAsNotas = await resposta.json();
 
-        // Mapear notas por ID para acesso rápido
         mapaNotas.clear();
         todasAsNotas.forEach(nota => mapaNotas.set(String(nota.ID).trim(), nota));
 
-        // Atualizar interface
         document.getElementById('total-notas').textContent = todasAsNotas.length;
         renderizarGrafo(todasAsNotas);
         renderizarCartoes(todasAsNotas);
 
-        if (statusText) statusText.textContent = `${todasAsNotas.length} notas ligadas`;
+        if (statusText) statusText.textContent = `${todasAsNotas.length} notas carregadas`;
       } catch (erro) {
         console.error('Erro ao obter dados do Google Sheets:', erro);
         if (statusText) statusText.textContent = 'Erro de ligação';
@@ -198,27 +217,22 @@
       }
     }
 
-    // RENDERIZAR GRAFO COM LIMPEZA RIGOROSA DE IDS E LIGAÇÕES
+    // 2. RENDERIZAR GRAFO (VIS NETWORK)
     function renderizarGrafo(notas) {
       const nodesArray = [];
       const edgesArray = [];
 
-      console.log("--- DADOS RECEBIDOS DO GOOGLE SHEETS ---", notas);
-
-      // Criar um Mapa com todos os IDs limpos
       const idsExistentes = new Set();
       notas.forEach(n => {
-        // Tenta encontrar a propriedade do ID mesmo que tenha maiúsculas/minúsculas diferentes
-        const idChave = Object.keys(n).find(k => k.toLowerCase() === 'id');
-        const idValor = idChave ? String(n[idChave]).trim() : '';
+        const chaveID = Object.keys(n).find(k => k.toLowerCase().trim() === 'id');
+        const idValor = chaveID ? String(n[chaveID]).trim() : '';
         if (idValor) idsExistentes.add(idValor);
       });
 
       notas.forEach(nota => {
-        // Procura insensível a maiúsculas/minúsculas para ID e LinksPara
-        const chaveID = Object.keys(nota).find(k => k.toLowerCase() === 'id');
-        const chaveLinks = Object.keys(nota).find(k => k.toLowerCase() === 'linkspara');
-        const chaveTitulo = Object.keys(nota).find(k => k.toLowerCase() === 'titulo');
+        const chaveID = Object.keys(nota).find(k => k.toLowerCase().trim() === 'id');
+        const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
+        const chaveTitulo = Object.keys(nota).find(k => k.toLowerCase().trim() === 'titulo');
 
         const idStr = chaveID ? String(nota[chaveID]).trim() : '';
         const linksStr = chaveLinks ? String(nota[chaveLinks]).trim() : '';
@@ -226,7 +240,6 @@
 
         if (!idStr) return;
 
-        // 1. Adicionar Nó (Bolinha)
         nodesArray.push({
           id: idStr,
           label: tituloStr,
@@ -240,19 +253,15 @@
           font: { color: '#f1f5f9', size: 12 }
         });
 
-        // 2. Adicionar Ligações (Arestas)
         if (linksStr) {
           const links = linksStr.split(',');
           links.forEach(destino => {
             const destinoLimpo = String(destino).trim();
-            
-            if (destinoLimpo) {
-              console.log(`Tentando ligar [${idStr}] ---> [${destinoLimpo}]`);
-              
+            if (destinoLimpo && idsExistentes.has(destinoLimpo)) {
               edgesArray.push({
                 from: idStr,
                 to: destinoLimpo,
-                color: { color: '#a5b4fc', highlight: '#c084fc' },
+                color: { color: '#818cf8', highlight: '#c084fc' },
                 width: 2,
                 arrows: { to: { enabled: true, scaleFactor: 0.8 } }
               });
@@ -260,8 +269,6 @@
           });
         }
       });
-
-      console.log("--- LIGAÇÕES CRIADAS ---", edgesArray);
 
       const container = document.getElementById('graph-container');
       const data = {
@@ -275,13 +282,13 @@
         physics: {
           enabled: true,
           barnesHut: {
-            gravitationalConstant: -4000,
+            gravitationalConstant: -3000,
             centralGravity: 0.3,
-            springLength: 120,
+            springLength: 100,
             springConstant: 0.04
           }
         },
-        interaction: { hover: true }
+        interaction: { hover: true, selectConnectedEdges: false }
       };
 
       if (networkInstance) {
@@ -290,143 +297,197 @@
 
       networkInstance = new vis.Network(container, data, options);
 
+      // EVENTO DE CLIQUE SEM REDIRECIONAMENTOS DE PÁGINA
       networkInstance.on("click", function (params) {
-        if (params.nodes.length > 0) {
-          destacarECentrarCartao(params.nodes[0]);
+        if (params.nodes && params.nodes.length > 0) {
+          const idSelecionado = String(params.nodes[0]).trim();
+          abrirModalNota(idSelecionado);
         }
       });
     }
 
-   
-    // FUNÇÃO DE PREVISUALIZAÇÃO CORRIGIDA (YOUTUBE + OUTRAS REDES)
+    // 3. PREVISUALIZAÇÃO DE MEDIA (COM URL SEGURA PARA EVITAR "PÁGINA NÃO ENCONTRADA")
     function gerarPreviewMedia(url, plataforma) {
-    if (!url) return '';
+      if (!url) return '';
+      
+      let urlValida = url.trim();
+      if (!urlValida.startsWith('http://') && !urlValida.startsWith('https://')) {
+        urlValida = 'https://' + urlValida;
+      }
 
-    // A) SE FOR YOUTUBE
-    const regExpYT = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
-    const matchYT = url.match(regExpYT);
+      const regExpYT = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+      const matchYT = urlValida.match(regExpYT);
 
-    if (matchYT && matchYT[2].length === 11) {
+      if (matchYT && matchYT[2].length === 11) {
         const videoId = matchYT[2];
         const thumbnailYT = `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
 
         return `
-        <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
+          <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
             <div class="aspect-video w-full relative">
-            <iframe 
+              <iframe 
                 class="w-full h-full" 
                 src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1&origin=${encodeURIComponent(window.location.origin || 'https://localhost')}" 
                 title="YouTube video player" 
                 frameborder="0" 
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
                 allowfullscreen
-                onerror="this.parentElement.innerHTML='<a href=\'${url}\' target=\'_blank\' class=\'block relative aspect-video\'><img src=\'${thumbnailYT}\' class=\'w-full h-full object-cover\' /><div class=\'absolute inset-0 flex items-center justify-center bg-black/40\'><span class=\'text-white text-xs bg-red-600 px-3 py-1 rounded-full font-bold\'>▶ Ver no YouTube</span></div></a>';"
-            ></iframe>
+                onerror="this.parentElement.innerHTML='<a href=\'${urlValida}\' target=\'_blank\' rel=\'noopener noreferrer\' class=\'block relative aspect-video\'><img src=\'${thumbnailYT}\' class=\'w-full h-full object-cover\' /><div class=\'absolute inset-0 flex items-center justify-center bg-black/40\'><span class=\'text-white text-xs bg-red-600 px-3 py-1 rounded-full font-bold\'>▶ Ver no YouTube</span></div></a>';"
+              ></iframe>
             </div>
             <div class="p-2 bg-slate-900/90 text-[11px] text-indigo-400 font-medium flex items-center justify-between border-t border-slate-800">
-            <a href="${url}" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1">
+              <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="hover:underline flex items-center gap-1">
                 <span>Abrir no YouTube</span>
                 <span>↗</span>
-            </a>
+              </a>
             </div>
-        </div>
+          </div>
         `;
-    }
+      }
 
-    // B) PARA OUTRAS REDES SOCIAIS (Instagram, X, Web)
-    const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(url)}&embed=image.url`;
+      const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
 
-    return `
+      return `
         <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 transition-all hover:border-indigo-500/50 group">
-        <a href="${url}" target="_blank" rel="noopener noreferrer" class="block">
+          <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="block">
             <div class="aspect-video w-full bg-slate-950 overflow-hidden relative flex items-center justify-center">
-            <img 
+              <img 
                 src="${imagemApiUrl}" 
                 alt="Miniatura do Recurso" 
                 class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                 onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-center text-xs text-slate-500\'>🔗 Abrir ligação externa</div>';"
-            />
+              />
             </div>
             <div class="p-2 bg-slate-900/90 text-[11px] text-indigo-400 font-medium group-hover:text-indigo-300 flex items-center justify-between border-t border-slate-800">
-            <span class="truncate">Ver em ${plataforma || 'Recurso Original'}</span>
-            <span>↗</span>
+              <span class="truncate">Ver em ${plataforma || 'Recurso Original'}</span>
+              <span>↗</span>
             </div>
-        </a>
+          </a>
         </div>
-    `;
+      `;
     }
 
-// 2. FUNÇÃO RENDERIZAR CARTÕES DE NOTAS
-function renderizarCartoes(notas) {
-  const container = document.getElementById('cards-container');
-  container.innerHTML = '';
+    // 4. PREPARAR FORMULÁRIO PARA EDIÇÃO
+    function prepararEdicao(idNota) {
+      const nota = todasAsNotas.find(n => String(n.ID).trim() === String(idNota).trim());
+      if (!nota) return;
 
-  if (notas.length === 0) {
-    container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada.</p>`;
-    return;
-  }
+      document.getElementById('form-id').value = nota.ID;
+      document.getElementById('novo-titulo').value = nota.Titulo || '';
+      document.getElementById('novo-conteudo').value = nota.Conteudo || '';
+      document.getElementById('nova-plataforma').value = nota.Plataforma || 'Nota';
+      document.getElementById('novo-url').value = nota.UrlMedia || '';
+      document.getElementById('novas-tags').value = nota.Tags || '';
+      
+      const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
+      document.getElementById('novos-links').value = chaveLinks ? nota[chaveLinks] : '';
 
-  notas.forEach(nota => {
-    const idStr = String(nota.ID).trim();
-    const tagsArr = nota.Tags ? String(nota.Tags).split(',') : [];
-    const linksArr = nota.LinksPara ? String(nota.LinksPara).split(',') : [];
+      const btnSubmeter = document.getElementById('btn-submeter');
+      if (btnSubmeter) btnSubmeter.innerHTML = '<span>✏️</span> Guardar Alterações';
 
-    // HTML das Tags
-    const tagsHTML = tagsArr.map(tag => {
-      const t = tag.trim();
-      return t ? `<span class="bg-indigo-950/80 text-indigo-300 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono">#${t}</span>` : '';
-    }).join(' ');
+      const headerText = document.getElementById('form-titulo-header');
+      if (headerText) headerText.innerHTML = `<span>✏️</span> Editar Nota (${nota.ID})`;
 
-    // HTML das Notas Conectadas (Links Zettelkasten)
-    const linksHTML = linksArr.map(linkId => {
-      const targetId = linkId.trim();
-      if (!targetId) return '';
-      const notaAlvo = mapaNotas.get(targetId);
-      const tituloAlvo = notaAlvo ? notaAlvo.Titulo : `Nota #${targetId}`;
-      return `
-        <button onclick="destacarECentrarCartao('${targetId}')" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1">
-          🔗 ${tituloAlvo}
-        </button>
-      `;
-    }).filter(Boolean).join('');
+      document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+    }
 
-    const cartao = document.createElement('div');
-    cartao.id = `nota-${idStr}`;
-    cartao.className = 'bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg transition-all duration-300 hover:border-slate-600';
+    // 5. RESETAR FORMULÁRIO
+    function limparFormulario() {
+      document.getElementById('form-nova-nota').reset();
+      document.getElementById('form-id').value = '';
+      
+      const btnSubmeter = document.getElementById('btn-submeter');
+      if (btnSubmeter) btnSubmeter.innerHTML = '<span>💾</span> Guardar Nota no Zettelkasten';
 
-    cartao.innerHTML = `
-      <div class="space-y-3">
-        <div class="flex justify-between items-center">
-          <span class="text-[11px] font-mono font-medium text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded border border-slate-700/50">ID: ${idStr}</span>
-          ${nota.Plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${nota.Plataforma}</span>` : ''}
-        </div>
+      const headerText = document.getElementById('form-titulo-header');
+      if (headerText) headerText.innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
+    }
 
-        <h3 class="text-base font-bold text-white leading-snug">${nota.Titulo || 'Sem Título'}</h3>
+    // 6. RENDERIZAR CARTÕES DE NOTAS
+    function renderizarCartoes(notas) {
+      const container = document.getElementById('cards-container');
+      container.innerHTML = '';
+
+      if (notas.length === 0) {
+        container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada.</p>`;
+        return;
+      }
+
+      notas.forEach(nota => {
+        const idStr = String(nota.ID).trim();
+        const tagsArr = nota.Tags ? String(nota.Tags).split(',') : [];
         
-        <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">${nota.Conteudo || ''}</p>
+        const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
+        const linksArr = chaveLinks && nota[chaveLinks] ? String(nota[chaveLinks]).split(',') : [];
 
-        ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
-      </div>
+        const tagsHTML = tagsArr.map(tag => {
+          const t = tag.trim();
+          return t ? `<span class="bg-indigo-950/80 text-indigo-300 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono">#${t}</span>` : '';
+        }).join(' ');
 
-      <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
-        <!-- Inserção da Miniatura/Embed de Media -->
-        ${nota.UrlMedia ? gerarPreviewMedia(nota.UrlMedia, nota.Plataforma) : ''}
+        const linksHTML = linksArr.map(linkId => {
+          const targetId = linkId.trim();
+          if (!targetId) return '';
+          const notaAlvo = mapaNotas.get(targetId);
+          const tituloAlvo = notaAlvo ? notaAlvo.Titulo : `Nota #${targetId}`;
+          return `
+            <button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1">
+              🔗 ${tituloAlvo}
+            </button>
+          `;
+        }).filter(Boolean).join('');
 
-        <!-- Secção de Conexões entre Notas -->
-        ${linksHTML ? `
-          <div class="pt-1">
-            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Notas Conectadas:</span>
-            <div class="flex flex-col gap-1">${linksHTML}</div>
+        const cartao = document.createElement('div');
+        cartao.id = `nota-${idStr}`;
+        cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg transition-all duration-300 hover:border-slate-600';
+
+        cartao.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] font-mono font-medium text-slate-400 bg-slate-900/60 px-2 py-0.5 rounded border border-slate-700/50">ID: ${idStr}</span>
+              <div class="flex items-center gap-2">
+                ${nota.Plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${nota.Plataforma}</span>` : ''}
+                <button 
+                  type="button"
+                  onclick="abrirModalNota('${idStr}')" 
+                  class="text-xs text-indigo-400 hover:text-indigo-300 font-medium px-2 py-0.5 rounded bg-indigo-950/60 hover:bg-indigo-900/80 transition border border-indigo-800/50"
+                >
+                  👁️ Ver Nota
+                </button>
+                <button 
+                  type="button"
+                  onclick="prepararEdicao('${idStr}')" 
+                  class="text-xs text-slate-400 hover:text-indigo-400 font-medium px-2 py-0.5 rounded bg-slate-900/80 hover:bg-slate-700 transition border border-slate-700"
+                >
+                  ✏️ Editar
+                </button>
+              </div>
+            </div>
+
+            <h3 class="text-base font-bold text-white leading-snug">${nota.Titulo || 'Sem Título'}</h3>
+            
+            <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line">${nota.Conteudo || ''}</p>
+
+            ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
           </div>
-        ` : ''}
-      </div>
-    `;
 
-    container.appendChild(cartao);
-  });
-}
+          <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
+            ${nota.UrlMedia ? gerarPreviewMedia(nota.UrlMedia, nota.Plataforma) : ''}
 
-    // 4. GUARDAR NOVA NOTA (SUBMISSÃO POST)
+            ${linksHTML ? `
+              <div class="pt-1">
+                <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider block mb-1">Notas Conectadas:</span>
+                <div class="flex flex-col gap-1">${linksHTML}</div>
+              </div>
+            ` : ''}
+          </div>
+        `;
+
+        container.appendChild(cartao);
+      });
+    }
+
+    // 7. GUARDAR/EDITAR NOTA (POST)
     async function guardarNota(evento) {
       evento.preventDefault();
       
@@ -434,13 +495,26 @@ function renderizarCartoes(notas) {
       btn.disabled = true;
       btn.innerText = 'A guardar...';
 
+      const idExistente = document.getElementById('form-id').value;
+      
+      const agora = new Date();
+      const idFinal = idExistente || (
+        agora.getFullYear().toString() +
+        String(agora.getMonth() + 1).padStart(2, '0') +
+        String(agora.getDate()).padStart(2, '0') +
+        String(agora.getHours()).padStart(2, '0') +
+        String(agora.getMinutes()).padStart(2, '0')
+      );
+
       const novaNota = {
+        ID: idFinal,
         Titulo: document.getElementById('novo-titulo').value,
         Plataforma: document.getElementById('nova-plataforma').value,
         Conteudo: document.getElementById('novo-conteudo').value,
         UrlMedia: document.getElementById('novo-url').value,
         Tags: document.getElementById('novas-tags').value,
-        LinksPara: document.getElementById('novos-links').value
+        LinksPara: document.getElementById('novos-links').value,
+        DataCriacao: new Date().toISOString().split('T')[0]
       };
 
       try {
@@ -451,8 +525,8 @@ function renderizarCartoes(notas) {
           body: JSON.stringify(novaNota)
         });
 
-        document.getElementById('form-nova-nota').reset();
-        alert('Nota enviada com sucesso! A recarregar o grafo...');
+        limparFormulario();
+        alert('Nota guardada com sucesso! A recarregar o Zettelkasten...');
         
         setTimeout(() => carregarZettelkasten(), 1500);
 
@@ -461,11 +535,10 @@ function renderizarCartoes(notas) {
         alert('Erro ao guardar a nota.');
       } finally {
         btn.disabled = false;
-        btn.innerText = '💾 Guardar Nota no Zettelkasten';
       }
     }
 
-    // 5. PESQUISA EM TEMPO REAL
+    // 8. PESQUISA EM TEMPO REAL
     function filtrarNotas() {
       const termo = document.getElementById('input-busca').value.toLowerCase();
       const notasFiltradas = todasAsNotas.filter(nota => {
@@ -478,17 +551,85 @@ function renderizarCartoes(notas) {
       renderizarCartoes(notasFiltradas);
     }
 
-    // 6. DESTAR E CENTRAR CARTÃO AO CLICAR
-    function destacarECentrarCartao(idStr) {
-      const el = document.getElementById(`nota-${idStr}`);
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        el.classList.add('ring-2', 'ring-indigo-500', 'border-indigo-500');
-        setTimeout(() => {
-          el.classList.remove('ring-2', 'ring-indigo-500', 'border-indigo-500');
-        }, 2500);
+    // 9. ABRIR MODAL COM OS DETALHES DA NOTA
+    function abrirModalNota(idNota) {
+      const idLimpo = String(idNota).trim();
+      const nota = todasAsNotas.find(n => String(n.ID).trim() === idLimpo);
+
+      if (!nota) {
+        console.warn(`Nota com ID ${idLimpo} não encontrada.`);
+        return;
       }
+
+      const modalCorpo = document.getElementById('modal-conteudo-corpo');
+      const modalContainer = document.getElementById('modal-nota');
+
+      const tagsArr = nota.Tags ? String(nota.Tags).split(',') : [];
+      const chaveLinks = Object.keys(nota).find(k => k.toLowerCase().replace(/\s+/g, '').includes('linkspara'));
+      const linksArr = chaveLinks && nota[chaveLinks] ? String(nota[chaveLinks]).split(',') : [];
+
+      const tagsHTML = tagsArr.map(tag => {
+        const t = tag.trim();
+        return t ? `<span class="bg-indigo-950/80 text-indigo-300 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono">#${t}</span>` : '';
+      }).join(' ');
+
+      const linksHTML = linksArr.map(linkId => {
+        const targetId = linkId.trim();
+        if (!targetId) return '';
+        const notaAlvo = mapaNotas.get(targetId);
+        const tituloAlvo = notaAlvo ? notaAlvo.Titulo : `Nota #${targetId}`;
+        return `
+          <button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:text-indigo-300 hover:underline flex items-center gap-1 bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800">
+            🔗 ${tituloAlvo}
+          </button>
+        `;
+      }).filter(Boolean).join('');
+
+      modalCorpo.innerHTML = `
+        <div class="space-y-4">
+          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${nota.ID}</span>
+            <div class="flex items-center gap-3">
+              ${nota.Plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${nota.Plataforma}</span>` : ''}
+              <button 
+                type="button"
+                onclick="fecharModal(); prepararEdicao('${nota.ID}')" 
+                class="text-xs text-slate-300 hover:text-indigo-400 font-medium px-3 py-1 rounded bg-slate-800 hover:bg-slate-700 transition border border-slate-700"
+              >
+                ✏️ Editar Nota
+              </button>
+            </div>
+          </div>
+
+          <h2 class="text-xl font-bold text-white leading-snug">${nota.Titulo || 'Sem Título'}</h2>
+          
+          <p class="text-slate-300 text-sm leading-relaxed whitespace-pre-line bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">${nota.Conteudo || ''}</p>
+
+          ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+
+          ${nota.UrlMedia ? gerarPreviewMedia(nota.UrlMedia, nota.Plataforma) : ''}
+
+          ${linksHTML ? `
+            <div class="pt-3 border-t border-slate-800">
+              <span class="text-xs font-bold text-slate-400 tracking-wider block mb-2">NOTAS CONECTADAS:</span>
+              <div class="flex flex-wrap gap-2">${linksHTML}</div>
+            </div>
+          ` : ''}
+        </div>
+      `;
+
+      modalContainer.classList.remove('hidden');
     }
+
+    // 10. FECHAR MODAL
+    function fecharModal() {
+      const modalContainer = document.getElementById('modal-nota');
+      if (modalContainer) modalContainer.classList.add('hidden');
+    }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') fecharModal();
+    });
   </script>
 </body>
 </html>
