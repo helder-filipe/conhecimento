@@ -74,6 +74,208 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
+    <!-- GUIA COMPLETO DO ZETTELKASTEN & CHEATSHEET MARKDOWN (RETRÁTIL) -->
+    <section class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 shadow-xl">
+      <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGuiaZettelkasten()">
+        <h2 class="text-base font-bold text-indigo-400 flex items-center gap-2">
+          <span>🧠</span> Guia Prático de Utilização Eficiente & Sintaxe Markdown
+        </h2>
+        <span id="guia-icon" class="text-xs text-slate-400 bg-slate-900/60 px-2.5 py-1 rounded-md border border-slate-700">▼ Expandir Guia</span>
+      </div>
+
+      <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t border-slate-700/60 text-sm text-slate-300 space-y-6">
+        
+        <!-- OS 6 PRINCÍPIOS METODOLÓGICOS -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <span>1.</span> O Princípio da Nota Atómica (Uma Ideia por Nota)
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>Regra de Ouro:</strong> Cada nota deve focar-se apenas em um conceito ou reflexão principal.<br>
+              <strong>Evita notas longas:</strong> Em vez de criares uma nota chamada <em>"Anotações sobre Inteligência Artificial"</em>, cria notas pequenas como <em>"Redes Neuronais Convolucionais"</em> ou <em>"O Conceito de Hallucination em LLMs"</em>.<br>
+              <strong>Porquê?</strong> Ideias pequenas e focadas são muito mais fáceis de ligar a múltiplos temas diferentes ao longo do tempo.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <span>2.</span> A Lógica dos Links Bidirecionais (Ligar a IDs)
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              A magia do Zettelkasten não está nas notas isoladas, mas nas conexões entre elas.<br>
+              Sempre que crias ou editas uma nota, pergunta-te: <em>"Com que outra ideia já guardada é que isto conversa?"</em><br>
+              No campo <strong>"Ligar a IDs"</strong>, insere o ID de notas relacionadas (ex: <code class="text-sky-400 font-mono">202607241010, 202607241012</code>).<br>
+              <strong>Visualização:</strong> O teu Graph View vai formar clusters coloridos por Categoria, mostrando os teus "caminhos de pensamento" e tópicos com mais conhecimento acumulado.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <span>3.</span> Uso Estratégico de Categorias e Subcategorias
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>Categoria (Coluna I):</strong> O grande "domínio" do conhecimento (ex: <em>Programação, Marketing, Produtividade, Padel</em>). Isto define a cor do nó no mapa e na legenda.<br>
+              <strong>Subcategoria (Coluna J):</strong> O nicho específico dentro desse domínio (ex: <em>JavaScript, SEO, Treino Mental</em>).<br>
+              <strong>Consistência:</strong> Mantém os nomes das categorias padronizados para evitar cores duplicadas para o mesmo tema.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <span>4.</span> Formatação Estilo Obsidian (Markdown)
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Aproveita a biblioteca Markdown para dar estrutura visual imediata ao conteúdo:<br>
+              • Usa <strong>**negrito**</strong> para destacar palavras-chave principais.<br>
+              • Usa <strong>&gt; citações</strong> para destacar frases marcantes de livros/artigos.<br>
+              • Usa <strong>- listas</strong> para organizar tópicos de reflexão rápida.<br>
+              • Usa <strong>`código`</strong> quando guardares snippets de sintaxe ou comandos.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <span>5.</span> Captura Rápida de Recursos Multimédia
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              <strong>Links de apoio:</strong> Adiciona vídeos do YouTube, artigos da Web ou posts do X/Twitter no campo de URLs.<br>
+              <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas em grelha para reveres visualmente a fonte original de onde retiraste aquela ideia.
+            </p>
+          </div>
+
+          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+              <span>6.</span> Navegação Fluida por Tags
+            </h3>
+            <p class="text-xs text-slate-300 leading-relaxed">
+              Usa tags mais abrangentes do que a categoria (ex: <code class="text-indigo-400">#conceito</code>, <code class="text-indigo-400">#tutorial</code>, <code class="text-indigo-400">#livro-x</code>, <code class="text-indigo-400">#projeto-y</code>).<br>
+              Clica em qualquer <strong>#tag</strong> diretamente num cartão para filtrar o painel instantaneamente e ver tudo o que está associado a esse contexto.
+            </p>
+          </div>
+
+        </div>
+
+        <!-- EXEMPLO PRÁTICO DO FLUXO DE TRABALHO -->
+        <div class="bg-indigo-950/40 border border-indigo-800/60 p-4 rounded-lg">
+          <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            💡 Exemplo Prático de um Fluxo de Trabalho:
+          </h3>
+          <ol class="list-decimal pl-5 text-xs text-slate-200 space-y-1">
+            <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
+            <li>Abres o Zettelkasten Hub ➔ Crias a nota com o teu próprio resumo em Markdown.</li>
+            <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
+            <li>Olhas para o Grafo/Busca ➔ Descobres uma nota antiga sobre o mesmo tema e colocas o ID dela no campo "Ligar a IDs".</li>
+            <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
+          </ol>
+        </div>
+
+        <!-- GUIA COMPLETO DE SÍMBOLOS MARKDOWN (OBSIDIAN CHEATSHEET) -->
+        <div>
+          <h3 class="font-bold text-slate-100 mb-2 text-xs uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+            <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian)
+          </h3>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs border-collapse bg-slate-900/70 rounded-lg overflow-hidden border border-slate-800">
+              <thead>
+                <tr class="bg-slate-950/80 text-slate-400 border-b border-slate-800">
+                  <th class="p-2.5 font-semibold">Símbolo / Elemento</th>
+                  <th class="p-2.5 font-semibold">Como Escrever (Sintaxe)</th>
+                  <th class="p-2.5 font-semibold">Resultado Visual na Nota</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Título Principal (H1)</td>
+                  <td class="p-2.5 text-sky-400"># Título Exemplo</td>
+                  <td class="p-2.5 font-sans text-base font-bold text-white">Título Exemplo</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 2 (H2)</td>
+                  <td class="p-2.5 text-sky-400">## Seção Importante</td>
+                  <td class="p-2.5 font-sans text-sm font-semibold text-slate-200">Seção Importante</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 3 (H3)</td>
+                  <td class="p-2.5 text-sky-400">### Tópico Menor</td>
+                  <td class="p-2.5 font-sans text-xs font-semibold text-slate-300">Tópico Menor</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Negrito</td>
+                  <td class="p-2.5 text-sky-400">**conceito chave**</td>
+                  <td class="p-2.5 font-sans font-bold text-white">conceito chave</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Itálico</td>
+                  <td class="p-2.5 text-sky-400">*termo em destaque* ou _termo_</td>
+                  <td class="p-2.5 font-sans italic text-slate-300">termo em destaque</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Negrito + Itálico</td>
+                  <td class="p-2.5 text-sky-400">***extrema importância***</td>
+                  <td class="p-2.5 font-sans font-bold italic text-white">extrema importância</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Texto Rasurado</td>
+                  <td class="p-2.5 text-sky-400">~~ideia obsoleta~~</td>
+                  <td class="p-2.5 font-sans line-through text-slate-500">ideia obsoleta</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Citação</td>
+                  <td class="p-2.5 text-sky-400">&gt; O conhecimento acumula-se.</td>
+                  <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic text-slate-400">O conhecimento acumula-se.</td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Código em Linha</td>
+                  <td class="p-2.5 text-sky-400">`npm install` ou `git commit`</td>
+                  <td class="p-2.5"><code class="bg-slate-950 px-1.5 py-0.5 rounded text-sky-400">npm install</code></td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Código Multilinhas</td>
+                  <td class="p-2.5 text-sky-400">```js<br>const a = 10;<br>```</td>
+                  <td class="p-2.5">
+                    <pre class="bg-slate-950 p-2 rounded text-[11px] text-sky-300 font-mono">const a = 10;</pre>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Lista Não-Ordenada</td>
+                  <td class="p-2.5 text-sky-400">- Item 1<br>* Item 2</td>
+                  <td class="p-2.5 font-sans">
+                    <ul class="list-disc pl-4 space-y-0.5">
+                      <li>Item 1</li>
+                      <li>Item 2</li>
+                    </ul>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Lista Ordenada</td>
+                  <td class="p-2.5 text-sky-400">1. Primeiro passo<br>2. Segundo passo</td>
+                  <td class="p-2.5 font-sans">
+                    <ol class="list-decimal pl-4 space-y-0.5">
+                      <li>Primeiro passo</li>
+                      <li>Segundo passo</li>
+                    </ol>
+                  </td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Linha Divisória Horizontal</td>
+                  <td class="p-2.5 text-sky-400">--- ou ***</td>
+                  <td class="p-2.5"><hr class="border-slate-700"></td>
+                </tr>
+                <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Link Externo Simples</td>
+                  <td class="p-2.5 text-sky-400">[Google](https://google.com)</td>
+                  <td class="p-2.5 font-sans"><a href="https://google.com" target="_blank" class="text-indigo-400 underline">Google</a></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
     <!-- Secção do Grafo (Vis Network) -->
     <section>
       <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
@@ -142,7 +344,7 @@
 
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1">Conteúdo / Ideia Atómica</label>
-          <textarea id="novo-conteudo" rows="3" required placeholder="Escreve o resumo atómico ou reflexão principal..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+          <textarea id="novo-conteudo" rows="3" required placeholder="Escreve o resumo atómico utilizando markdown (ex: **negrito**, # título, - listas)..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -219,21 +421,32 @@
 
     const mapaCoresCategorias = new Map();
 
+    function toggleGuiaZettelkasten() {
+      const conteudo = document.getElementById('guia-conteudo');
+      const icon = document.getElementById('guia-icon');
+      if (conteudo.classList.contains('hidden')) {
+        conteudo.classList.remove('hidden');
+        icon.textContent = '▲ Ocultar Guia';
+      } else {
+        conteudo.classList.add('hidden');
+        icon.textContent = '▼ Expandir Guia';
+      }
+    }
+
     function obterValorPropriedade(objeto, chaveProcurada) {
       if (!objeto) return '';
       const chaveEncontrada = Object.keys(objeto).find(k => k.toLowerCase().replace(/\s+/g, '').includes(chaveProcurada.toLowerCase().replace(/\s+/g, '')));
       return chaveEncontrada && objeto[chaveEncontrada] !== undefined ? String(objeto[chaveEncontrada]).trim() : '';
     }
 
-    // 1. Função de obter cor garantindo que maiúsculas/minúsculas não criam cores diferentes
     function obterCorCategoria(categoria) {
       const catTexto = categoria ? String(categoria).trim() : 'Geral';
-      const catChave = catTexto.toLowerCase(); // Chave única em minúsculas
+      const catChave = catTexto.toLowerCase();
       
       if (!mapaCoresCategorias.has(catChave)) {
         const indice = mapaCoresCategorias.size % PALETA_CORES.length;
         mapaCoresCategorias.set(catChave, {
-          nomeExibicao: catTexto, // Guarda o nome original para a legenda
+          nomeExibicao: catTexto,
           cores: PALETA_CORES[indice]
         });
       }
@@ -280,7 +493,6 @@
       const nodesArray = [];
       const edgesArray = [];
       
-      // Limpar mapa de cores para reaplicar com base nas notas atuais
       mapaCoresCategorias.clear();
 
       const idsExistentes = new Set();
@@ -297,7 +509,6 @@
 
         if (!idStr) return;
 
-        // Obtém o objeto de cor unificado para esta categoria
         const infoCategoria = obterCorCategoria(catStr);
 
         nodesArray.push({
@@ -330,7 +541,6 @@
         }
       });
 
-      // Renderizar Legenda perfeitamente alinhada com os nós
       const legendaDiv = document.getElementById('categorias-legenda');
       if (legendaDiv) {
         legendaDiv.innerHTML = Array.from(mapaCoresCategorias.values()).map(item => {
@@ -374,7 +584,6 @@
     function gerarPreviewMedia(urlsStr, plataforma) {
       if (!urlsStr) return '';
       
-      // Separa por vírgula ou quebra de linha e limpa os espaços
       const urls = urlsStr.split(/[,;\n]+/).map(u => u.trim()).filter(Boolean);
       if (urls.length === 0) return '';
 
@@ -409,7 +618,6 @@
         `;
       }).join('');
 
-      // Se for apenas 1 preview, mostra em largura total; se forem 2 ou mais, cria uma grelha de 2 colunas
       const gridClasse = urls.length > 1 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3' : 'mt-3 space-y-3';
 
       return `<div class="${gridClasse}">${previewsHTML}</div>`;
@@ -443,7 +651,7 @@
       document.getElementById('form-titulo-header').innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
     }
 
-    // 6. RENDERIZAR CARTÕES DE NOTAS (COM CATEGORIAS E SUBCATEGORIAS DESTAÇADAS)
+    // 6. RENDERIZAR CARTÕES DE NOTAS
     function renderizarCartoes(notas) {
       const container = document.getElementById('cards-container');
       container.innerHTML = '';
@@ -467,7 +675,6 @@
         const tagsArr = tagsStr ? tagsStr.split(',') : [];
         const linksArr = linksStr ? linksStr.split(',') : [];
 
-        // TAGS CLICÁVEIS NOS CARTÕES
         const tagsHTML = tagsArr.map(t => {
           const tagLimpa = t.trim();
           if (!tagLimpa) return '';
@@ -490,14 +697,14 @@
           <div class="space-y-3">
             <div class="flex justify-between items-center">
               <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-1.5">
                 ${plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
                 <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
                 <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
+                <button type="button" onclick="eliminarNota('${idStr}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
               </div>
             </div>
 
-            <!-- EXIBIÇÃO DE CATEGORIA E SUBCATEGORIA -->
             ${(categoria || subcategoria) ? `
               <div class="flex items-center gap-1.5 text-xs font-semibold">
                 ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
@@ -573,6 +780,33 @@
       }
     }
 
+    // 7.1 ELIMINAR NOTA NO GOOGLE SHEETS
+    async function eliminarNota(idNota) {
+      const idLimpo = String(idNota).trim();
+      const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
+      const tituloNota = nota ? obterValorPropriedade(nota, 'titulo') : idLimpo;
+
+      if (!confirm(`Tens a certeza que desejas eliminar a nota "${tituloNota}" (ID: ${idLimpo})?`)) {
+        return;
+      }
+
+      try {
+        await fetch(API_URL, {
+          method: 'POST',
+          mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'DELETE', ID: idLimpo })
+        });
+
+        fecharModal();
+        alert('A eliminar a nota...');
+        setTimeout(() => carregarZettelkasten(), 1500);
+      } catch (erro) {
+        console.error('Erro ao eliminar nota:', erro);
+        alert('Erro ao eliminar a nota.');
+      }
+    }
+
     // 8. PESQUISA EM TEMPO REAL
     function filtrarNotas() {
       const termo = document.getElementById('input-busca').value.toLowerCase();
@@ -588,7 +822,7 @@
       renderizarCartoes(notasFiltradas);
     }
 
-    // 8.1 FILTRAR ESPECIFICAMENTE POR TAG (AÇÃO AO CLICAR NUMA TAG)
+    // 8.1 FILTRAR ESPECIFICAMENTE POR TAG
     function filtrarPorTag(nomeTag) {
       const inputBusca = document.getElementById('input-busca');
       if (!inputBusca) return;
@@ -624,7 +858,6 @@
       const tagsArr = tagsStr ? tagsStr.split(',') : [];
       const linksArr = linksStr ? linksStr.split(',') : [];
 
-      // TAGS CLICÁVEIS NA MODAL
       const tagsHTML = tagsArr.map(t => {
         const tagLimpa = t.trim();
         if (!tagLimpa) return '';
@@ -643,9 +876,10 @@
         <div class="space-y-4">
           <div class="flex items-center justify-between border-b border-slate-800 pb-3">
             <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
-            <div class="flex items-center gap-3">
+            <div class="flex items-center gap-2">
               ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
               <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700">✏️ Editar Nota</button>
+              <button type="button" onclick="eliminarNota('${id}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
             </div>
           </div>
 
