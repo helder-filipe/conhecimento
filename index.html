@@ -131,8 +131,8 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">URL do Recurso (Opcional)</label>
-            <input type="url" id="novo-url" placeholder="https://..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium text-slate-400 mb-1">URLs dos Recursos (separados por vírgula)</label>
+            <input type="text" id="novo-url" placeholder="https://youtube.com/..., https://artigo.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
@@ -355,37 +355,48 @@
     }
 
     // 3. PREVISUALIZAÇÃO DE MEDIA
-    function gerarPreviewMedia(url, plataforma) {
-      if (!url) return '';
-      let urlValida = url.trim();
-      if (!urlValida) return '';
-      if (!urlValida.startsWith('http://') && !urlValida.startsWith('https://')) {
-        urlValida = 'https://' + urlValida;
-      }
+    function gerarPreviewMedia(urlsStr, plataforma) {
+      if (!urlsStr) return '';
+      
+      // Separa por vírgula ou quebra de linha e limpa os espaços
+      const urls = urlsStr.split(/[,;\n]+/).map(u => u.trim()).filter(Boolean);
+      if (urls.length === 0) return '';
 
-      const matchYT = urlValida.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+      const previewsHTML = urls.map(url => {
+        let urlValida = url;
+        if (!urlValida.startsWith('http://') && !urlValida.startsWith('https://')) {
+          urlValida = 'https://' + urlValida;
+        }
 
-      if (matchYT && matchYT[2].length === 11) {
-        const videoId = matchYT[2];
-        return `
-          <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
-            <div class="aspect-video w-full relative">
-              <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1" title="YouTube" frameborder="0" allowfullscreen></iframe>
+        const matchYT = urlValida.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
+
+        if (matchYT && matchYT[2].length === 11) {
+          const videoId = matchYT[2];
+          return `
+            <div class="rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
+              <div class="aspect-video w-full relative">
+                <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1" title="YouTube" frameborder="0" allowfullscreen></iframe>
+              </div>
             </div>
+          `;
+        }
+
+        const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
+        return `
+          <div class="rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 group">
+            <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="block">
+              <div class="aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
+                <img src="${imagemApiUrl}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-3 text-xs text-slate-500\'>🔗 ${urlValida}</div>';" />
+              </div>
+            </a>
           </div>
         `;
-      }
+      }).join('');
 
-      const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
-      return `
-        <div class="mt-3 rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 group">
-          <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="block">
-            <div class="aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
-              <img src="${imagemApiUrl}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-4 text-xs text-slate-500\'>🔗 Abrir ligação externa</div>';" />
-            </div>
-          </a>
-        </div>
-      `;
+      // Se for apenas 1 preview, mostra em largura total; se forem 2 ou mais, cria uma grelha de 2 colunas
+      const gridClasse = urls.length > 1 ? 'grid grid-cols-1 sm:grid-cols-2 gap-3 mt-3' : 'mt-3 space-y-3';
+
+      return `<div class="${gridClasse}">${previewsHTML}</div>`;
     }
 
     // 4. PREPARAR FORMULÁRIO PARA EDIÇÃO
