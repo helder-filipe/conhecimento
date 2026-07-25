@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zettelkasten Hub</title>
 
-  <!-- FAVICON (Miniatura da Janela/Separador) -->
+  <!-- FAVICON -->
   <link rel="icon" type="image/png" href="logo_simplificado.png">
   
   <!-- Tailwind CSS CDN -->
@@ -52,25 +52,49 @@
     .markdown-body strong { color: #ffffff; font-weight: 700; }
     .markdown-body em { color: #cbd5e1; font-style: italic; }
 
+    /* Estilo especial para os wikilinks [[ID]] */
+    .wikilink-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      background-color: #1e1b4b;
+      color: #818cf8;
+      border: 1px solid #3730a3;
+      padding: 0.1rem 0.4rem;
+      border-radius: 0.375rem;
+      font-size: 0.8rem;
+      font-family: monospace;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .wikilink-badge:hover {
+      background-color: #312e81;
+      color: #a5b4fc;
+      border-color: #4338ca;
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
 
   <!-- Navegação / Cabeçalho com Alinhamento Inferior -->
-<header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-50 backdrop-blur-md shadow-lg shadow-slate-950/20">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end">
-    <!-- LOGO E SUBTÍTULO POR BAIXO -->
-    <div class="flex flex-col items-start gap-1">
-      <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-20 object-contain rounded-lg shadow-md border border-slate-600/50">
-      <p class="text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
-    </div>
+  <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-50 backdrop-blur-md shadow-lg shadow-slate-950/20">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end">
+      <!-- LOGO E SUBTÍTULO -->
+      <div class="flex flex-col items-start gap-1">
+        <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-20 object-contain rounded-lg shadow-md border border-slate-600/50">
+        <p class="text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
+      </div>
 
-    <!-- BOTÃO APENAS COM ÍCONE ALINHADO À BASE -->
-    <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados" aria-label="Atualizar Dados" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center font-medium shadow-md">
-      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-    </button>
-  </div>
-</header>
+      <!-- BOTÃO DE ATUALIZAR -->
+      <div class="flex items-center gap-2">
+        <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center font-medium shadow-md">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+        </button>
+      </div>
+    </div>
+  </header>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
@@ -85,7 +109,7 @@
 
       <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t border-slate-700/60 text-sm text-slate-300 space-y-6">
         
-        <!-- OS 6 PRINCÍPIOS METODOLÓGICOS -->
+        <!-- OS PRINCÍPIOS METODOLÓGICOS -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           
           <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
@@ -101,13 +125,12 @@
 
           <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
             <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>2.</span> A Lógica dos Links Bidirecionais (Ligar a IDs)
+              <span>2.</span> A Lógica dos Links Bidirecionais (`[[ID]]` e Ligar a IDs)
             </h3>
             <p class="text-xs text-slate-300 leading-relaxed">
               A magia do Zettelkasten não está nas notas isoladas, mas nas conexões entre elas.<br>
-              Sempre que crias ou editas uma nota, pergunta-te: <em>"Com que outra ideia já guardada é que isto conversa?"</em><br>
-              No campo <strong>"Ligar a IDs"</strong>, insere o ID de notas relacionadas (ex: <code class="text-sky-400 font-mono">202607241010, 202607241012</code>).<br>
-              <strong>Visualização:</strong> O teu Graph View vai formar clusters coloridos por Categoria, mostrando os teus "caminhos de pensamento" e tópicos com mais conhecimento acumulado.
+              Sempre que editas uma nota, podes escrever <code class="text-sky-400 font-mono">[[202607241010]]</code> diretamente no corpo do texto ou adicionar o ID no campo <strong>"Ligar a IDs"</strong>.<br>
+              <strong>Visualização:</strong> O teu Graph View vai formar clusters coloridos por Categoria, mostrando os teus "caminhos de pensamento".
             </p>
           </div>
 
@@ -118,22 +141,9 @@
             <p class="text-xs text-slate-300 leading-relaxed">
               <strong>Categoria:</strong> O grande "domínio" do conhecimento (ex: <em>Programação, Marketing, Produtividade, Padel</em>). Isto define a cor do nó no mapa e na legenda.<br>
               <strong>Subcategoria:</strong> O nicho específico dentro desse domínio (ex: <em>JavaScript, SEO, Treino Mental</em>).<br>
-              <strong>Consistência:</strong> Mantém os nomes das categorias padronizados para evitar cores duplicadas para o mesmo tema.
+              <strong>Consistência:</strong> Mantém os nomes das categorias padronizados.
             </p>
           </div>
-
-          <!-- <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>4.</span> Formatação Estilo Obsidian (Markdown)
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Aproveita a biblioteca Markdown para dar estrutura visual imediata ao conteúdo:<br>
-              • Usa <strong>**negrito**</strong> para destacar palavras-chave principais.<br>
-              • Usa <strong>&gt; citações</strong> para destacar frases marcantes de livros/artigos.<br>
-              • Usa <strong>- listas</strong> para organizar tópicos de reflexão rápida.<br>
-              • Usa <strong>`código`</strong> quando guardares snippets de sintaxe ou comandos.
-            </p>
-          </div>-->
 
           <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
             <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
@@ -141,17 +151,17 @@
             </h3>
             <p class="text-xs text-slate-300 leading-relaxed">
               <strong>Links de apoio:</strong> Adiciona vídeos do YouTube, artigos da Web ou posts do X/Twitter no campo de URLs.<br>
-              <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas em grelha para reveres visualmente a fonte original de onde retiraste aquela ideia.
+              <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas em grelha para reveres visualmente a fonte original.
             </p>
           </div>
 
           <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
             <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>5.</span> Navegação Fluida por Tags
+              <span>5.</span> Navegação Fluida por Tags & Atalhos
             </h3>
             <p class="text-xs text-slate-300 leading-relaxed">
-              Usa tags mais abrangentes do que a categoria (ex: <code class="text-indigo-400">#conceito</code>, <code class="text-indigo-400">#tutorial</code>, <code class="text-indigo-400">#livro-x</code>, <code class="text-indigo-400">#projeto-y</code>).<br>
-              Clica em qualquer <strong>#tag</strong> diretamente num cartão para filtrar o painel instantaneamente e ver tudo o que está associado a esse contexto.
+              Usa tags abrangentes (ex: <code class="text-indigo-400">#conceito</code>, <code class="text-indigo-400">#tutorial</code>). Clica em qualquer <strong>#tag</strong> num cartão para filtrar.<br>
+              <strong>Atalhos úteis:</strong> <code class="text-indigo-300">Ctrl+N</code> (Nova Nota), <code class="text-indigo-300">Ctrl+K</code> (Pesquisar), <code class="text-indigo-300">Esc</code> (Fechar modal/limpar).
             </p>
           </div>
 
@@ -166,15 +176,15 @@
             <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
             <li>Abres o Zettelkasten Hub ➔ Crias a nota com o teu próprio resumo em Markdown.</li>
             <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
-            <li>Olhas para o Grafo/Busca ➔ Descobres uma nota antiga sobre o mesmo tema e colocas o ID dela no campo "Ligar a IDs".</li>
+            <li>Olhas para o Grafo/Busca ➔ Descobres uma nota antiga sobre o mesmo tema e colocas o ID dela no campo "Ligar a IDs" ou escreves <code class="text-sky-300 font-mono">[[ID]]</code> no texto.</li>
             <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
           </ol>
         </div>
 
-        <!-- GUIA COMPLETO DE SÍMBOLOS MARKDOWN (OBSIDIAN CHEATSHEET) -->
+        <!-- GUIA COMPLETO DE SÍMBOLOS MARKDOWN -->
         <div>
           <h3 class="font-bold text-slate-100 mb-2 text-xs uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
-            <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian)
+            <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian Style)
           </h3>
           <div class="overflow-x-auto">
             <table class="w-full text-left text-xs border-collapse bg-slate-900/70 rounded-lg overflow-hidden border border-slate-800">
@@ -187,6 +197,11 @@
               </thead>
               <tbody class="divide-y divide-slate-800/60 text-slate-300 font-mono">
                 <tr>
+                  <td class="p-2.5 font-sans font-medium text-slate-200">Wikilink / Nota Conectada</td>
+                  <td class="p-2.5 text-sky-400">[[202607241010]]</td>
+                  <td class="p-2.5 font-sans"><span class="wikilink-badge">🔗 Nota #202607241010</span></td>
+                </tr>
+                <tr>
                   <td class="p-2.5 font-sans font-medium text-slate-200">Título Principal (H1)</td>
                   <td class="p-2.5 text-sky-400"># Título Exemplo</td>
                   <td class="p-2.5 font-sans text-base font-bold text-white">Título Exemplo</td>
@@ -195,11 +210,6 @@
                   <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 2 (H2)</td>
                   <td class="p-2.5 text-sky-400">## Seção Importante</td>
                   <td class="p-2.5 font-sans text-sm font-semibold text-slate-200">Seção Importante</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 3 (H3)</td>
-                  <td class="p-2.5 text-sky-400">### Tópico Menor</td>
-                  <td class="p-2.5 font-sans text-xs font-semibold text-slate-300">Tópico Menor</td>
                 </tr>
                 <tr>
                   <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Negrito</td>
@@ -212,31 +222,14 @@
                   <td class="p-2.5 font-sans italic text-slate-300">termo em destaque</td>
                 </tr>
                 <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Negrito + Itálico</td>
-                  <td class="p-2.5 text-sky-400">***extrema importância***</td>
-                  <td class="p-2.5 font-sans font-bold italic text-white">extrema importância</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Texto Rasurado</td>
-                  <td class="p-2.5 text-sky-400">~~ideia obsoleta~~</td>
-                  <td class="p-2.5 font-sans line-through text-slate-500">ideia obsoleta</td>
-                </tr>
-                <tr>
                   <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Citação</td>
                   <td class="p-2.5 text-sky-400">&gt; O conhecimento acumula-se.</td>
                   <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic text-slate-400">O conhecimento acumula-se.</td>
                 </tr>
                 <tr>
                   <td class="p-2.5 font-sans font-medium text-slate-200">Código em Linha</td>
-                  <td class="p-2.5 text-sky-400">`npm install` ou `git commit`</td>
+                  <td class="p-2.5 text-sky-400">`npm install`</td>
                   <td class="p-2.5"><code class="bg-slate-950 px-1.5 py-0.5 rounded text-sky-400">npm install</code></td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Código Multilinhas</td>
-                  <td class="p-2.5 text-sky-400">```js<br>const a = 10;<br>```</td>
-                  <td class="p-2.5">
-                    <pre class="bg-slate-950 p-2 rounded text-[11px] text-sky-300 font-mono">const a = 10;</pre>
-                  </td>
                 </tr>
                 <tr>
                   <td class="p-2.5 font-sans font-medium text-slate-200">Lista Não-Ordenada</td>
@@ -248,31 +241,46 @@
                     </ul>
                   </td>
                 </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Lista Ordenada</td>
-                  <td class="p-2.5 text-sky-400">1. Primeiro passo<br>2. Segundo passo</td>
-                  <td class="p-2.5 font-sans">
-                    <ol class="list-decimal pl-4 space-y-0.5">
-                      <li>Primeiro passo</li>
-                      <li>Segundo passo</li>
-                    </ol>
-                  </td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Linha Divisória Horizontal</td>
-                  <td class="p-2.5 text-sky-400">--- ou ***</td>
-                  <td class="p-2.5"><hr class="border-slate-700"></td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Link Externo Simples</td>
-                  <td class="p-2.5 text-sky-400">[Google](https://google.com)</td>
-                  <td class="p-2.5 font-sans"><a href="https://google.com" target="_blank" class="text-indigo-400 underline">Google</a></td>
-                </tr>
               </tbody>
             </table>
           </div>
         </div>
 
+      </div>
+    </section>
+
+    <!-- NOVO: PAINEL DE METRICAS E ANALYTICS DA REDE -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Total de Notas</p>
+          <p id="total-notas" class="text-2xl font-bold text-indigo-400">0</p>
+        </div>
+        <span class="text-2xl">📝</span>
+      </div>
+
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Conexões na Rede</p>
+          <p id="total-conexoes" class="text-2xl font-bold text-emerald-400">0</p>
+        </div>
+        <span class="text-2xl">🔗</span>
+      </div>
+
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Nota Central (Hub)</p>
+          <p id="nota-hub" class="text-xs font-bold text-amber-300 truncate max-w-[140px]" title="Nenhuma">-</p>
+        </div>
+        <span class="text-2xl">🌟</span>
+      </div>
+
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div>
+          <p class="text-xs font-medium text-slate-400">Notas Órfãs (Sem Links)</p>
+          <p id="notas-orfas" class="text-2xl font-bold text-purple-400">0</p>
+        </div>
+        <span class="text-2xl">🔍</span>
       </div>
     </section>
 
@@ -285,8 +293,8 @@
         <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
       </div>
 
-      <!-- Legenda de Cores por Categoria -->
-      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs text-slate-300">
+      <!-- Legenda Interativa de Cores por Categoria -->
+      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs text-slate-300 select-none">
         <!-- Preenchido via JavaScript -->
       </div>
 
@@ -303,9 +311,14 @@
         <h2 id="form-titulo-header" class="text-lg font-bold text-indigo-400 flex items-center gap-2">
           <span>➕</span> Criar Nova Nota Zettelkasten
         </h2>
-        <button type="button" onclick="limparFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">
-          Limpar / Nova Nota
-        </button>
+        <div class="flex items-center gap-3">
+          <button type="button" onclick="mostrarBookmarkletModal()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium underline flex items-center gap-1">
+            <span>🔖</span> Bookmarklet
+          </button>
+          <button type="button" onclick="limparFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">
+            Limpar / Nova Nota
+          </button>
+        </div>
       </div>
       
       <form id="form-nova-nota" onsubmit="guardarNota(event)" class="space-y-4">
@@ -343,8 +356,10 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">Conteúdo / Ideia Atómica</label>
-          <textarea id="novo-conteudo" rows="3" required placeholder="Escreve o resumo atómico utilizando markdown (ex: **negrito**, # título, - listas)..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+          <label class="block text-xs font-medium text-slate-400 mb-1">
+            Conteúdo / Ideia Atómica <span class="text-indigo-400 font-mono">(usa [[ID]] para citar notas)</span>
+          </label>
+          <textarea id="novo-conteudo" rows="3" required placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -372,11 +387,12 @@
 
     <!-- Secção de Filtros / Pesquisa -->
     <section class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-slate-800">
-      <div class="w-full sm:w-96">
-        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, categoria, conteúdo ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+      <div class="w-full sm:w-96 relative">
+        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, categoria, conteúdo, ID ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-16 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+        <span class="absolute right-2.5 top-2.5 text-[10px] font-mono text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">Ctrl+K</span>
       </div>
       <div class="text-xs text-slate-400">
-        Total de notas: <span id="total-notas" class="font-bold text-indigo-400">0</span>
+        Notas visíveis: <span id="notas-visiveis" class="font-bold text-indigo-400">0</span>
       </div>
     </section>
 
@@ -399,6 +415,23 @@
       </div>
     </div>
 
+    <!-- MODAL DO BOOKMARKLET -->
+    <div id="modal-bookmarklet" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) fecharBookmarkletModal()">
+      <div class="bg-slate-900 border border-slate-700 rounded-2xl max-w-lg w-full p-6 shadow-2xl relative">
+        <button type="button" onclick="fecharBookmarkletModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white">✕</button>
+        <h3 class="text-base font-bold text-indigo-400 mb-2 flex items-center gap-2">🔖 Captura Rápida (Bookmarklet)</h3>
+        <p class="text-xs text-slate-300 leading-relaxed mb-4">
+          Arrasta o botão abaixo para a tua <strong>Barra de Marcadores (Bookmarks)</strong> do teu navegador. Quando estiveres num site ou vídeo do YouTube, clica nele para abrir o formulário preenchido!
+        </p>
+        <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-center mb-4">
+          <a id="link-bookmarklet" href="#" onclick="alert('Arrasta este botão para a tua barra de marcadores!'); return false;" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg inline-block shadow-lg cursor-grab">
+            📌 Capturar para Zettelkasten
+          </a>
+        </div>
+        <p class="text-[11px] text-slate-500 italic">Funciona em Chrome, Firefox, Safari e Edge.</p>
+      </div>
+    </div>
+
   </main>
 
   <!-- Lógica JavaScript -->
@@ -408,6 +441,7 @@
     let todasAsNotas = [];
     let mapaNotas = new Map();
     let networkInstance = null;
+    let categoriaFiltroAtiva = null;
 
     // PALETA DE CORES PARA CATEGORIAS
     const PALETA_CORES = [
@@ -454,8 +488,23 @@
       return mapaCoresCategorias.get(catChave);
     }
 
+    // PROCESSAR SINTAXE WIKILINK [[ID]]
+    function processarWikilinks(textoMarkdown) {
+      if (!textoMarkdown) return '';
+      
+      // Substitui [[ID]] por badges clicáveis
+      return textoMarkdown.replace(/\[\[(\d+)\]\]/g, (match, idNota) => {
+        const idLimpo = String(idNota).trim();
+        const notaAlvo = mapaNotas.get(idLimpo);
+        const titulo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${idLimpo}`;
+        return `<span onclick="abrirModalNota('${idLimpo}')" class="wikilink-badge" title="${titulo}">🔗 ${titulo}</span>`;
+      });
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       carregarZettelkasten();
+      verificarParametrosURL();
+      gerarLinkBookmarklet();
     });
 
     // 1. CARREGAR DADOS DO GOOGLE SHEETS
@@ -477,6 +526,9 @@
         });
 
         document.getElementById('total-notas').textContent = todasAsNotas.length;
+        document.getElementById('notas-visiveis').textContent = todasAsNotas.length;
+        
+        calcularEstatisticasRede();
         renderizarGrafo(todasAsNotas);
         renderizarCartoes(todasAsNotas);
 
@@ -489,7 +541,60 @@
       }
     }
 
-    // 2. RENDERIZAR GRAFO COM LIGAÇÕES E CORES POR CATEGORIA
+    // CALCULAR ANALYTICS / ESTATÍSTICAS
+    function calcularEstatisticasRede() {
+      let totalConexoes = 0;
+      let orfasCount = 0;
+      const contagemLinks = new Map();
+
+      todasAsNotas.forEach(nota => {
+        const idStr = String(obterValorPropriedade(nota, 'id')).trim();
+        const linksStr = obterValorPropriedade(nota, 'linkspara');
+        const conteudo = obterValorPropriedade(nota, 'conteudo');
+
+        // Contar wikilinks [[ID]] no corpo da nota
+        const wikilinksEncontrados = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
+
+        const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
+        const todasConexoes = Array.from(new Set([...conexoesManuais, ...wikilinksEncontrados]));
+
+        if (todasConexoes.length === 0) {
+          orfasCount++;
+        } else {
+          totalConexoes += todasConexoes.length;
+          todasConexoes.forEach(dest => {
+            contagemLinks.set(dest, (contagemLinks.get(dest) || 0) + 1);
+            contagemLinks.set(idStr, (contagemLinks.get(idStr) || 0) + 1);
+          });
+        }
+      });
+
+      document.getElementById('total-conexoes').textContent = totalConexoes;
+      document.getElementById('notas-orfas').textContent = orfasCount;
+
+      // Descobrir Nota Central (Hub)
+      let idHubMaisConectado = null;
+      let maxConexoes = 0;
+      contagemLinks.forEach((qtd, id) => {
+        if (qtd > maxConexoes) {
+          maxConexoes = qtd;
+          idHubMaisConectado = id;
+        }
+      });
+
+      const elHub = document.getElementById('nota-hub');
+      if (idHubMaisConectado && mapaNotas.has(idHubMaisConectado)) {
+        const notaHub = mapaNotas.get(idHubMaisConectado);
+        const tituloHub = obterValorPropriedade(notaHub, 'titulo') || idHubMaisConectado;
+        elHub.textContent = `${tituloHub} (${maxConexoes})`;
+        elHub.onclick = () => abrirModalNota(idHubMaisConectado);
+        elHub.classList.add('cursor-pointer', 'hover:underline');
+      } else {
+        elHub.textContent = 'Nenhuma';
+      }
+    }
+
+    // 2. RENDERIZAR GRAFO COM FILTRO INTERATIVO POR CATEGORIA
     function renderizarGrafo(notas) {
       const nodesArray = [];
       const edgesArray = [];
@@ -505,6 +610,7 @@
       notas.forEach(nota => {
         const idStr = String(obterValorPropriedade(nota, 'id')).trim();
         const linksStr = obterValorPropriedade(nota, 'linkspara');
+        const conteudo = obterValorPropriedade(nota, 'conteudo');
         const tituloStr = obterValorPropriedade(nota, 'titulo') || `Nota ${idStr}`;
         const catStr = obterValorPropriedade(nota, 'categoria') || 'Geral';
 
@@ -512,46 +618,65 @@
 
         const infoCategoria = obterCorCategoria(catStr);
 
+        // Se houver um filtro de categoria ativo
+        const eCategoriaAtiva = !categoriaFiltroAtiva || catStr.toLowerCase() === categoriaFiltroAtiva.toLowerCase();
+        const opacidade = eCategoriaAtiva ? 1.0 : 0.15;
+
         nodesArray.push({
           id: idStr,
           label: tituloStr,
           shape: 'dot',
-          size: 18,
+          size: eCategoriaAtiva ? 20 : 12,
           color: {
             background: infoCategoria.cores.bg,
             border: infoCategoria.cores.border,
             highlight: { background: '#a855f7', border: '#c084fc' }
           },
-          font: { color: '#f1f5f9', size: 12 }
+          opacity: opacidade,
+          font: { color: eCategoriaAtiva ? '#f1f5f9' : '#475569', size: 12 }
         });
 
-        if (linksStr) {
-          const links = linksStr.split(/[,;]+/);
-          links.forEach(destino => {
-            const destinoLimpo = String(destino).trim();
-            if (destinoLimpo && idsExistentes.has(destinoLimpo) && destinoLimpo !== idStr) {
-              edgesArray.push({
-                from: idStr,
-                to: destinoLimpo,
-                color: { color: '#818cf8', highlight: '#c084fc', inherit: false },
-                width: 2,
-                arrows: { to: { enabled: true, scaleFactor: 0.8 } }
-              });
-            }
-          });
-        }
+        // Extrair conexões manuais + wikilinks [[ID]]
+        const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
+        const linksManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()) : [];
+        const destinos = Array.from(new Set([...linksManuais, ...wikilinks]));
+
+        destinos.forEach(destino => {
+          if (destino && idsExistentes.has(destino) && destino !== idStr) {
+            edgesArray.push({
+              from: idStr,
+              to: destino,
+              color: { color: eCategoriaAtiva ? '#818cf8' : '#334155', highlight: '#c084fc', inherit: false },
+              width: eCategoriaAtiva ? 2 : 0.5,
+              arrows: { to: { enabled: true, scaleFactor: 0.8 } }
+            });
+          }
+        });
       });
 
+      // Legenda Clicável
       const legendaDiv = document.getElementById('categorias-legenda');
       if (legendaDiv) {
-        legendaDiv.innerHTML = Array.from(mapaCoresCategorias.values()).map(item => {
+        let legendaHTML = Array.from(mapaCoresCategorias.values()).map(item => {
+          const eAtivo = categoriaFiltroAtiva && categoriaFiltroAtiva.toLowerCase() === item.nomeExibicao.toLowerCase();
+          const classeBorda = eAtivo ? 'ring-2 ring-indigo-400 font-bold bg-slate-700' : 'bg-slate-800 hover:bg-slate-750';
           return `
-            <span class="inline-flex items-center gap-1.5 bg-slate-800 px-2.5 py-1 rounded-full border border-slate-700">
+            <span onclick="alternarFiltroCategoriaGrafo('${item.nomeExibicao}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-700 cursor-pointer transition-all ${classeBorda}">
               <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.cores.bg}"></span>
-              <span class="font-medium">${item.nomeExibicao}</span>
+              <span>${item.nomeExibicao}</span>
             </span>
           `;
         }).join('');
+
+        if (categoriaFiltroAtiva) {
+          legendaHTML += `
+            <button onclick="alternarFiltroCategoriaGrafo(null)" class="text-xs text-indigo-400 hover:underline px-2 py-1">
+              ✕ Limpar Filtro
+            </button>
+          `;
+        }
+
+        legendaDiv.innerHTML = legendaHTML;
       }
 
       const container = document.getElementById('graph-container');
@@ -579,6 +704,15 @@
           abrirModalNota(String(params.nodes[0]).trim());
         }
       });
+    }
+
+    function alternarFiltroCategoriaGrafo(nomeCategoria) {
+      if (categoriaFiltroAtiva === nomeCategoria) {
+        categoriaFiltroAtiva = null;
+      } else {
+        categoriaFiltroAtiva = nomeCategoria;
+      }
+      renderizarGrafo(todasAsNotas);
     }
 
     // 3. PREVISUALIZAÇÃO DE MEDIA
@@ -657,8 +791,10 @@
       const container = document.getElementById('cards-container');
       container.innerHTML = '';
 
+      document.getElementById('notas-visiveis').textContent = notas.length;
+
       if (notas.length === 0) {
-        container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada.</p>`;
+        container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada com esses termos.</p>`;
         return;
       }
 
@@ -690,6 +826,10 @@
           return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
         }).filter(Boolean).join('');
 
+        // Processar Markdown + Wikilinks
+        const conteudoComWikilinks = processarWikilinks(conteudo || '');
+        const markdownRenderizado = marked.parse(conteudoComWikilinks);
+
         const cartao = document.createElement('div');
         cartao.id = `nota-${idStr}`;
         cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
@@ -715,7 +855,7 @@
 
             <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
             <div class="markdown-body text-slate-300 text-sm leading-relaxed">
-              ${marked.parse(conteudo || '')}
+              ${markdownRenderizado}
             </div>
             ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
           </div>
@@ -730,7 +870,7 @@
       });
     }
 
-    // 7. GUARDAR/EDITAR NOTA (POST)
+    // 7. GUARDAR/EDITAR NOTA
     async function guardarNota(evento) {
       evento.preventDefault();
       
@@ -781,7 +921,7 @@
       }
     }
 
-    // 7.1 ELIMINAR NOTA NO GOOGLE SHEETS
+    // 7.1 ELIMINAR NOTA
     async function eliminarNota(idNota) {
       const idLimpo = String(idNota).trim();
       const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
@@ -812,18 +952,18 @@
     function filtrarNotas() {
       const termo = document.getElementById('input-busca').value.toLowerCase();
       const notasFiltradas = todasAsNotas.filter(nota => {
+        const id = String(obterValorPropriedade(nota, 'id')).toLowerCase();
         const titulo = String(obterValorPropriedade(nota, 'titulo')).toLowerCase();
         const conteudo = String(obterValorPropriedade(nota, 'conteudo')).toLowerCase();
         const tags = String(obterValorPropriedade(nota, 'tags')).toLowerCase();
         const cat = String(obterValorPropriedade(nota, 'categoria')).toLowerCase();
         const subCat = String(obterValorPropriedade(nota, 'subcategoria')).toLowerCase();
-        return titulo.includes(termo) || conteudo.includes(termo) || tags.includes(termo) || cat.includes(termo) || subCat.includes(termo);
+        return id.includes(termo) || titulo.includes(termo) || conteudo.includes(termo) || tags.includes(termo) || cat.includes(termo) || subCat.includes(termo);
       });
 
       renderizarCartoes(notasFiltradas);
     }
 
-    // 8.1 FILTRAR ESPECIFICAMENTE POR TAG
     function filtrarPorTag(nomeTag) {
       const inputBusca = document.getElementById('input-busca');
       if (!inputBusca) return;
@@ -837,82 +977,189 @@
       inputBusca.focus();
     }
 
-    // 9. ABRIR MODAL COM OS DETALHES DA NOTA (Espaçamento corrigido no topo)
-  function abrirModalNota(idNota) {
-    const idLimpo = String(idNota).trim();
-    const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
-    if (!nota) return;
+    // 9. ABRIR MODAL COM OPÇÕES DE EXPORTAÇÃO
+    function abrirModalNota(idNota) {
+      const idLimpo = String(idNota).trim();
+      const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
+      if (!nota) return;
 
-    const modalCorpo = document.getElementById('modal-conteudo-corpo');
-    const modalContainer = document.getElementById('modal-nota');
+      const modalCorpo = document.getElementById('modal-conteudo-corpo');
+      const modalContainer = document.getElementById('modal-nota');
 
-    const id = obterValorPropriedade(nota, 'id');
-    const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
-    const conteudo = obterValorPropriedade(nota, 'conteudo');
-    const plataforma = obterValorPropriedade(nota, 'plataforma');
-    const categoria = obterValorPropriedade(nota, 'categoria');
-    const subcategoria = obterValorPropriedade(nota, 'subcategoria');
-    const urlMedia = obterValorPropriedade(nota, 'urlmedia');
-    const tagsStr = obterValorPropriedade(nota, 'tags');
-    const linksStr = obterValorPropriedade(nota, 'linkspara');
+      const id = obterValorPropriedade(nota, 'id');
+      const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const plataforma = obterValorPropriedade(nota, 'plataforma');
+      const categoria = obterValorPropriedade(nota, 'categoria');
+      const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+      const urlMedia = obterValorPropriedade(nota, 'urlmedia');
+      const tagsStr = obterValorPropriedade(nota, 'tags');
+      const linksStr = obterValorPropriedade(nota, 'linkspara');
 
-    const tagsArr = tagsStr ? tagsStr.split(',') : [];
-    const linksArr = linksStr ? linksStr.split(',') : [];
+      const tagsArr = tagsStr ? tagsStr.split(',') : [];
+      const linksArr = linksStr ? linksStr.split(',') : [];
 
-    const tagsHTML = tagsArr.map(t => {
-      const tagLimpa = t.trim();
-      if (!tagLimpa) return '';
-      return `<button type="button" onclick="filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
-    }).join(' ');
+      const tagsHTML = tagsArr.map(t => {
+        const tagLimpa = t.trim();
+        if (!tagLimpa) return '';
+        return `<button type="button" onclick="filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
+      }).join(' ');
 
-    const linksHTML = linksArr.map(linkId => {
-      const targetId = linkId.trim();
-      if (!targetId) return '';
-      const notaAlvo = mapaNotas.get(targetId);
-      const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-      return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
-    }).filter(Boolean).join('');
+      const linksHTML = linksArr.map(linkId => {
+        const targetId = linkId.trim();
+        if (!targetId) return '';
+        const notaAlvo = mapaNotas.get(targetId);
+        const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
+        return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
+      }).filter(Boolean).join('');
 
-    modalCorpo.innerHTML = `
-      <div class="space-y-4">
-        <!-- Cabeçalho com padding-right (pr-10) para dar margem de segurança ao botão "✕" -->
-        <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 pr-10 gap-2">
-          <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
-          <div class="flex items-center gap-2">
-            ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
-            <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
-            <button type="button" onclick="eliminarNota('${id}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
+      const conteudoComWikilinks = processarWikilinks(conteudo || '');
+      const markdownRenderizado = marked.parse(conteudoComWikilinks);
+
+      modalCorpo.innerHTML = `
+        <div class="space-y-4">
+          <!-- Cabeçalho com padding-right (pr-10) para margem do botão "✕" -->
+          <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 pr-10 gap-2">
+            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
+            <div class="flex flex-wrap items-center gap-2">
+              ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
+              <button type="button" onclick="exportarNotaMarkdown('${id}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
+              <button type="button" onclick="copiarTextoNota('${id}')" title="Copiar texto" class="text-xs text-emerald-400 hover:text-emerald-300 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-800/60 transition-colors">📋 Copiar</button>
+              <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
+              <button type="button" onclick="eliminarNota('${id}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
+            </div>
           </div>
-        </div>
 
-        ${(categoria || subcategoria) ? `
-          <div class="text-xs font-semibold text-indigo-400">
-            ${categoria || ''} ${subcategoria ? `<span class="text-slate-500">/ ${subcategoria}</span>` : ''}
+          ${(categoria || subcategoria) ? `
+            <div class="text-xs font-semibold text-indigo-400">
+              ${categoria || ''} ${subcategoria ? `<span class="text-slate-500">/ ${subcategoria}</span>` : ''}
+            </div>
+          ` : ''}
+
+          <h2 class="text-xl font-bold text-white leading-snug">${titulo}</h2>
+          <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
+            ${markdownRenderizado}
           </div>
-        ` : ''}
 
-        <h2 class="text-xl font-bold text-white leading-snug">${titulo}</h2>
-        <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
-          ${marked.parse(conteudo || '')}
+          ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+          ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
+          ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS CONECTADAS:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
         </div>
+      `;
 
-        ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
-        ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
-        ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS CONECTADAS:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
-      </div>
-    `;
+      modalContainer.classList.remove('hidden');
+    }
 
-    modalContainer.classList.remove('hidden');
-  }
+    // EXPORTAR PARA APLICAÇÕES TIPO OBSIDIAN (.md)
+    function exportarNotaMarkdown(idNota) {
+      const nota = mapaNotas.get(String(idNota).trim());
+      if (!nota) return;
 
-    // 10. FECHAR MODAL
+      const id = obterValorPropriedade(nota, 'id');
+      const titulo = obterValorPropriedade(nota, 'titulo');
+      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const categoria = obterValorPropriedade(nota, 'categoria');
+      const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+      const tags = obterValorPropriedade(nota, 'tags');
+
+      const mdContent = `---
+id: ${id}
+title: "${titulo}"
+category: "${categoria}"
+subcategory: "${subcategoria}"
+tags: [${tags}]
+---
+
+# ${titulo}
+
+${conteudo}
+`;
+
+      const blob = new Blob([mdContent], { type: 'text/markdown;charset=utf-8' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${id}_${titulo.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+      a.click();
+    }
+
+    // COPIAR TEXTO DA NOTA
+    function copiarTextoNota(idNota) {
+      const nota = mapaNotas.get(String(idNota).trim());
+      if (!nota) return;
+
+      const titulo = obterValorPropriedade(nota, 'titulo');
+      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const textoFinal = `${titulo}\n\n${conteudo}`;
+
+      navigator.clipboard.writeText(textoFinal).then(() => {
+        alert('Conteúdo copiado para a área de transferência!');
+      });
+    }
+
     function fecharModal() {
       const modalContainer = document.getElementById('modal-nota');
       if (modalContainer) modalContainer.classList.add('hidden');
     }
 
+    // CAPTURA VIA PARÂMETROS DE URL & BOOKMARKLET
+    function verificarParametrosURL() {
+      const params = new URLSearchParams(window.location.search);
+      const title = params.get('title');
+      const url = params.get('url');
+
+      if (title || url) {
+        if (title) document.getElementById('novo-titulo').value = decodeURIComponent(title);
+        if (url) document.getElementById('novo-url').value = decodeURIComponent(url);
+        document.getElementById('nova-plataforma').value = 'Artigo';
+        
+        document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function gerarLinkBookmarklet() {
+      const baseUrl = window.location.href.split('?')[0];
+      const code = `javascript:(function(){var t=encodeURIComponent(document.title);var u=encodeURIComponent(window.location.href);window.open('${baseUrl}?title='+t+'&url='+u,'_blank');})();`;
+      const linkEl = document.getElementById('link-bookmarklet');
+      if (linkEl) linkEl.href = code;
+    }
+
+    function mostrarBookmarkletModal() {
+      document.getElementById('modal-bookmarklet').classList.remove('hidden');
+    }
+
+    function fecharBookmarkletModal() {
+      document.getElementById('modal-bookmarklet').classList.add('hidden');
+    }
+
+    // TECLAS DE ATALHO (POWER USER)
     document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape') fecharModal();
+      // Ctrl + N ou Cmd + N -> Nova Nota
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
+        e.preventDefault();
+        limparFormulario();
+        document.getElementById('novo-titulo').focus();
+        document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+      }
+
+      // Ctrl + K ou Cmd + K -> Pesquisa
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        const inputBusca = document.getElementById('input-busca');
+        inputBusca.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        inputBusca.focus();
+      }
+
+      // Esc -> Fechar modal ou limpar busca
+      if (e.key === 'Escape') {
+        fecharModal();
+        fecharBookmarkletModal();
+        const inputBusca = document.getElementById('input-busca');
+        if (document.activeElement === inputBusca) {
+          inputBusca.value = '';
+          filtrarNotas();
+          inputBusca.blur();
+        }
+      }
     });
   </script>
 </body>
