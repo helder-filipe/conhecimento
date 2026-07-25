@@ -388,10 +388,11 @@
       <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
 
-    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA -->
+    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA (Ajustado botão ✕) -->
     <div id="modal-nota" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) fecharModal()">
       <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
-        <button type="button" onclick="fecharModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 p-2 rounded-lg transition-colors">
+        <!-- Botão de Fechar fixado com margem confortável -->
+        <button type="button" onclick="fecharModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-8 h-8 flex items-center justify-center rounded-lg transition-colors z-10">
           ✕
         </button>
         <div id="modal-conteudo-corpo"></div>
@@ -836,72 +837,73 @@
       inputBusca.focus();
     }
 
-    // 9. ABRIR MODAL COM OS DETALHES DA NOTA
-    function abrirModalNota(idNota) {
-      const idLimpo = String(idNota).trim();
-      const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
-      if (!nota) return;
+    // 9. ABRIR MODAL COM OS DETALHES DA NOTA (Espaçamento corrigido no topo)
+  function abrirModalNota(idNota) {
+    const idLimpo = String(idNota).trim();
+    const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
+    if (!nota) return;
 
-      const modalCorpo = document.getElementById('modal-conteudo-corpo');
-      const modalContainer = document.getElementById('modal-nota');
+    const modalCorpo = document.getElementById('modal-conteudo-corpo');
+    const modalContainer = document.getElementById('modal-nota');
 
-      const id = obterValorPropriedade(nota, 'id');
-      const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
-      const conteudo = obterValorPropriedade(nota, 'conteudo');
-      const plataforma = obterValorPropriedade(nota, 'plataforma');
-      const categoria = obterValorPropriedade(nota, 'categoria');
-      const subcategoria = obterValorPropriedade(nota, 'subcategoria');
-      const urlMedia = obterValorPropriedade(nota, 'urlmedia');
-      const tagsStr = obterValorPropriedade(nota, 'tags');
-      const linksStr = obterValorPropriedade(nota, 'linkspara');
+    const id = obterValorPropriedade(nota, 'id');
+    const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+    const conteudo = obterValorPropriedade(nota, 'conteudo');
+    const plataforma = obterValorPropriedade(nota, 'plataforma');
+    const categoria = obterValorPropriedade(nota, 'categoria');
+    const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+    const urlMedia = obterValorPropriedade(nota, 'urlmedia');
+    const tagsStr = obterValorPropriedade(nota, 'tags');
+    const linksStr = obterValorPropriedade(nota, 'linkspara');
 
-      const tagsArr = tagsStr ? tagsStr.split(',') : [];
-      const linksArr = linksStr ? linksStr.split(',') : [];
+    const tagsArr = tagsStr ? tagsStr.split(',') : [];
+    const linksArr = linksStr ? linksStr.split(',') : [];
 
-      const tagsHTML = tagsArr.map(t => {
-        const tagLimpa = t.trim();
-        if (!tagLimpa) return '';
-        return `<button type="button" onclick="filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
-      }).join(' ');
+    const tagsHTML = tagsArr.map(t => {
+      const tagLimpa = t.trim();
+      if (!tagLimpa) return '';
+      return `<button type="button" onclick="filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
+    }).join(' ');
 
-      const linksHTML = linksArr.map(linkId => {
-        const targetId = linkId.trim();
-        if (!targetId) return '';
-        const notaAlvo = mapaNotas.get(targetId);
-        const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-        return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
-      }).filter(Boolean).join('');
+    const linksHTML = linksArr.map(linkId => {
+      const targetId = linkId.trim();
+      if (!targetId) return '';
+      const notaAlvo = mapaNotas.get(targetId);
+      const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
+      return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
+    }).filter(Boolean).join('');
 
-      modalCorpo.innerHTML = `
-        <div class="space-y-4">
-          <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
-            <div class="flex items-center gap-2">
-              ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
-              <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700">✏️ Editar Nota</button>
-              <button type="button" onclick="eliminarNota('${id}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
-            </div>
+    modalCorpo.innerHTML = `
+      <div class="space-y-4">
+        <!-- Cabeçalho com padding-right (pr-10) para dar margem de segurança ao botão "✕" -->
+        <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 pr-10 gap-2">
+          <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
+          <div class="flex items-center gap-2">
+            ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
+            <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
+            <button type="button" onclick="eliminarNota('${id}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
           </div>
-
-          ${(categoria || subcategoria) ? `
-            <div class="text-xs font-semibold text-indigo-400">
-              ${categoria || ''} ${subcategoria ? `<span class="text-slate-500">/ ${subcategoria}</span>` : ''}
-            </div>
-          ` : ''}
-
-          <h2 class="text-xl font-bold text-white leading-snug">${titulo}</h2>
-          <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
-            ${marked.parse(conteudo || '')}
-          </div>
-
-          ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
-          ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
-          ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS CONECTADAS:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
         </div>
-      `;
 
-      modalContainer.classList.remove('hidden');
-    }
+        ${(categoria || subcategoria) ? `
+          <div class="text-xs font-semibold text-indigo-400">
+            ${categoria || ''} ${subcategoria ? `<span class="text-slate-500">/ ${subcategoria}</span>` : ''}
+          </div>
+        ` : ''}
+
+        <h2 class="text-xl font-bold text-white leading-snug">${titulo}</h2>
+        <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
+          ${marked.parse(conteudo || '')}
+        </div>
+
+        ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+        ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
+        ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS CONECTADAS:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
+      </div>
+    `;
+
+    modalContainer.classList.remove('hidden');
+  }
 
     // 10. FECHAR MODAL
     function fecharModal() {
