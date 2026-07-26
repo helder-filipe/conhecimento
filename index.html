@@ -74,12 +74,35 @@
       color: #a5b4fc;
       border-color: #4338ca;
     }
+
+    /* Lista suspenso Autocomplete */
+    .autocomplete-dropdown {
+      position: absolute;
+      max-height: 180px;
+      overflow-y: auto;
+      background-color: #0f172a;
+      border: 1px solid #475569;
+      border-radius: 0.5rem;
+      z-index: 50;
+      width: calc(100% - 1.5rem);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    }
+    .autocomplete-item {
+      padding: 0.5rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      border-bottom: 1px solid #1e293b;
+    }
+    .autocomplete-item:hover {
+      background-color: #1e1b4b;
+      color: #818cf8;
+    }
   </style>
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
 
   <!-- Navegação / Cabeçalho com Alinhamento Inferior e Botões Rápidos -->
-  <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-50 backdrop-blur-md shadow-lg shadow-slate-950/20">
+  <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-40 backdrop-blur-md shadow-lg shadow-slate-950/20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end gap-3">
       <!-- LOGO E SUBTÍTULO -->
       <div class="flex flex-col items-start gap-1">
@@ -87,13 +110,16 @@
         <p class="text-[11px] sm:text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
       </div>
 
-      <!-- BOTÕES DE NAVEGAÇÃO RÁPIDA -->
-      <div class="flex items-center gap-2">
+      <!-- BOTÕES DE NAVEGAÇÃO RÁPIDA E FERRAMENTAS -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
         <button type="button" onclick="irParaFormulario()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
           <span>➕</span> <span class="hidden sm:inline">Criar Nota</span>
         </button>
         <button type="button" onclick="irParaGrafo()" class="bg-slate-700 hover:bg-slate-600 text-indigo-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
           <span>🕸️</span> <span class="hidden sm:inline">Ver Grafos</span>
+        </button>
+        <button type="button" onclick="exportarBackupJSON()" title="Exportar Backup Global (JSON)" class="bg-slate-700 hover:bg-slate-600 text-emerald-400 p-2 rounded-lg transition-colors border border-slate-600 shadow-md">
+          💾 <span class="hidden md:inline text-xs ml-1 text-slate-200">Backup</span>
         </button>
         <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-lg transition-colors flex items-center justify-center font-medium border border-slate-600 shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
@@ -145,8 +171,13 @@
         <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, categoria, conteúdo, ID ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-16 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
         <span class="absolute right-2.5 top-2.5 text-[10px] font-mono text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">Ctrl+K</span>
       </div>
-      <div class="text-xs text-slate-400">
-        Notas visíveis: <span id="notas-visiveis" class="font-bold text-indigo-400">0</span>
+      
+      <div class="flex items-center gap-4 text-xs text-slate-400">
+        <div>Notas visíveis: <span id="notas-visiveis" class="font-bold text-indigo-400">0</span></div>
+        <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 p-1 rounded-lg">
+          <button type="button" id="btn-view-cards" onclick="alternarModoVisualizacao('grelha')" class="px-2 py-1 rounded bg-indigo-600 text-white font-medium text-[11px]" title="Modo Grelha / Cartões">🖼️ Cartões</button>
+          <button type="button" id="btn-view-list" onclick="alternarModoVisualizacao('lista')" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]" title="Modo Lista Densa">☰ Lista Densa</button>
+        </div>
       </div>
     </section>
 
@@ -161,7 +192,7 @@
     <hr class="border-slate-800">
 
     <!-- 4. FORMULÁRIO PARA CRIAR/EDITAR NOTA -->
-    <section id="form-container" class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl scroll-mt-24">
+    <section id="form-container" class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl scroll-mt-24 relative">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
         <h2 id="form-titulo-header" class="text-lg font-bold text-indigo-400 flex items-center gap-2">
           <span>➕</span> Criar Nova Nota Zettelkasten
@@ -180,7 +211,7 @@
         </div>
       </div>
 
-      <!-- GUIA COMPLETO DO ZETTELKASTEN & CHEATSHEET MARKDOWN -->
+      <!-- GUIA COMPLETO DO ZETTELKASTEN & CHEATSHEET MARKDOWN (100% INTEGRO) -->
       <div class="mb-6 bg-slate-900/60 border border-slate-700/60 rounded-xl p-4">
         <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGuiaZettelkasten()">
           <h3 class="text-xs sm:text-sm font-bold text-indigo-300 flex items-center gap-2">
@@ -356,7 +387,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Categoria</label>
-            <input type="text" id="nova-categoria" placeholder="Ex: Marketing, Programação, Padel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="nova-categoria" oninput="atualizarSugestoesConexao()" placeholder="Ex: Marketing, Programação, Padel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
@@ -365,11 +396,31 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-xs font-medium text-slate-400 mb-1">
-            Conteúdo / Ideia Atómica <span class="text-indigo-400 font-mono">(usa [[ID]] para citar notas)</span>
-          </label>
-          <textarea id="novo-conteudo" rows="4" required placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+        <!-- BARRA DE FERRAMENTAS MARKDOWN & AUTOCLEPTE WIKILINKS -->
+        <div class="relative">
+          <div class="flex justify-between items-center mb-1">
+            <label class="block text-xs font-medium text-slate-400">
+              Conteúdo / Ideia Atómica <span class="text-indigo-400 font-mono">(escreve [[ para ligar notas)</span>
+            </label>
+            <div class="text-[11px] text-slate-500 font-mono" id="form-text-metrics">
+              0 pal | 0 car | ~0 min
+            </div>
+          </div>
+
+          <div class="flex flex-wrap gap-1 bg-slate-950 p-1.5 rounded-t-lg border border-slate-700 border-b-0 text-xs">
+            <button type="button" onclick="inserirMarkdown('**', '**')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold" title="Negrito">B</button>
+            <button type="button" onclick="inserirMarkdown('*', '*')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 italic" title="Itálico">I</button>
+            <button type="button" onclick="inserirMarkdown('# ')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold" title="Título">H1</button>
+            <button type="button" onclick="inserirMarkdown('> ')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" title="Citação">“ ”</button>
+            <button type="button" onclick="inserirMarkdown('`', '`')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 font-mono" title="Código">&lt;/&gt;</button>
+            <button type="button" onclick="inserirMarkdown('- ')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" title="Lista">• Lista</button>
+            <button type="button" onclick="inserirMarkdown('[[', ']]')" class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-mono" title="Wikilink">[[ Link ]]</button>
+          </div>
+
+          <textarea id="novo-conteudo" rows="4" required oninput="aoDigitarConteudo(event)" placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full bg-slate-900 border border-slate-700 rounded-b-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+          
+          <!-- MENU DROPDOWN DE AUTOCOMPLETE WIKILINKS -->
+          <div id="autocomplete-list" class="autocomplete-dropdown hidden"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -380,13 +431,19 @@
 
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Tags (separadas por vírgulas)</label>
-            <input type="text" id="novas-tags" placeholder="javascript, redes, zettelkasten" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novas-tags" oninput="atualizarSugestoesConexao()" placeholder="javascript, redes, zettelkasten" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
             <label class="block text-xs font-medium text-slate-400 mb-1">Ligar a IDs (separados por vírgula)</label>
             <input type="text" id="novos-links" placeholder="Ex: 202607241010, 202607241012" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
           </div>
+        </div>
+
+        <!-- PAINEL DE SUGESTÕES DE NOTAS RELACIONADAS -->
+        <div id="painel-sugestoes" class="hidden bg-slate-950/60 p-3 rounded-lg border border-slate-800">
+          <span class="text-xs font-bold text-indigo-300 block mb-1.5">💡 Sugestões de Conexão (Clica para ligar o ID):</span>
+          <div id="sugestoes-lista" class="flex flex-wrap gap-2"></div>
         </div>
 
         <button type="submit" id="btn-submeter" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-md">
@@ -462,6 +519,8 @@
     let mapaNotas = new Map();
     let networkInstance = null;
     let categoriaFiltroAtiva = null;
+    let historicoModal = [];
+    let modoVisualizacao = 'grelha'; // 'grelha' ou 'lista'
 
     // PALETA DE CORES PARA CATEGORIAS
     const PALETA_CORES = [
@@ -532,7 +591,7 @@
         const idLimpo = String(idNota).trim();
         const notaAlvo = mapaNotas.get(idLimpo);
         const titulo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${idLimpo}`;
-        return `<span onclick="abrirModalNota('${idLimpo}')" class="wikilink-badge" title="${titulo}">🔗 ${titulo}</span>`;
+        return `<span onclick="abrirModalNota('${idLimpo}', true)" class="wikilink-badge" title="${titulo}">🔗 ${titulo}</span>`;
       });
     }
 
@@ -542,7 +601,7 @@
       gerarLinkBookmarklet();
     });
 
-    // 1. CARREGAR DADOS DO GOOGLE SHEETS
+    // 1. CARREGAR DADOS COM CACHE LOCAL
     async function carregarZettelkasten() {
       const loader = document.getElementById('graph-loader');
       const statusText = document.getElementById('graph-status');
@@ -550,30 +609,43 @@
       if (loader) loader.classList.remove('hidden');
       if (statusText) statusText.textContent = 'A carregar...';
 
+      // Tentar carregar da cache local primeiro (offline ready)
+      const cacheLocal = localStorage.getItem('zettelkasten_cache');
+      if (cacheLocal) {
+        todasAsNotas = JSON.parse(cacheLocal);
+        atualizarInterfaceNotas();
+      }
+
       try {
         const resposta = await fetch(API_URL);
         todasAsNotas = await resposta.json();
 
-        mapaNotas.clear();
-        todasAsNotas.forEach(nota => {
-          const id = obterValorPropriedade(nota, 'id');
-          if (id) mapaNotas.set(id, nota);
-        });
+        // Guardar no LocalStorage
+        localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
+        atualizarInterfaceNotas();
 
-        document.getElementById('total-notas').textContent = todasAsNotas.length;
-        document.getElementById('notas-visiveis').textContent = todasAsNotas.length;
-        
-        calcularEstatisticasRede();
-        renderizarCartoes(todasAsNotas);
-        renderizarGrafo(todasAsNotas);
-
-        if (statusText) statusText.textContent = `${todasAsNotas.length} notas carregadas`;
+        if (statusText) statusText.textContent = `${todasAsNotas.length} notas sincronizadas`;
       } catch (erro) {
-        console.error('Erro ao obter dados:', erro);
-        if (statusText) statusText.textContent = 'Erro de ligação';
+        console.error('Erro de rede, usando dados locais:', erro);
+        if (statusText) statusText.textContent = 'Modo Offline (Cache Local)';
       } finally {
         if (loader) loader.classList.add('hidden');
       }
+    }
+
+    function atualizarInterfaceNotas() {
+      mapaNotas.clear();
+      todasAsNotas.forEach(nota => {
+        const id = obterValorPropriedade(nota, 'id');
+        if (id) mapaNotas.set(id, nota);
+      });
+
+      document.getElementById('total-notas').textContent = todasAsNotas.length;
+      document.getElementById('notas-visiveis').textContent = todasAsNotas.length;
+      
+      calcularEstatisticasRede();
+      renderizarCartoes(todasAsNotas);
+      renderizarGrafo(todasAsNotas);
     }
 
     // CALCULAR ANALYTICS / ESTATÍSTICAS
@@ -750,6 +822,131 @@
       renderizarGrafo(todasAsNotas);
     }
 
+    // FERRAMENTAS DO EDITOR & AUTOCOMPLETE WIKILINKS
+    function inserirMarkdown(inicio, fim = '') {
+      const textarea = document.getElementById('novo-conteudo');
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const textoSelecionado = textarea.value.substring(start, end);
+      const novoTexto = inicio + textoSelecionado + fim;
+      
+      textarea.value = textarea.value.substring(0, start) + novoTexto + textarea.value.substring(end);
+      textarea.focus();
+      textarea.selectionStart = start + inicio.length;
+      textarea.selectionEnd = end + inicio.length;
+      calcularMetricasTexto();
+    }
+
+    function aoDigitarConteudo(e) {
+      calcularMetricasTexto();
+      const textarea = e.target;
+      const val = textarea.value;
+      const pos = textarea.selectionStart;
+
+      // Verificar se escreveu [[ recentemente
+      const sub = val.substring(0, pos);
+      const match = sub.match(/\[\[([a-zA-Z0-9\s]*)$/);
+
+      const listDiv = document.getElementById('autocomplete-list');
+
+      if (match) {
+        const termo = match[1].toLowerCase();
+        const resultados = todasAsNotas.filter(n => {
+          const t = obterValorPropriedade(n, 'titulo').toLowerCase();
+          const id = obterValorPropriedade(n, 'id');
+          return t.includes(termo) || id.includes(termo);
+        }).slice(0, 5);
+
+        if (resultados.length > 0) {
+          listDiv.innerHTML = resultados.map(r => {
+            const id = obterValorPropriedade(r, 'id');
+            const tit = obterValorPropriedade(r, 'titulo');
+            return `<div class="autocomplete-item" onclick="completarWikilink('${id}')"><strong>${id}</strong> - ${tit}</div>`;
+          }).join('');
+          listDiv.classList.remove('hidden');
+          return;
+        }
+      }
+      listDiv.classList.add('hidden');
+    }
+
+    function completarWikilink(idNota) {
+      const textarea = document.getElementById('novo-conteudo');
+      const val = textarea.value;
+      const pos = textarea.selectionStart;
+      const sub = val.substring(0, pos);
+
+      const novoSub = sub.replace(/\[\[[a-zA-Z0-9\s]*$/, `[[${idNota}]] `);
+      textarea.value = novoSub + val.substring(pos);
+      document.getElementById('autocomplete-list').classList.add('hidden');
+      textarea.focus();
+      calcularMetricasTexto();
+    }
+
+    function calcularMetricasTexto() {
+      const txt = document.getElementById('novo-conteudo').value.trim();
+      const palavras = txt ? txt.split(/\s+/).length : 0;
+      const carateres = txt.length;
+      const tempoLeitura = Math.ceil(palavras / 200);
+
+      document.getElementById('form-text-metrics').textContent = `${palavras} pal | ${carateres} car | ~${tempoLeitura} min`;
+    }
+
+    function atualizarSugestoesConexao() {
+      const cat = document.getElementById('nova-categoria').value.toLowerCase().trim();
+      const tags = document.getElementById('novas-tags').value.toLowerCase().trim().split(',').map(s => s.trim()).filter(Boolean);
+      const painel = document.getElementById('painel-sugestoes');
+      const lista = document.getElementById('sugestoes-lista');
+
+      if (!cat && tags.length === 0) {
+        painel.classList.add('hidden');
+        return;
+      }
+
+      const sugeridas = todasAsNotas.filter(n => {
+        const nCat = obterValorPropriedade(n, 'categoria').toLowerCase();
+        const nTags = obterValorPropriedade(n, 'tags').toLowerCase();
+        const temCat = cat && nCat.includes(cat);
+        const temTag = tags.some(t => nTags.includes(t));
+        return temCat || temTag;
+      }).slice(0, 4);
+
+      if (sugeridas.length > 0) {
+        lista.innerHTML = sugeridas.map(s => {
+          const id = obterValorPropriedade(s, 'id');
+          const tit = obterValorPropriedade(s, 'titulo');
+          return `<button type="button" onclick="adicionarLinkManual('${id}')" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 text-[11px] px-2 py-0.5 rounded transition-colors">+ ${tit} (#${id})</button>`;
+        }).join('');
+        painel.classList.remove('hidden');
+      } else {
+        painel.classList.add('hidden');
+      }
+    }
+
+    function adicionarLinkManual(idNota) {
+      const campo = document.getElementById('novos-links');
+      const idsAtuais = campo.value.split(',').map(s => s.trim()).filter(Boolean);
+      if (!idsAtuais.includes(idNota)) {
+        idsAtuais.push(idNota);
+        campo.value = idsAtuais.join(', ');
+      }
+    }
+
+    function alternarModoVisualizacao(modo) {
+      modoVisualizacao = modo;
+      const btnGrelha = document.getElementById('btn-view-cards');
+      const btnLista = document.getElementById('btn-view-list');
+
+      if (modo === 'lista') {
+        btnLista.className = "px-2 py-1 rounded bg-indigo-600 text-white font-medium text-[11px]";
+        btnGrelha.className = "px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]";
+      } else {
+        btnGrelha.className = "px-2 py-1 rounded bg-indigo-600 text-white font-medium text-[11px]";
+        btnLista.className = "px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]";
+      }
+      renderizarCartoes(todasAsNotas);
+    }
+
     // 3. PREVISUALIZAÇÃO DE MEDIA
     function gerarPreviewMedia(urlsStr, plataforma) {
       if (!urlsStr) return '';
@@ -811,6 +1008,8 @@
       document.getElementById('btn-submeter').innerHTML = '<span>✏️</span> Guardar Alterações';
       document.getElementById('form-titulo-header').innerHTML = `<span>✏️</span> Editar Nota (${obterValorPropriedade(nota, 'id')})`;
       document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+      calcularMetricasTexto();
+      atualizarSugestoesConexao();
     }
 
     // 5. RESETAR FORMULÁRIO
@@ -819,6 +1018,8 @@
       document.getElementById('form-id').value = '';
       document.getElementById('btn-submeter').innerHTML = '<span>💾</span> Guardar Nota no Zettelkasten';
       document.getElementById('form-titulo-header').innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
+      document.getElementById('painel-sugestoes').classList.add('hidden');
+      calcularMetricasTexto();
     }
 
     // 6. RENDERIZAR CARTÕES DE NOTAS
@@ -831,6 +1032,12 @@
       if (notas.length === 0) {
         container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada com esses termos.</p>`;
         return;
+      }
+
+      if (modoVisualizacao === 'lista') {
+        container.className = "flex flex-col gap-2";
+      } else {
+        container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
       }
 
       notas.forEach(nota => {
@@ -867,39 +1074,54 @@
 
         const cartao = document.createElement('div');
         cartao.id = `nota-${idStr}`;
-        cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
 
-        cartao.innerHTML = `
-          <div class="space-y-3">
-            <div class="flex justify-between items-center">
-              <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
-              <div class="flex items-center gap-1.5">
-                ${plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
-                <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
-                <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
-                <button type="button" onclick="eliminarNota('${idStr}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
+        if (modoVisualizacao === 'lista') {
+          cartao.className = 'bg-slate-800/80 border border-slate-700/80 rounded-lg p-3 flex flex-row justify-between items-center hover:border-slate-600 transition-all gap-4';
+          cartao.innerHTML = `
+            <div class="flex items-center gap-3 truncate">
+              <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
+              <span class="text-sm font-bold text-white truncate">${titulo}</span>
+              ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800">${categoria}</span>` : ''}
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
+              <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️</button>
+            </div>
+          `;
+        } else {
+          cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
+          cartao.innerHTML = `
+            <div class="space-y-3">
+              <div class="flex justify-between items-center">
+                <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
+                <div class="flex items-center gap-1.5">
+                  ${plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
+                  <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
+                  <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
+                  <button type="button" onclick="eliminarNota('${idStr}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
+                </div>
               </div>
+
+              ${(categoria || subcategoria) ? `
+                <div class="flex items-center gap-1.5 text-xs font-semibold">
+                  ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
+                  ${subcategoria ? `<span class="text-slate-400">/ ${subcategoria}</span>` : ''}
+                </div>
+              ` : ''}
+
+              <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
+              <div class="markdown-body text-slate-300 text-sm leading-relaxed">
+                ${markdownRenderizado}
+              </div>
+              ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
             </div>
 
-            ${(categoria || subcategoria) ? `
-              <div class="flex items-center gap-1.5 text-xs font-semibold">
-                ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
-                ${subcategoria ? `<span class="text-slate-400">/ ${subcategoria}</span>` : ''}
-              </div>
-            ` : ''}
-
-            <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
-            <div class="markdown-body text-slate-300 text-sm leading-relaxed">
-              ${markdownRenderizado}
+            <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
+              ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
+              ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
             </div>
-            ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
-          </div>
-
-          <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
-            ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
-            ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
-          </div>
-        `;
+          `;
+        }
 
         container.appendChild(cartao);
       });
@@ -1011,14 +1233,32 @@
       document.getElementById('secção-notas').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 9. ABRIR MODAL COM OPÇÕES DE EXPORTAÇÃO
-    function abrirModalNota(idNota) {
+    // 9. ABRIR MODAL COM HISTÓRICO E OPÇÕES DE EXPORTAÇÃO
+    function abrirModalNota(idNota, adicionarAoHistorico = false) {
       const idLimpo = String(idNota).trim();
       const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
       if (!nota) return;
 
+      if (!adicionarAoHistorico) {
+        historicoModal = [];
+      }
+      historicoModal.push(idLimpo);
+
+      renderizarModalConteudo(nota);
+      document.getElementById('modal-nota').classList.remove('hidden');
+    }
+
+    function voltarModalHistorico() {
+      if (historicoModal.length > 1) {
+        historicoModal.pop();
+        const idAnterior = historicoModal[historicoModal.length - 1];
+        const notaAnterior = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idAnterior);
+        if (notaAnterior) renderizarModalConteudo(notaAnterior);
+      }
+    }
+
+    function renderizarModalConteudo(nota) {
       const modalCorpo = document.getElementById('modal-conteudo-corpo');
-      const modalContainer = document.getElementById('modal-nota');
 
       const id = obterValorPropriedade(nota, 'id');
       const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
@@ -1029,6 +1269,9 @@
       const urlMedia = obterValorPropriedade(nota, 'urlmedia');
       const tagsStr = obterValorPropriedade(nota, 'tags');
       const linksStr = obterValorPropriedade(nota, 'linkspara');
+
+      const palavras = conteudo ? conteudo.trim().split(/\s+/).length : 0;
+      const tempoLeitura = Math.ceil(palavras / 200);
 
       const tagsArr = tagsStr ? tagsStr.split(',') : [];
       const linksArr = linksStr ? linksStr.split(',') : [];
@@ -1044,7 +1287,7 @@
         if (!targetId) return '';
         const notaAlvo = mapaNotas.get(targetId);
         const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-        return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
+        return `<button type="button" onclick="abrirModalNota('${targetId}', true)" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
       }).filter(Boolean).join('');
 
       const conteudoComWikilinks = processarWikilinks(conteudo || '');
@@ -1052,9 +1295,12 @@
 
       modalCorpo.innerHTML = `
         <div class="space-y-4">
-          <!-- Cabeçalho com padding-right (pr-10) para margem do botão "✕" -->
           <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 pr-10 gap-2">
-            <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
+            <div class="flex items-center gap-2">
+              ${historicoModal.length > 1 ? `<button type="button" onclick="voltarModalHistorico()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded border border-slate-700 transition-colors">⬅️ Voltar</button>` : ''}
+              <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
+            </div>
+            
             <div class="flex flex-wrap items-center gap-2">
               ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
               <button type="button" onclick="exportarNotaMarkdown('${id}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
@@ -1075,13 +1321,16 @@
             ${markdownRenderizado}
           </div>
 
+          <div class="text-[11px] text-slate-500 font-mono flex items-center gap-3 pt-1">
+            <span>📝 ${palavras} palavras</span>
+            <span>⏱️ ~${tempoLeitura} min de leitura</span>
+          </div>
+
           ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
           ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
           ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS CONECTADAS:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
         </div>
       `;
-
-      modalContainer.classList.remove('hidden');
     }
 
     // EXPORTAR PARA APLICAÇÕES TIPO OBSIDIAN (.md)
@@ -1113,6 +1362,16 @@ ${conteudo}
       const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `${id}_${titulo.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+      a.click();
+    }
+
+    function exportarBackupJSON() {
+      if (todasAsNotas.length === 0) return alert('Sem notas para exportar.');
+      const jsonContent = JSON.stringify(todasAsNotas, null, 2);
+      const blob = new Blob([jsonContent], { type: 'application/json' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Zettelkasten_Backup_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
     }
 
@@ -1185,6 +1444,7 @@ ${conteudo}
       if (e.key === 'Escape') {
         fecharModal();
         fecharBookmarkletModal();
+        document.getElementById('autocomplete-list').classList.add('hidden');
         const inputBusca = document.getElementById('input-busca');
         if (document.activeElement === inputBusca) {
           inputBusca.value = '';
