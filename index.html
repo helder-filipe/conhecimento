@@ -20,7 +20,7 @@
   <style>
     #graph-container {
       width: 100%;
-      height: 480px;
+      height: 520px;
       background-color: #0f172a; /* Slate 900 */
       border: 1px solid #334155; /* Slate 700 */
       border-radius: 0.75rem;
@@ -78,18 +78,24 @@
 </head>
 <body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
 
-  <!-- Navegação / Cabeçalho com Alinhamento Inferior -->
+  <!-- Navegação / Cabeçalho com Alinhamento Inferior e Botões Rápidos -->
   <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-50 backdrop-blur-md shadow-lg shadow-slate-950/20">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end gap-3">
       <!-- LOGO E SUBTÍTULO -->
       <div class="flex flex-col items-start gap-1">
-        <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-20 object-contain rounded-lg shadow-md border border-slate-600/50">
-        <p class="text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
+        <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-16 sm:h-20 object-contain rounded-lg shadow-md border border-slate-600/50">
+        <p class="text-[11px] sm:text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
       </div>
 
-      <!-- BOTÃO DE ATUALIZAR -->
+      <!-- BOTÕES DE NAVEGAÇÃO RÁPIDA -->
       <div class="flex items-center gap-2">
-        <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="bg-indigo-600 hover:bg-indigo-500 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center font-medium shadow-md">
+        <button type="button" onclick="irParaFormulario()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
+          <span>➕</span> <span class="hidden sm:inline">Criar Nota</span>
+        </button>
+        <button type="button" onclick="irParaGrafo()" class="bg-slate-700 hover:bg-slate-600 text-indigo-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
+          <span>🕸️</span> <span class="hidden sm:inline">Ver Grafos</span>
+        </button>
+        <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-lg transition-colors flex items-center justify-center font-medium border border-slate-600 shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         </button>
       </div>
@@ -98,158 +104,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
-    <!-- GUIA COMPLETO DO ZETTELKASTEN & CHEATSHEET MARKDOWN (RETRÁTIL) -->
-    <section class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 shadow-xl">
-      <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGuiaZettelkasten()">
-        <h2 class="text-base font-bold text-indigo-400 flex items-center gap-2">
-          <span>🧠</span> Guia Prático de Utilização Eficiente & Sintaxe Markdown
-        </h2>
-        <span id="guia-icon" class="text-xs text-slate-400 bg-slate-900/60 px-2.5 py-1 rounded-md border border-slate-700">▼ Expandir Guia</span>
-      </div>
-
-      <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t border-slate-700/60 text-sm text-slate-300 space-y-6">
-        
-        <!-- OS PRINCÍPIOS METODOLÓGICOS -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          
-          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>1.</span> O Princípio da Nota Atómica (Uma Ideia por Nota)
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              <strong>Regra de Ouro:</strong> Cada nota deve focar-se apenas em um conceito ou reflexão principal.<br>
-              <strong>Evita notas longas:</strong> Em vez de criares uma nota chamada <em>"Anotações sobre Inteligência Artificial"</em>, cria notas pequenas como <em>"Redes Neuronais Convolucionais"</em> ou <em>"O Conceito de Hallucination em LLMs"</em>.<br>
-              <strong>Porquê?</strong> Ideias pequenas e focadas são muito mais fáceis de ligar a múltiplos temas diferentes ao longo do tempo.
-            </p>
-          </div>
-
-          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>2.</span> A Lógica dos Links Bidirecionais (`[[ID]]` e Ligar a IDs)
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              A magia do Zettelkasten não está nas notas isoladas, mas nas conexões entre elas.<br>
-              Sempre que editas uma nota, podes escrever <code class="text-sky-400 font-mono">[[202607241010]]</code> diretamente no corpo do texto ou adicionar o ID no campo <strong>"Ligar a IDs"</strong>.<br>
-              <strong>Visualização:</strong> O teu Graph View vai formar clusters coloridos por Categoria, mostrando os teus "caminhos de pensamento".
-            </p>
-          </div>
-
-          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>3.</span> Uso Estratégico de Categorias e Subcategorias
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              <strong>Categoria:</strong> O grande "domínio" do conhecimento (ex: <em>Programação, Marketing, Produtividade, Padel</em>). Isto define a cor do nó no mapa e na legenda.<br>
-              <strong>Subcategoria:</strong> O nicho específico dentro desse domínio (ex: <em>JavaScript, SEO, Treino Mental</em>).<br>
-              <strong>Consistência:</strong> Mantém os nomes das categorias padronizados.
-            </p>
-          </div>
-
-          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>4.</span> Captura Rápida de Recursos Multimédia
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              <strong>Links de apoio:</strong> Adiciona vídeos do YouTube, artigos da Web ou posts do X/Twitter no campo de URLs.<br>
-              <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas em grelha para reveres visualmente a fonte original.
-            </p>
-          </div>
-
-          <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-              <span>5.</span> Navegação Fluida por Tags & Atalhos
-            </h3>
-            <p class="text-xs text-slate-300 leading-relaxed">
-              Usa tags abrangentes (ex: <code class="text-indigo-400">#conceito</code>, <code class="text-indigo-400">#tutorial</code>). Clica em qualquer <strong>#tag</strong> num cartão para filtrar.<br>
-              <strong>Atalhos úteis:</strong> <code class="text-indigo-300">Ctrl+N</code> (Nova Nota), <code class="text-indigo-300">Ctrl+K</code> (Pesquisar), <code class="text-indigo-300">Esc</code> (Fechar modal/limpar).
-            </p>
-          </div>
-
-        </div>
-
-        <!-- EXEMPLO PRÁTICO DO FLUXO DE TRABALHO -->
-        <div class="bg-indigo-950/40 border border-indigo-800/60 p-4 rounded-lg">
-          <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-            💡 Exemplo Prático de um Fluxo de Trabalho:
-          </h3>
-          <ol class="list-decimal pl-5 text-xs text-slate-200 space-y-1">
-            <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
-            <li>Abres o Zettelkasten Hub ➔ Crias a nota com o teu próprio resumo em Markdown.</li>
-            <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
-            <li>Olhas para o Grafo/Busca ➔ Descobres uma nota antiga sobre o mesmo tema e colocas o ID dela no campo "Ligar a IDs" ou escreves <code class="text-sky-300 font-mono">[[ID]]</code> no texto.</li>
-            <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
-          </ol>
-        </div>
-
-        <!-- GUIA COMPLETO DE SÍMBOLOS MARKDOWN -->
-        <div>
-          <h3 class="font-bold text-slate-100 mb-2 text-xs uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
-            <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian Style)
-          </h3>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left text-xs border-collapse bg-slate-900/70 rounded-lg overflow-hidden border border-slate-800">
-              <thead>
-                <tr class="bg-slate-950/80 text-slate-400 border-b border-slate-800">
-                  <th class="p-2.5 font-semibold">Símbolo / Elemento</th>
-                  <th class="p-2.5 font-semibold">Como Escrever (Sintaxe)</th>
-                  <th class="p-2.5 font-semibold">Resultado Visual na Nota</th>
-                </tr>
-              </thead>
-              <tbody class="divide-y divide-slate-800/60 text-slate-300 font-mono">
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Wikilink / Nota Conectada</td>
-                  <td class="p-2.5 text-sky-400">[[202607241010]]</td>
-                  <td class="p-2.5 font-sans"><span class="wikilink-badge">🔗 Nota #202607241010</span></td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Título Principal (H1)</td>
-                  <td class="p-2.5 text-sky-400"># Título Exemplo</td>
-                  <td class="p-2.5 font-sans text-base font-bold text-white">Título Exemplo</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 2 (H2)</td>
-                  <td class="p-2.5 text-sky-400">## Seção Importante</td>
-                  <td class="p-2.5 font-sans text-sm font-semibold text-slate-200">Seção Importante</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Negrito</td>
-                  <td class="p-2.5 text-sky-400">**conceito chave**</td>
-                  <td class="p-2.5 font-sans font-bold text-white">conceito chave</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Itálico</td>
-                  <td class="p-2.5 text-sky-400">*termo em destaque* ou _termo_</td>
-                  <td class="p-2.5 font-sans italic text-slate-300">termo em destaque</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Citação</td>
-                  <td class="p-2.5 text-sky-400">&gt; O conhecimento acumula-se.</td>
-                  <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic text-slate-400">O conhecimento acumula-se.</td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Código em Linha</td>
-                  <td class="p-2.5 text-sky-400">`npm install`</td>
-                  <td class="p-2.5"><code class="bg-slate-950 px-1.5 py-0.5 rounded text-sky-400">npm install</code></td>
-                </tr>
-                <tr>
-                  <td class="p-2.5 font-sans font-medium text-slate-200">Lista Não-Ordenada</td>
-                  <td class="p-2.5 text-sky-400">- Item 1<br>* Item 2</td>
-                  <td class="p-2.5 font-sans">
-                    <ul class="list-disc pl-4 space-y-0.5">
-                      <li>Item 1</li>
-                      <li>Item 2</li>
-                    </ul>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-      </div>
-    </section>
-
-    <!-- NOVO: PAINEL DE METRICAS E ANALYTICS DA REDE -->
+    <!-- 1. PAINEL DE METRICAS DA REDE -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
       <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
         <div>
@@ -284,40 +139,195 @@
       </div>
     </section>
 
-    <!-- Secção do Grafo (Vis Network) -->
-    <section>
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-3 gap-2">
-        <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
-          <span>🕸️</span> Mapa de Conexões (Graph View)
-        </h2>
-        <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
+    <!-- 2. SECÇÃO DE FILTROS E BARRA DE PESQUISA -->
+    <section id="secção-pesquisa" class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-lg scroll-mt-24">
+      <div class="w-full sm:w-96 relative">
+        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, categoria, conteúdo, ID ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-16 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
+        <span class="absolute right-2.5 top-2.5 text-[10px] font-mono text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">Ctrl+K</span>
       </div>
-
-      <!-- Legenda Interativa de Cores por Categoria -->
-      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs text-slate-300 select-none">
-        <!-- Preenchido via JavaScript -->
-      </div>
-
-      <div id="graph-container" class="shadow-2xl relative">
-        <div id="graph-loader" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 rounded-xl z-10">
-          <span class="text-sm text-indigo-400 font-medium">A sincronizar com Google Sheets...</span>
-        </div>
+      <div class="text-xs text-slate-400">
+        Notas visíveis: <span id="notas-visiveis" class="font-bold text-indigo-400">0</span>
       </div>
     </section>
 
-    <!-- Formulário para Criar/Editar Nota -->
-    <section id="form-container" class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl">
-      <div class="flex justify-between items-center mb-4">
+    <!-- 3. GRELHA DE CARTÕES DE NOTAS ATÓMICAS (EM DESTAQUE INICIAL) -->
+    <section id="secção-notas" class="scroll-mt-24">
+      <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+        <span>📝</span> Notas Atómicas
+      </h2>
+      <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </section>
+
+    <hr class="border-slate-800">
+
+    <!-- 4. FORMULÁRIO PARA CRIAR/EDITAR NOTA -->
+    <section id="form-container" class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl scroll-mt-24">
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
         <h2 id="form-titulo-header" class="text-lg font-bold text-indigo-400 flex items-center gap-2">
           <span>➕</span> Criar Nova Nota Zettelkasten
         </h2>
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
+          <!-- BOTÃO VOLTAR ÀS NOTAS -->
+          <button type="button" onclick="irParaNotas()" class="bg-slate-900 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1">
+            <span>⬆️</span> Voltar às Notas
+          </button>
           <button type="button" onclick="mostrarBookmarkletModal()" class="text-xs text-indigo-400 hover:text-indigo-300 font-medium underline flex items-center gap-1">
             <span>🔖</span> Bookmarklet
           </button>
           <button type="button" onclick="limparFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">
             Limpar / Nova Nota
           </button>
+        </div>
+      </div>
+
+      <!-- GUIA COMPLETO DO ZETTELKASTEN & CHEATSHEET MARKDOWN -->
+      <div class="mb-6 bg-slate-900/60 border border-slate-700/60 rounded-xl p-4">
+        <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGuiaZettelkasten()">
+          <h3 class="text-xs sm:text-sm font-bold text-indigo-300 flex items-center gap-2">
+            <span>🧠</span> Guia Prático de Utilização Eficiente & Sintaxe Markdown
+          </h3>
+          <span id="guia-icon" class="text-[11px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700">▼ Expandir Guia</span>
+        </div>
+
+        <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t border-slate-700/60 text-sm text-slate-300 space-y-6">
+          
+          <!-- OS PRINCÍPIOS METODOLÓGICOS -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <span>1.</span> O Princípio da Nota Atómica (Uma Ideia por Nota)
+              </h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                <strong>Regra de Ouro:</strong> Cada nota deve focar-se apenas em um conceito ou reflexão principal.<br>
+                <strong>Evita notas longas:</strong> Em vez de criares uma nota chamada <em>"Anotações sobre Inteligência Artificial"</em>, cria notas pequenas como <em>"Redes Neuronais Convolucionais"</em> ou <em>"O Conceito de Hallucination em LLMs"</em>.<br>
+                <strong>Porquê?</strong> Ideias pequenas e focadas são muito mais fáceis de ligar a múltiplos temas diferentes ao longo do tempo.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <span>2.</span> A Lógica dos Links Bidirecionais (`[[ID]]` e Ligar a IDs)
+              </h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                A magia do Zettelkasten não está nas notas isoladas, mas nas conexões entre elas.<br>
+                Sempre que editas uma nota, podes escrever <code class="text-sky-400 font-mono">[[202607241010]]</code> diretamente no corpo do texto ou adicionar o ID no campo <strong>"Ligar a IDs"</strong>.<br>
+                <strong>Visualização:</strong> O teu Graph View vai formar clusters coloridos por Categoria, mostrando os teus "caminhos de pensamento".
+              </p>
+            </div>
+
+            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <span>3.</span> Uso Estratégico de Categorias e Subcategorias
+              </h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                <strong>Categoria:</strong> O grande "domínio" do conhecimento (ex: <em>Programação, Marketing, Produtividade, Padel</em>). Isto define a cor do nó no mapa e na legenda.<br>
+                <strong>Subcategoria:</strong> O nicho específico dentro desse domínio (ex: <em>JavaScript, SEO, Treino Mental</em>).<br>
+                <strong>Consistência:</strong> Mantém os nomes das categorias padronizados.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <span>4.</span> Captura Rápida de Recursos Multimédia
+              </h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                <strong>Links de apoio:</strong> Adiciona vídeos do YouTube, artigos da Web ou posts do X/Twitter no campo de URLs.<br>
+                <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas em grelha para reveres visualmente a fonte original.
+              </p>
+            </div>
+
+            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                <span>5.</span> Navegação Fluida por Tags & Atalhos
+              </h3>
+              <p class="text-xs text-slate-300 leading-relaxed">
+                Usa tags abrangentes (ex: <code class="text-indigo-400">#conceito</code>, <code class="text-indigo-400">#tutorial</code>). Clica em qualquer <strong>#tag</strong> num cartão para filtrar.<br>
+                <strong>Atalhos úteis:</strong> <code class="text-indigo-300">Ctrl+N</code> (Nova Nota), <code class="text-indigo-300">Ctrl+K</code> (Pesquisar), <code class="text-indigo-300">Esc</code> (Fechar modal/limpar).
+              </p>
+            </div>
+
+          </div>
+
+          <!-- EXEMPLO PRÁTICO DO FLUXO DE TRABALHO -->
+          <div class="bg-indigo-950/40 border border-indigo-800/60 p-4 rounded-lg">
+            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              💡 Exemplo Prático de um Fluxo de Trabalho:
+            </h3>
+            <ol class="list-decimal pl-5 text-xs text-slate-200 space-y-1">
+              <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
+              <li>Abres o Zettelkasten Hub ➔ Crias a nota com o teu próprio resumo em Markdown.</li>
+              <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
+              <li>Olhas para o Grafo/Busca ➔ Descobres uma nota antiga sobre o mesmo tema e colocas o ID dela no campo "Ligar a IDs" ou escreves <code class="text-sky-300 font-mono">[[ID]]</code> no texto.</li>
+              <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
+            </ol>
+          </div>
+
+          <!-- GUIA COMPLETO DE SÍMBOLOS MARKDOWN (OBSIDIAN STYLE) -->
+          <div>
+            <h3 class="font-bold text-slate-100 mb-2 text-xs uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+              <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian Style)
+            </h3>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left text-xs border-collapse bg-slate-900/70 rounded-lg overflow-hidden border border-slate-800">
+                <thead>
+                  <tr class="bg-slate-950/80 text-slate-400 border-b border-slate-800">
+                    <th class="p-2.5 font-semibold">Símbolo / Elemento</th>
+                    <th class="p-2.5 font-semibold">Como Escrever (Sintaxe)</th>
+                    <th class="p-2.5 font-semibold">Resultado Visual na Nota</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Wikilink / Nota Conectada</td>
+                    <td class="p-2.5 text-sky-400">[[202607241010]]</td>
+                    <td class="p-2.5 font-sans"><span class="wikilink-badge">🔗 Nota #202607241010</span></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Título Principal (H1)</td>
+                    <td class="p-2.5 text-sky-400"># Título Exemplo</td>
+                    <td class="p-2.5 font-sans text-base font-bold text-white">Título Exemplo</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 2 (H2)</td>
+                    <td class="p-2.5 text-sky-400">## Seção Importante</td>
+                    <td class="p-2.5 font-sans text-sm font-semibold text-slate-200">Seção Importante</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Negrito</td>
+                    <td class="p-2.5 text-sky-400">**conceito chave**</td>
+                    <td class="p-2.5 font-sans font-bold text-white">conceito chave</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Itálico</td>
+                    <td class="p-2.5 text-sky-400">*termo em destaque* ou _termo_</td>
+                    <td class="p-2.5 font-sans italic text-slate-300">termo em destaque</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Citação</td>
+                    <td class="p-2.5 text-sky-400">&gt; O conhecimento acumula-se.</td>
+                    <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic text-slate-400">O conhecimento acumula-se.</td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Código em Linha</td>
+                    <td class="p-2.5 text-sky-400">`npm install`</td>
+                    <td class="p-2.5"><code class="bg-slate-950 px-1.5 py-0.5 rounded text-sky-400">npm install</code></td>
+                  </tr>
+                  <tr>
+                    <td class="p-2.5 font-sans font-medium text-slate-200">Lista Não-Ordenada</td>
+                    <td class="p-2.5 text-sky-400">- Item 1<br>* Item 2</td>
+                    <td class="p-2.5 font-sans">
+                      <ul class="list-disc pl-4 space-y-0.5">
+                        <li>Item 1</li>
+                        <li>Item 2</li>
+                      </ul>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
         </div>
       </div>
       
@@ -359,7 +369,7 @@
           <label class="block text-xs font-medium text-slate-400 mb-1">
             Conteúdo / Ideia Atómica <span class="text-indigo-400 font-mono">(usa [[ID]] para citar notas)</span>
           </label>
-          <textarea id="novo-conteudo" rows="3" required placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+          <textarea id="novo-conteudo" rows="4" required placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -379,32 +389,42 @@
           </div>
         </div>
 
-        <button type="submit" id="btn-submeter" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2">
+        <button type="submit" id="btn-submeter" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-md">
           <span>💾</span> Guardar Nota no Zettelkasten
         </button>
       </form>
     </section>
 
-    <!-- Secção de Filtros / Pesquisa -->
-    <section class="flex flex-col sm:flex-row gap-4 justify-between items-center bg-slate-800/50 p-4 rounded-xl border border-slate-800">
-      <div class="w-full sm:w-96 relative">
-        <input type="text" id="input-busca" oninput="filtrarNotas()" placeholder="Pesquisar por título, categoria, conteúdo, ID ou tag..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-16 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
-        <span class="absolute right-2.5 top-2.5 text-[10px] font-mono text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded">Ctrl+K</span>
+    <hr class="border-slate-800">
+
+    <!-- 5. SECÇÃO DO GRAFO (GRAFOS POSICIONADOS NO FIM) -->
+    <section id="secção-grafo" class="scroll-mt-24">
+      <div class="flex flex-wrap sm:flex-row items-center justify-between mb-3 gap-2">
+        <div class="flex items-center gap-3">
+          <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+            <span>🕸️</span> Mapa de Conexões (Graph View)
+          </h2>
+          <!-- BOTÃO VOLTAR ÀS NOTAS -->
+          <button type="button" onclick="irParaNotas()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded-lg border border-slate-700 transition-colors flex items-center gap-1">
+            <span>⬆️</span> Voltar às Notas
+          </button>
+        </div>
+        <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
       </div>
-      <div class="text-xs text-slate-400">
-        Notas visíveis: <span id="notas-visiveis" class="font-bold text-indigo-400">0</span>
+
+      <!-- Legenda Interativa de Cores por Categoria -->
+      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs text-slate-300 select-none">
+        <!-- Preenchido via JavaScript -->
+      </div>
+
+      <div id="graph-container" class="shadow-2xl relative">
+        <div id="graph-loader" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 rounded-xl z-10">
+          <span class="text-sm text-indigo-400 font-medium">A sincronizar com Google Sheets...</span>
+        </div>
       </div>
     </section>
 
-    <!-- Grelha de Cartões (Notas Zettelkasten) -->
-    <section>
-      <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
-        <span>📝</span> Notas Atómicas
-      </h2>
-      <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-    </section>
-
-    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA (Ajustado botão ✕) -->
+    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA -->
     <div id="modal-nota" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4" onclick="if(event.target === this) fecharModal()">
       <div class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
         <!-- Botão de Fechar fixado com margem confortável -->
@@ -455,6 +475,21 @@
     ];
 
     const mapaCoresCategorias = new Map();
+
+    // NAVEGAÇÃO SUAVE
+    function irParaGrafo() {
+      document.getElementById('secção-grafo').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function irParaFormulario() {
+      limparFormulario();
+      document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+      document.getElementById('novo-titulo').focus();
+    }
+
+    function irParaNotas() {
+      document.getElementById('secção-pesquisa').scrollIntoView({ behavior: 'smooth' });
+    }
 
     function toggleGuiaZettelkasten() {
       const conteudo = document.getElementById('guia-conteudo');
@@ -529,8 +564,8 @@
         document.getElementById('notas-visiveis').textContent = todasAsNotas.length;
         
         calcularEstatisticasRede();
-        renderizarGrafo(todasAsNotas);
         renderizarCartoes(todasAsNotas);
+        renderizarGrafo(todasAsNotas);
 
         if (statusText) statusText.textContent = `${todasAsNotas.length} notas carregadas`;
       } catch (erro) {
@@ -973,8 +1008,7 @@
 
       fecharModal();
 
-      inputBusca.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      inputBusca.focus();
+      document.getElementById('secção-notas').scrollIntoView({ behavior: 'smooth' });
     }
 
     // 9. ABRIR MODAL COM OPÇÕES DE EXPORTAÇÃO
@@ -1112,7 +1146,7 @@ ${conteudo}
         if (url) document.getElementById('novo-url').value = decodeURIComponent(url);
         document.getElementById('nova-plataforma').value = 'Artigo';
         
-        document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+        irParaFormulario();
       }
     }
 
@@ -1136,9 +1170,7 @@ ${conteudo}
       // Ctrl + N ou Cmd + N -> Nova Nota
       if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'n') {
         e.preventDefault();
-        limparFormulario();
-        document.getElementById('novo-titulo').focus();
-        document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
+        irParaFormulario();
       }
 
       // Ctrl + K ou Cmd + K -> Pesquisa
