@@ -1913,26 +1913,30 @@ ${conteudo}
     }
 
     function gerarLinkBookmarklet() {
-      const baseUrl = window.location.href.split('?')[0];
-      
-      // Código que usa uma janela limpa, imune às restrições CSP do YouTube/X/Instagram
+      // Obtém o URL atual sem parâmetros de busca
+      let baseUrl = window.location.href.split('?')[0].split('#')[0];
+
+      // Se estiveres a rodar localmente via file://, avisa o utilizador
+      if (baseUrl.startsWith('file://')) {
+        console.warn('O Bookmarklet precisa que o Hub esteja num servidor web (ex: Live Server ou GitHub Pages) para funcionar.');
+      }
+
+      // Código JS limpo e compatível com todos os browsers
       const code = `javascript:(function(){
-        var urlAtual = window.location.href;
-        var tituloAtual = document.title;
-        
-        // Remove sufixos comuns de títulos (ex: "- YouTube")
-        tituloAtual = tituloAtual.replace(/ - YouTube$/, '').replace(/ \\| X$/, '');
-        
-        var hubUrl = '${baseUrl}?title=' + encodeURIComponent(tituloAtual) + '&url=' + encodeURIComponent(urlAtual);
-        
-        var win = window.open(hubUrl, '_blank');
-        if(!win) {
-          alert('O browser bloqueou a janela! Por favor, permite pop-ups para este site.');
+        var hubUrl = '${baseUrl}';
+        if(hubUrl.startsWith('file://')) {
+          alert('Atenção: O Bookmarklet não funciona com ficheiros locais (file:///). Hospeda o teu Hub no GitHub Pages ou usa o Live Server!');
+          return;
         }
+        var t = encodeURIComponent(document.title.replace(/ - YouTube$/, ''));
+        var u = encodeURIComponent(window.location.href);
+        window.open(hubUrl + '?title=' + t + '&url=' + u, '_blank');
       })();`;
 
       const linkEl = document.getElementById('link-bookmarklet');
-      if (linkEl) linkEl.href = code;
+      if (linkEl) {
+        linkEl.href = code;
+      }
     }
 
     function mostrarBookmarkletModal() {
