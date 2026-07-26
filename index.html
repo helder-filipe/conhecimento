@@ -174,16 +174,14 @@
 </head>
 <body class="min-h-screen font-sans antialiased">
 
-  <!-- Navegação / Cabeçalho com Alinhamento Inferior e Botões Rápidos -->
+  <!-- Navegação / Cabeçalho -->
   <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-40 backdrop-blur-md shadow-lg shadow-slate-950/20">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end gap-3">
-      <!-- LOGO E SUBTÍTULO -->
       <div class="flex flex-col items-start gap-1">
         <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-16 sm:h-20 object-contain rounded-lg shadow-md border border-slate-600/50">
         <p class="text-[11px] sm:text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
       </div>
 
-      <!-- BOTÕES DE NAVEGAÇÃO RÁPIDA, TEMA E FERRAMENTAS -->
       <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
         <button type="button" onclick="irParaFormulario()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
           <span>➕</span> <span class="hidden sm:inline">Criar Nota</span>
@@ -198,7 +196,6 @@
           💾 <span class="hidden md:inline text-xs ml-1 text-slate-200">Backup</span>
         </button>
         
-        <!-- ALTERNADOR DE TEMAS -->
         <button type="button" id="btn-tema" onclick="alternarTemaVisual()" title="Mudar Tema (Dark/Light/Sepia)" class="bg-slate-700 hover:bg-slate-600 text-amber-300 p-2 rounded-lg transition-colors border border-slate-600 shadow-md text-xs">
           🌙
         </button>
@@ -212,7 +209,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
-    <!-- 1. PAINEL DE METRICAS DA REDE & SAÚDE DO CONHECIMENTO -->
+    <!-- 1. PAINEL DE METRICAS DA REDE -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
       <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
         <div>
@@ -271,23 +268,17 @@
         </h3>
         <span id="streak-count" class="text-xs font-bold text-emerald-400">🔥 0 dias seguidos</span>
       </div>
-      <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1">
-        <!-- Renderizado dinamicamente via JS -->
-      </div>
+      <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1"></div>
     </section>
 
-    <!-- 2. SECÇÃO DE FILTROS, PESQUISA SEMÂNTICA E LINHA DO TEMPO -->
+    <!-- 2. SECÇÃO DE FILTROS E PESQUISA -->
     <section id="secção-pesquisa" class="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-lg scroll-mt-24">
       <div class="w-full md:w-80 relative flex items-center">
         <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-20 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
-        
-        <!-- BOTÃO DE LIMPAR/CANCELAR PESQUISA (X) -->
         <button type="button" id="btn-limpar-busca" onclick="limparBusca()" class="hidden absolute right-12 text-slate-400 hover:text-white p-1 font-bold text-xs" title="Limpar Pesquisa">✕</button>
-        
         <span class="absolute right-2.5 text-[10px] font-mono text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded pointer-events-none">Ctrl+K</span>
       </div>
       
-      <!-- FILTROS DE ESTADO, DATA E MODO DE VISUALIZAÇÃO -->
       <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400 w-full md:w-auto justify-between md:justify-end">
         <div class="flex items-center gap-1.5">
           <span>✏️ Estado:</span>
@@ -327,7 +318,7 @@
       <hr class="border-slate-800 my-6">
     </section>
 
-    <!-- 3. GRELHA DE CARTÕES DE NOTAS ATÓMICAS (EM DESTAQUE INICIAL) -->
+    <!-- 3. GRELHA DE CARTÕES DE NOTAS -->
     <section id="secção-notas" class="scroll-mt-24">
       <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
         <span>📝</span> Notas Atómicas
@@ -353,7 +344,7 @@
         </div>
       </div>
 
-      <!-- GUIA COMPLETO DO ZETTELKASTEN & CHEATSHEET MARKDOWN -->
+      <!-- GUIA ZETTELKASTEN & CHEATSHEET -->
       <div class="mb-6 bg-slate-900/60 border border-slate-700/60 rounded-xl p-4">
         <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGuiaZettelkasten()">
           <h3 class="text-xs sm:text-sm font-bold text-indigo-300 flex items-center gap-2">
@@ -363,7 +354,6 @@
         </div>
 
         <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t border-slate-700/60 text-sm text-slate-300 space-y-6">
-          
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
               <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
@@ -372,7 +362,7 @@
               <p class="text-xs text-slate-300 leading-relaxed">
                 <strong>Regra de Ouro:</strong> Cada nota deve focar-se apenas em um conceito ou reflexão principal.<br>
                 <strong>Evita notas longas:</strong> Em vez de criares uma nota chamada <em>"Anotações sobre Inteligência Artificial"</em>, cria notas pequenas como <em>"Redes Neuronais Convolucionais"</em> ou <em>"O Conceito de Hallucination em LLMs"</em>.<br>
-                <strong>Porquê?</strong> Ideias pequenas e focadas são muito mais fáceis de ligar a múltiplos temas diferentes ao longo do tempo.
+                <strong>Porquê?</strong> Ideias pequenas e focadas são muito mais fácil de ligar a múltiplos temas diferentes ao longo do tempo.
               </p>
             </div>
 
@@ -505,7 +495,7 @@
         </label>
         <div class="flex gap-2">
           <input type="url" id="input-captura-rapida" placeholder="Cola aqui um link (ex: https://www.youtube.com/watch?v=...)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
-          <button type="button" onclick="processarCapturaRapida()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shrink-0 flex items-center gap-1">
+          <button type="button" onclick="processarCapturaRapida(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shrink-0 flex items-center gap-1">
             <span>🚀</span> Extrair Dados
           </button>
         </div>
@@ -614,7 +604,7 @@
 
     <hr class="border-slate-800">
 
-    <!-- 5. SECÇÃO DO GRAFO (GRAFOS POSICIONADOS NO FIM) -->
+    <!-- 5. SECÇÃO DO GRAFO -->
     <section id="secção-grafo" class="scroll-mt-24">
       <div class="flex flex-wrap sm:flex-row items-center justify-between mb-3 gap-2">
         <div class="flex items-center gap-3">
@@ -646,7 +636,7 @@
       </div>
     </section>
 
-    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA -->
+    <!-- MODAL -->
     <div id="modal-nota" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-all" onclick="if(event.target === this) fecharModal()">
       <div id="modal-card-box" class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto transition-all">
         <button type="button" onclick="fecharModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-8 h-8 flex items-center justify-center rounded-lg transition-colors z-10">
@@ -658,7 +648,7 @@
 
   </main>
 
-  <!-- Lógica JavaScript -->
+  <!-- Lógica JavaScript Otimizada -->
   <script>
     const API_URL = 'https://script.google.com/macros/s/AKfycbx7FIf0ElU39cn7oFpSkim0m9u8ofNkjJNneBKnz2qQzYgJ6RxFFyNWu8LdrbtjtczZJg/exec';
 
@@ -670,8 +660,17 @@
     let modoVisualizacao = 'grelha';
     let emModoZen = false;
     let ocultarOrfasNoGrafo = false;
+    let debounceTimer = null;
+
     let temaAtual = localStorage.getItem('zettelkasten_tema') || 'dark';
-    let notasFixadas = JSON.parse(localStorage.getItem('zettelkasten_pinned') || '[]');
+    let notasFixadas = [];
+    try {
+      notasFixadas = JSON.parse(localStorage.getItem('zettelkasten_pinned') || '[]');
+      if (!Array.isArray(notasFixadas)) notasFixadas = [];
+    } catch(e) {
+      notasFixadas = [];
+    }
+
     let sintetizadorVoz = window.speechSynthesis || null;
     let aLeraudio = false;
 
@@ -686,6 +685,18 @@
     ];
 
     const mapaCoresCategorias = new Map();
+
+    // UTILITÁRIO DE SEGURANÇA: Escape HTML para evitar XSS
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/[&<>"']/g, match => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#39;'
+      }[match]));
+    }
 
     function aplicarTemaVisual(tema) {
       temaAtual = tema;
@@ -779,9 +790,14 @@
     }
 
     function obterValorPropriedade(objeto, chaveProcurada) {
-      if (!objeto) return '';
-      const chaveEncontrada = Object.keys(objeto).find(k => k.toLowerCase().replace(/\s+/g, '').includes(chaveProcurada.toLowerCase().replace(/\s+/g, '')));
-      return chaveEncontrada && objeto[chaveEncontrada] !== undefined ? String(objeto[chaveEncontrada]).trim() : '';
+      if (!objeto || typeof objeto !== 'object') return '';
+      const keys = Object.keys(objeto);
+      const chaveNormalizada = chaveProcurada.toLowerCase().replace(/\s+/g, '');
+      const chaveEncontrada = keys.find(k => k.toLowerCase().replace(/\s+/g, '').includes(chaveNormalizada));
+      
+      return chaveEncontrada && objeto[chaveEncontrada] !== undefined && objeto[chaveEncontrada] !== null 
+        ? String(objeto[chaveEncontrada]).trim() 
+        : '';
     }
 
     function obterCorCategoria(categoria) {
@@ -805,7 +821,7 @@
         const idLimpo = String(idNota).trim();
         const notaAlvo = mapaNotas.get(idLimpo);
         const titulo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${idLimpo}`;
-        return `<span onclick="abrirModalNota('${idLimpo}', true)" class="wikilink-badge" title="${titulo}">🔗 ${titulo}</span>`;
+        return `<span onclick="abrirModalNota('${escapeHTML(idLimpo)}', true)" class="wikilink-badge" title="${escapeHTML(titulo)}">🔗 ${escapeHTML(titulo)}</span>`;
       });
     }
 
@@ -826,20 +842,29 @@
       if (cacheLocal) {
         try {
           todasAsNotas = JSON.parse(cacheLocal);
-          atualizarInterfaceNotas();
-        } catch(e) { console.error(e); }
+          if (Array.isArray(todasAsNotas)) {
+            atualizarInterfaceNotas();
+          }
+        } catch(e) { 
+          console.error('Erro ao ler cache:', e); 
+        }
       }
 
       try {
         const resposta = await fetch(API_URL);
-        todasAsNotas = await resposta.json();
-
-        localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
-        atualizarInterfaceNotas();
-
-        if (statusText) statusText.textContent = `${todasAsNotas.length} notas sincronizadas`;
+        if (!resposta.ok) throw new Error(`HTTP error! status: ${resposta.status}`);
+        
+        const dados = await resposta.json();
+        if (Array.isArray(dados)) {
+          todasAsNotas = dados;
+          localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
+          atualizarInterfaceNotas();
+          if (statusText) statusText.textContent = `${todasAsNotas.length} notas sincronizadas`;
+        } else {
+          throw new Error("Formato de resposta inválido.");
+        }
       } catch (erro) {
-        console.error('Erro de rede, usando dados locais:', erro);
+        console.error('Erro de rede/sincronização, mantendo dados locais:', erro);
         if (statusText) statusText.textContent = 'Modo Offline (Cache Local)';
       } finally {
         if (loader) loader.classList.add('hidden');
@@ -868,8 +893,8 @@
     function renderizarHeatmapProdutividade() {
       const container = document.getElementById('heatmap-container');
       if (!container) return;
-      container.innerHTML = '';
-
+      
+      const fragmento = document.createDocumentFragment();
       const contagemDatas = new Map();
 
       todasAsNotas.forEach(nota => {
@@ -877,11 +902,7 @@
         if (dtStr) {
           const d = new Date(dtStr);
           if (!isNaN(d.getTime())) {
-            const ano = d.getFullYear();
-            const mes = String(d.getMonth() + 1).padStart(2, '0');
-            const dia = String(d.getDate()).padStart(2, '0');
-            const isoLocal = `${ano}-${mes}-${dia}`;
-
+            const isoLocal = d.toISOString().split('T')[0];
             contagemDatas.set(isoLocal, (contagemDatas.get(isoLocal) || 0) + 1);
           }
         }
@@ -892,12 +913,7 @@
       for (let i = 29; i >= 0; i--) {
         const d = new Date();
         d.setDate(hoje.getDate() - i);
-        
-        const ano = d.getFullYear();
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const dia = String(d.getDate()).padStart(2, '0');
-        const isoLocal = `${ano}-${mes}-${dia}`;
-
+        const isoLocal = d.toISOString().split('T')[0];
         const qtd = contagemDatas.get(isoLocal) || 0;
 
         let cor = 'bg-slate-700/50';
@@ -905,26 +921,23 @@
         else if (qtd === 2) cor = 'bg-emerald-600';
         else if (qtd >= 3) cor = 'bg-emerald-400';
 
-        container.innerHTML += `
-          <div class="heatmap-day ${cor} transition-transform hover:scale-125 cursor-pointer" title="${isoLocal}: ${qtd} nota(s)"></div>
-        `;
+        const dayDiv = document.createElement('div');
+        dayDiv.className = `heatmap-day ${cor} transition-transform hover:scale-125 cursor-pointer`;
+        dayDiv.title = `${isoLocal}: ${qtd} nota(s)`;
+        fragmento.appendChild(dayDiv);
       }
+
+      container.innerHTML = '';
+      container.appendChild(fragmento);
 
       let streak = 0;
       for (let i = 0; i < 30; i++) {
         const d = new Date();
         d.setDate(hoje.getDate() - i);
-        
-        const ano = d.getFullYear();
-        const mes = String(d.getMonth() + 1).padStart(2, '0');
-        const dia = String(d.getDate()).padStart(2, '0');
-        const isoLocal = `${ano}-${mes}-${dia}`;
-
+        const isoLocal = d.toISOString().split('T')[0];
         const qtd = contagemDatas.get(isoLocal) || 0;
 
-        if (i === 0 && qtd === 0) {
-          continue; 
-        }
+        if (i === 0 && qtd === 0) continue;
 
         if (qtd > 0) {
           streak++;
@@ -1105,9 +1118,9 @@
           const eAtivo = categoriaFiltroAtiva && categoriaFiltroAtiva.toLowerCase() === item.nomeExibicao.toLowerCase();
           const classeBorda = eAtivo ? 'ring-2 ring-indigo-400 font-bold bg-slate-700 text-white' : 'bg-slate-800 text-slate-200 hover:bg-slate-750';
           return `
-            <span onclick="alternarFiltroCategoriaGrafo('${item.nomeExibicao}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-700 cursor-pointer transition-all ${classeBorda}">
+            <span onclick="alternarFiltroCategoriaGrafo('${escapeHTML(item.nomeExibicao)}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-700 cursor-pointer transition-all ${classeBorda}">
               <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.cores.bg}"></span>
-              <span>${item.nomeExibicao}</span>
+              <span>${escapeHTML(item.nomeExibicao)}</span>
             </span>
           `;
         }).join('');
@@ -1198,7 +1211,7 @@
           listDiv.innerHTML = resultados.map(r => {
             const id = obterValorPropriedade(r, 'id');
             const tit = obterValorPropriedade(r, 'titulo');
-            return `<div class="autocomplete-item" onclick="completarWikilink('${id}')"><strong>${id}</strong> - ${tit}</div>`;
+            return `<div class="autocomplete-item" onclick="completarWikilink('${escapeHTML(id)}')"><strong>${escapeHTML(id)}</strong> - ${escapeHTML(tit)}</div>`;
           }).join('');
           listDiv.classList.remove('hidden');
           return;
@@ -1253,7 +1266,7 @@
         lista.innerHTML = sugeridas.map(s => {
           const id = obterValorPropriedade(s, 'id');
           const tit = obterValorPropriedade(s, 'titulo');
-          return `<button type="button" onclick="adicionarLinkManual('${id}')" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 text-[11px] px-2 py-0.5 rounded transition-colors">+ ${tit} (#${id})</button>`;
+          return `<button type="button" onclick="adicionarLinkManual('${escapeHTML(id)}')" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 text-[11px] px-2 py-0.5 rounded transition-colors">+ ${escapeHTML(tit)} (#${escapeHTML(id)})</button>`;
         }).join('');
         painel.classList.remove('hidden');
       } else {
@@ -1305,7 +1318,7 @@
           return `
             <div class="rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
               <div class="aspect-video w-full relative">
-                <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${videoId}?enablejsapi=1" title="YouTube" frameborder="0" allowfullscreen></iframe>
+                <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${escapeHTML(videoId)}?enablejsapi=1" title="YouTube" frameborder="0" allowfullscreen></iframe>
               </div>
             </div>
           `;
@@ -1314,9 +1327,9 @@
         const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
         return `
           <div class="rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 group">
-            <a href="${urlValida}" target="_blank" rel="noopener noreferrer" class="block">
+            <a href="${escapeHTML(urlValida)}" target="_blank" rel="noopener noreferrer" class="block">
               <div class="aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
-                <img src="${imagemApiUrl}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\'p-3 text-xs text-slate-500\'>🔗 ${urlValida}</div>';" />
+                <img src="${escapeHTML(imagemApiUrl)}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-3 text-xs text-slate-500\\'>🔗 ${escapeHTML(urlValida)}</div>';" />
               </div>
             </a>
           </div>
@@ -1347,7 +1360,7 @@
       document.getElementById('novos-links').value = obterValorPropriedade(nota, 'linkspara');
 
       document.getElementById('btn-submeter').innerHTML = '<span>✏️</span> Guardar Alterações';
-      document.getElementById('form-titulo-header').innerHTML = `<span>✏️</span> Editar Nota (${obterValorPropriedade(nota, 'id')})`;
+      document.getElementById('form-titulo-header').innerHTML = `<span>✏️</span> Editar Nota (${escapeHTML(obterValorPropriedade(nota, 'id'))})`;
       
       document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
 
@@ -1383,13 +1396,17 @@
       const elVisiveis = document.getElementById('notas-visiveis');
       if (elVisiveis) elVisiveis.textContent = notas.length;
 
+      const fragNormal = document.createDocumentFragment();
+      const fragPinned = document.createDocumentFragment();
+
       const notasFixadasLista = notas.filter(n => notasFixadas.includes(String(obterValorPropriedade(n, 'id')).trim()));
 
       if (notasFixadasLista.length > 0 && pinnedSection) {
         pinnedSection.classList.remove('hidden');
         notasFixadasLista.forEach(nota => {
-          pinnedContainer.appendChild(criarElementoCartao(nota, true));
+          fragPinned.appendChild(criarElementoCartao(nota, true));
         });
+        pinnedContainer.appendChild(fragPinned);
       } else if (pinnedSection) {
         pinnedSection.classList.add('hidden');
       }
@@ -1406,8 +1423,9 @@
       }
 
       notas.forEach(nota => {
-        container.appendChild(criarElementoCartao(nota, false));
+        fragNormal.appendChild(criarElementoCartao(nota, false));
       });
+      container.appendChild(fragNormal);
     }
 
     function criarElementoCartao(nota, eFixado) {
@@ -1432,7 +1450,7 @@
       const tagsHTML = tagsArr.map(t => {
         const tagLimpa = t.trim();
         if (!tagLimpa) return '';
-        return `<button type="button" onclick="event.stopPropagation(); filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
+        return `<button type="button" onclick="event.stopPropagation(); filtrarPorTag('${escapeHTML(tagLimpa)}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${escapeHTML(tagLimpa)}</button>`;
       }).join(' ');
 
       const linksHTML = linksArr.map(linkId => {
@@ -1440,7 +1458,7 @@
         if (!targetId) return '';
         const notaAlvo = mapaNotas.get(targetId);
         const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-        return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
+        return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
       }).filter(Boolean).join('');
 
       const conteudoComWikilinks = processarWikilinks(conteudo || '');
@@ -1458,16 +1476,16 @@
         cartao.className = `bg-slate-800/80 border border-slate-700/80 rounded-lg p-3 flex flex-row justify-between items-center hover:border-slate-600 transition-all gap-4 ${eMOC ? 'card-moc' : ''} ${eRascunho ? 'card-rascunho' : ''} ${estaNasFixadas ? 'card-pinned' : ''}`;
         cartao.innerHTML = `
           <div class="flex items-center gap-3 truncate">
-            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
-            <button type="button" onclick="alternarNotaFixada('${idStr}')" title="Fixar Nota" class="text-xs">${estaNasFixadas ? '📌' : '📍'}</button>
+            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${escapeHTML(idStr)}</span>
+            <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="Fixar Nota" class="text-xs">${estaNasFixadas ? '📌' : '📍'}</button>
             ${eRascunho ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold">✏️ Rascunho</span>` : ''}
             ${eMOC ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold">🗺️ MOC</span>` : ''}
-            <span class="text-sm font-bold text-white truncate">${titulo}</span>
-            ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800">${categoria}</span>` : ''}
+            <span class="text-sm font-bold text-white truncate">${escapeHTML(titulo)}</span>
+            ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800">${escapeHTML(categoria)}</span>` : ''}
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
-            <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️</button>
+            <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
+            <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️</button>
           </div>
         `;
       } else {
@@ -1475,26 +1493,26 @@
         cartao.innerHTML = `
           <div class="space-y-3">
             <div class="flex justify-between items-center">
-              <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
+              <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${escapeHTML(idStr)}</span>
               <div class="flex items-center gap-1.5">
-                <button type="button" onclick="alternarNotaFixada('${idStr}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:bg-slate-700 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
+                <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:bg-slate-700 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
                 ${eRascunho ? `<span class="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
                 ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
-                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
-                <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
-                <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
-                <button type="button" onclick="eliminarNota('${idStr}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
+                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
+                <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
+                <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
+                <button type="button" onclick="eliminarNota('${escapeHTML(idStr)}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
               </div>
             </div>
 
             ${(categoria || subcategoria) ? `
               <div class="flex items-center gap-1.5 text-xs font-semibold">
-                ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
-                ${subcategoria ? `<span class="text-slate-400">/ ${subcategoria}</span>` : ''}
+                ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${escapeHTML(categoria)}</span>` : ''}
+                ${subcategoria ? `<span class="text-slate-400">/ ${escapeHTML(subcategoria)}</span>` : ''}
               </div>
             ` : ''}
 
-            <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
+            <h3 class="text-base font-bold text-white leading-snug">${escapeHTML(titulo)}</h3>
             <div class="markdown-body text-slate-300 text-sm leading-relaxed">
               ${markdownRenderizado}
             </div>
@@ -1591,6 +1609,7 @@
       }
     }
 
+    // DEBOUNCE PARA A BUSCA (Melhoria de Performance)
     function aoDigitarBusca() {
       const val = document.getElementById('input-busca').value;
       const btnLimpar = document.getElementById('btn-limpar-busca');
@@ -1600,7 +1619,11 @@
       } else {
         btnLimpar.classList.add('hidden');
       }
-      filtrarNotas();
+
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        filtrarNotas();
+      }, 250);
     }
 
     function limparBusca() {
@@ -1619,17 +1642,14 @@
       const filtroEstado = elFiltroEstado ? elFiltroEstado.value : 'tudo';
 
       const palavrasChave = termo.split(/\s+/).filter(Boolean);
-
       const hoje = new Date();
 
       let notasFiltradas = todasAsNotas.filter(nota => {
-        // 1. Filtrar por Estado (Concluída / Rascunho)
         const estadoNota = obterValorPropriedade(nota, 'estado') || 'Concluída';
         if (filtroEstado !== 'tudo' && estadoNota !== filtroEstado) {
           return false;
         }
 
-        // 2. Filtrar por Data (Linha do Tempo)
         const dataStr = obterValorPropriedade(nota, 'datacriacao');
         if (filtroData !== 'tudo' && dataStr) {
           const dataNota = new Date(dataStr);
@@ -1644,7 +1664,6 @@
 
         if (palavrasChave.length === 0) return true;
 
-        // 3. Pontuação de Relevância
         const id = String(obterValorPropriedade(nota, 'id')).toLowerCase();
         const titulo = String(obterValorPropriedade(nota, 'titulo')).toLowerCase();
         const conteudo = String(obterValorPropriedade(nota, 'conteudo')).toLowerCase();
@@ -1741,7 +1760,7 @@
       const tagsHTML = tagsArr.map(t => {
         const tagLimpa = t.trim();
         if (!tagLimpa) return '';
-        return `<button type="button" onclick="filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
+        return `<button type="button" onclick="filtrarPorTag('${escapeHTML(tagLimpa)}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${escapeHTML(tagLimpa)}</button>`;
       }).join(' ');
 
       const linksHTML = linksArr.map(linkId => {
@@ -1749,7 +1768,7 @@
         if (!targetId) return '';
         const notaAlvo = mapaNotas.get(targetId);
         const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-        return `<button type="button" onclick="abrirModalNota('${targetId}', true)" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
+        return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}', true)" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
       }).filter(Boolean).join('');
 
       const backlinks = todasAsNotas.filter(n => {
@@ -1763,7 +1782,7 @@
       const backlinksHTML = backlinks.map(b => {
         const bId = obterValorPropriedade(b, 'id');
         const bTitulo = obterValorPropriedade(b, 'titulo') || `Nota #${bId}`;
-        return `<button type="button" onclick="abrirModalNota('${bId}', true)" class="text-xs text-emerald-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">⬅️ ${bTitulo} (#${bId})</button>`;
+        return `<button type="button" onclick="abrirModalNota('${escapeHTML(bId)}', true)" class="text-xs text-emerald-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">⬅️ ${escapeHTML(bTitulo)} (#${escapeHTML(bId)})</button>`;
       }).join('');
 
       const conexoesJaExistentes = new Set([...linksArr, ...backlinks.map(b=>obterValorPropriedade(b,'id')), id]);
@@ -1783,7 +1802,7 @@
       const sugeridasHTML = sugeridasDescobertas.map(s => {
         const sId = obterValorPropriedade(s, 'id');
         const sTitulo = obterValorPropriedade(s, 'titulo');
-        return `<button type="button" onclick="fecharModal(); prepararEdicao('${id}'); adicionarLinkManual('${sId}')" class="text-xs text-amber-300 hover:underline bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded flex items-center gap-1">+ Ligar a: ${sTitulo} (#${sId})</button>`;
+        return `<button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}'); adicionarLinkManual('${escapeHTML(sId)}')" class="text-xs text-amber-300 hover:underline bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded flex items-center gap-1">+ Ligar a: ${escapeHTML(sTitulo)} (#${escapeHTML(sId)})</button>`;
       }).join('');
 
       const conteudoComWikilinks = processarWikilinks(conteudo || '');
@@ -1797,29 +1816,29 @@
           <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 pr-10 gap-2">
             <div class="flex items-center gap-2">
               ${historicoModal.length > 1 ? `<button type="button" onclick="voltarModalHistorico()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded border border-slate-700 transition-colors">⬅️ Voltar</button>` : ''}
-              <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
-              <button type="button" onclick="alternarNotaFixada('${id}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs bg-slate-800 p-1 rounded border border-slate-700">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
+              <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${escapeHTML(id)}</span>
+              <button type="button" onclick="alternarNotaFixada('${escapeHTML(id)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs bg-slate-800 p-1 rounded border border-slate-700">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
               ${eRascunho ? `<span class="text-xs font-bold text-amber-400 bg-amber-950/80 px-2.5 py-1 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="btn-audio-player" onclick="alternarLeituraAudio('${tituloParaAudio}', '${conteudoParaAudio}')" class="text-xs text-sky-300 hover:text-sky-200 px-2.5 py-1 rounded bg-sky-950/50 border border-sky-800/60 transition-colors">🔊 Ouvir</button>
+              <button type="button" id="btn-audio-player" onclick="alternarLeituraAudio('${escapeHTML(tituloParaAudio)}', '${escapeHTML(conteudoParaAudio)}')" class="text-xs text-sky-300 hover:text-sky-200 px-2.5 py-1 rounded bg-sky-950/50 border border-sky-800/60 transition-colors">🔊 Ouvir</button>
               <button type="button" onclick="alternarModoZen()" class="text-xs text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded bg-amber-950/40 border border-amber-800/60 transition-colors" title="Modo Zen (Leitura Plena)">🧘 Zen</button>
-              ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
-              <button type="button" onclick="exportarNotaMarkdown('${id}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
-              <button type="button" onclick="copiarTextoNota('${id}')" title="Copiar texto" class="text-xs text-emerald-400 hover:text-emerald-300 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-800/60 transition-colors">📋 Copiar</button>
-              <button type="button" onclick="fecharModal(); prepararEdicao('${id}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
-              <button type="button" onclick="eliminarNota('${id}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
+              ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
+              <button type="button" onclick="exportarNotaMarkdown('${escapeHTML(id)}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
+              <button type="button" onclick="copiarTextoNota('${escapeHTML(id)}')" title="Copiar texto" class="text-xs text-emerald-400 hover:text-emerald-300 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-800/60 transition-colors">📋 Copiar</button>
+              <button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
+              <button type="button" onclick="eliminarNota('${escapeHTML(id)}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
             </div>
           </div>
 
           ${(categoria || subcategoria) ? `
             <div class="text-xs font-semibold text-indigo-400">
-              ${categoria || ''} ${subcategoria ? `<span class="text-slate-500">/ ${subcategoria}</span>` : ''}
+              ${escapeHTML(categoria || '')} ${subcategoria ? `<span class="text-slate-500">/ ${escapeHTML(subcategoria)}</span>` : ''}
             </div>
           ` : ''}
 
-          <h2 class="text-xl font-bold text-white leading-snug">${titulo}</h2>
+          <h2 class="text-xl font-bold text-white leading-snug">${escapeHTML(titulo)}</h2>
           <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
             ${markdownRenderizado}
           </div>
@@ -1957,16 +1976,18 @@ ${conteudo}
       }
     }
 
-    async function processarCapturaRapida() {
+    async function processarCapturaRapida(e) {
       const inputUrl = document.getElementById('input-captura-rapida');
       const urlValido = inputUrl.value.trim();
 
       if (!urlValido) return alert('Por favor, insere um URL válido.');
 
-      const btn = event.currentTarget;
-      const textoOriginal = btn.innerHTML;
-      btn.innerText = 'A obter dados...';
-      btn.disabled = true;
+      const btn = e ? e.currentTarget : null;
+      const textoOriginal = btn ? btn.innerHTML : '';
+      if (btn) {
+        btn.innerText = 'A obter dados...';
+        btn.disabled = true;
+      }
 
       try {
         document.getElementById('novo-url').value = urlValido;
@@ -2017,8 +2038,10 @@ ${conteudo}
       } catch (erro) {
         console.error('Erro na captura rápida:', erro);
       } finally {
-        btn.innerHTML = textoOriginal;
-        btn.disabled = false;
+        if (btn) {
+          btn.innerHTML = textoOriginal;
+          btn.disabled = false;
+        }
       }
     }
 
