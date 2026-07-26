@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-PT" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zettelkasten Hub</title>
+  <title>Zettelkasten Hub Pro</title>
 
   <!-- FAVICON -->
   <link rel="icon" type="image/png" href="logo_simplificado.png">
@@ -17,12 +17,50 @@
   <!-- Parser de Markdown (Compatível com estilo Obsidian) -->
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
+  <!-- JSZip para exportação em Lote (.zip) -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+
   <style>
+    /* TEMAS VISUAIS CUSTOMIZADOS (DARK, LIGHT, SEPIA) */
+    html[data-theme="dark"] {
+      --bg-main: #0f172a;
+      --bg-card: rgba(30, 41, 59, 0.8);
+      --bg-input: #0f172a;
+      --text-main: #f1f5f9;
+      --border-color: #334155;
+      --graph-text: #f1f5f9;
+      --graph-edge: #818cf8;
+    }
+    html[data-theme="light"] {
+      --bg-main: #f8fafc;
+      --bg-card: #ffffff;
+      --bg-input: #f1f5f9;
+      --text-main: #0f172a;
+      --border-color: #cbd5e1;
+      --graph-text: #0f172a;
+      --graph-edge: #4338ca;
+    }
+    html[data-theme="sepia"] {
+      --bg-main: #fbf0d9;
+      --bg-card: #f4e4c1;
+      --bg-input: #ebd7b2;
+      --text-main: #433422;
+      --border-color: #d6c09b;
+      --graph-text: #2d2113;
+      --graph-edge: #7c2d12;
+    }
+
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s;
+    }
+
     #graph-container {
       width: 100%;
       height: 520px;
-      background-color: #0f172a; /* Slate 900 */
-      border: 1px solid #334155; /* Slate 700 */
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-color);
       border-radius: 0.75rem;
     }
 
@@ -30,27 +68,24 @@
       width: 6px;
     }
     ::-webkit-scrollbar-track {
-      background: #0f172a;
+      background: var(--bg-main);
     }
     ::-webkit-scrollbar-thumb {
-      background: #334155;
+      background: var(--border-color);
       border-radius: 3px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: #475569;
     }
 
     /* Estilos para o texto formatado em Markdown */
-    .markdown-body h1 { font-size: 1.25rem; font-weight: 700; color: #f8fafc; margin-top: 0.5rem; margin-bottom: 0.25rem; }
-    .markdown-body h2 { font-size: 1.1rem; font-weight: 600; color: #f1f5f9; margin-top: 0.5rem; margin-bottom: 0.25rem; }
-    .markdown-body h3 { font-size: 1rem; font-weight: 600; color: #e2e8f0; margin-top: 0.4rem; margin-bottom: 0.25rem; }
+    .markdown-body h1 { font-size: 1.25rem; font-weight: 700; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+    .markdown-body h2 { font-size: 1.1rem; font-weight: 600; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+    .markdown-body h3 { font-size: 1rem; font-weight: 600; color: currentColor; margin-top: 0.4rem; margin-bottom: 0.25rem; }
     .markdown-body p { margin-bottom: 0.5rem; }
     .markdown-body ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
     .markdown-body ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
-    .markdown-body blockquote { border-left: 3px solid #6366f1; padding-left: 0.75rem; color: #94a3b8; font-style: italic; margin: 0.5rem 0; }
-    .markdown-body code { background-color: #0f172a; padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.85em; color: #38bdf8; }
-    .markdown-body strong { color: #ffffff; font-weight: 700; }
-    .markdown-body em { color: #cbd5e1; font-style: italic; }
+    .markdown-body blockquote { border-left: 3px solid #6366f1; padding-left: 0.75rem; opacity: 0.8; font-style: italic; margin: 0.5rem 0; }
+    .markdown-body code { background-color: rgba(15, 23, 42, 0.4); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.85em; color: #38bdf8; }
+    .markdown-body strong { font-weight: 700; }
+    .markdown-body em { font-style: italic; }
 
     /* Estilo especial para os wikilinks [[ID]] */
     .wikilink-badge {
@@ -80,8 +115,8 @@
       position: absolute;
       max-height: 180px;
       overflow-y: auto;
-      background-color: #0f172a;
-      border: 1px solid #475569;
+      background-color: var(--bg-main);
+      border: 1px solid var(--border-color);
       border-radius: 0.5rem;
       z-index: 50;
       width: calc(100% - 1.5rem);
@@ -91,7 +126,7 @@
       padding: 0.5rem 0.75rem;
       cursor: pointer;
       font-size: 0.8rem;
-      border-bottom: 1px solid #1e293b;
+      border-bottom: 1px solid var(--border-color);
     }
     .autocomplete-item:hover {
       background-color: #1e1b4b;
@@ -110,9 +145,28 @@
       font-size: 1.05rem !important;
       line-height: 1.8 !important;
     }
+
+    /* Estilo Cartão MOC (Map of Content) */
+    .card-moc {
+      border: 2px solid #f59e0b !important;
+      background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
+    }
+
+    /* Estilo Cartão Pinned (Fixado) */
+    .card-pinned {
+      border: 2px solid #6366f1 !important;
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
+    }
+
+    /* Quadradinhos do Heatmap de Produtividade */
+    .heatmap-day {
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+    }
   </style>
 </head>
-<body class="bg-slate-900 text-slate-100 min-h-screen font-sans antialiased">
+<body class="min-h-screen font-sans antialiased">
 
   <!-- Navegação / Cabeçalho com Alinhamento Inferior e Botões Rápidos -->
   <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-40 backdrop-blur-md shadow-lg shadow-slate-950/20">
@@ -123,17 +177,26 @@
         <p class="text-[11px] sm:text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
       </div>
 
-      <!-- BOTÕES DE NAVEGAÇÃO RÁPIDA E FERRAMENTAS -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
+      <!-- BOTÕES DE NAVEGAÇÃO RÁPIDA, TEMA E FERRAMENTAS -->
+      <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
         <button type="button" onclick="irParaFormulario()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
           <span>➕</span> <span class="hidden sm:inline">Criar Nota</span>
         </button>
         <button type="button" onclick="irParaGrafo()" class="bg-slate-700 hover:bg-slate-600 text-indigo-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
           <span>🕸️</span> <span class="hidden sm:inline">Ver Grafos</span>
         </button>
+        <button type="button" onclick="exportarZipObsidian()" title="Exportar todas as notas em lote (.zip para Obsidian)" class="bg-slate-700 hover:bg-slate-600 text-sky-400 p-2 rounded-lg transition-colors border border-slate-600 shadow-md flex items-center gap-1 text-xs">
+          📦 <span class="hidden md:inline text-slate-200">ZIP</span>
+        </button>
         <button type="button" onclick="exportarBackupJSON()" title="Exportar Backup Global (JSON)" class="bg-slate-700 hover:bg-slate-600 text-emerald-400 p-2 rounded-lg transition-colors border border-slate-600 shadow-md">
           💾 <span class="hidden md:inline text-xs ml-1 text-slate-200">Backup</span>
         </button>
+        
+        <!-- ALTERNADOR DE TEMAS -->
+        <button type="button" id="btn-tema" onclick="alternarTemaVisual()" title="Mudar Tema (Dark/Light/Sepia)" class="bg-slate-700 hover:bg-slate-600 text-amber-300 p-2 rounded-lg transition-colors border border-slate-600 shadow-md text-xs">
+          🌙
+        </button>
+
         <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-lg transition-colors flex items-center justify-center font-medium border border-slate-600 shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         </button>
@@ -143,8 +206,8 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
-    <!-- 1. PAINEL DE METRICAS DA REDE -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+    <!-- 1. PAINEL DE METRICAS DA REDE & SAÚDE DO CONHECIMENTO -->
+    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
       <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
         <div>
           <p class="text-xs font-medium text-slate-400">Total de Notas</p>
@@ -163,8 +226,16 @@
 
       <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
         <div>
+          <p class="text-xs font-medium text-slate-400">Densidade da Rede</p>
+          <p id="densidade-rede" class="text-xl font-bold text-sky-400">0.0 <span id="saude-label" class="text-[10px] font-normal text-slate-400">links/nota</span></p>
+        </div>
+        <span class="text-2xl">📊</span>
+      </div>
+
+      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+        <div>
           <p class="text-xs font-medium text-slate-400">Nota Central (Hub)</p>
-          <p id="nota-hub" class="text-xs font-bold text-amber-300 truncate max-w-[140px]" title="Nenhuma">-</p>
+          <p id="nota-hub" class="text-xs font-bold text-amber-300 truncate max-w-[130px]" title="Nenhuma">-</p>
         </div>
         <span class="text-2xl">🌟</span>
       </div>
@@ -175,6 +246,19 @@
           <p id="notas-orfas" class="text-2xl font-bold text-purple-400">0</p>
         </div>
         <span class="text-2xl">🔍</span>
+      </div>
+    </section>
+
+    <!-- PAINEL DE HÁBITOS E PRODUTIVIDADE (HEATMAP DIÁRIO) -->
+    <section class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-md">
+      <div class="flex justify-between items-center mb-2">
+        <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          📊 Frequência de Escrita & Atividade (Últimos 30 Dias)
+        </h3>
+        <span id="streak-count" class="text-xs font-bold text-emerald-400">🔥 0 dias seguidos</span>
+      </div>
+      <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1">
+        <!-- Renderizado dinamicamente via JS -->
       </div>
     </section>
 
@@ -209,6 +293,15 @@
           <button type="button" id="btn-view-list" onclick="alternarModoVisualizacao('lista')" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]" title="Modo Lista Densa">☰ Lista Densa</button>
         </div>
       </div>
+    </section>
+
+    <!-- SECÇÃO DE NOTAS FIXADAS (PINNED) -->
+    <section id="secção-fixadas" class="hidden scroll-mt-24">
+      <h2 class="text-sm font-bold text-indigo-300 mb-3 flex items-center gap-2">
+        <span>📌</span> Notas Fixadas / Destaques
+      </h2>
+      <div id="pinned-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      <hr class="border-slate-800 my-6">
     </section>
 
     <!-- 3. GRELHA DE CARTÕES DE NOTAS ATÓMICAS (EM DESTAQUE INICIAL) -->
@@ -409,6 +502,7 @@
               <option value="Instagram">Instagram</option>
               <option value="X">X (Twitter)</option>
               <option value="Artigo">Artigo / Web</option>
+              <option value="MOC">🗺️ MOC (Mapa de Conteúdo)</option>
             </select>
           </div>
         </div>
@@ -503,7 +597,17 @@
             <span>⬆️</span> Voltar às Notas
           </button>
         </div>
-        <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
+
+        <!-- CONTROLOS AVANÇADOS DO GRAFO (OCULTAR ÓRFÃS / REPOSICIONAR) -->
+        <div class="flex items-center gap-2 text-xs">
+          <button type="button" id="btn-repor-grafo" onclick="reporFocoGrafo()" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors" title="Repor posição inicial da câmara">
+            🎯 Repor Foco
+          </button>
+          <button type="button" id="btn-toggle-orfas" onclick="alternarVisibilidadeOrfas()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors">
+            👁️ Ocultar Órfãs
+          </button>
+          <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
+        </div>
       </div>
 
       <!-- Legenda Interativa de Cores por Categoria -->
@@ -518,7 +622,7 @@
       </div>
     </section>
 
-    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA (COM MODO ZEN E BACKLINKS) -->
+    <!-- MODAL PARA VISUALIZAR DETALHES DA NOTA (COM MODO ZEN, AUDIO, SUGESTÕES E BACKLINKS) -->
     <div id="modal-nota" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-all" onclick="if(event.target === this) fecharModal()">
       <div id="modal-card-box" class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto transition-all">
         <!-- Botão de Fechar fixado -->
@@ -559,6 +663,11 @@
     let historicoModal = [];
     let modoVisualizacao = 'grelha'; // 'grelha' ou 'lista'
     let emModoZen = false;
+    let ocultarOrfasNoGrafo = false;
+    let temaAtual = localStorage.getItem('zettelkasten_tema') || 'dark';
+    let notasFixadas = JSON.parse(localStorage.getItem('zettelkasten_pinned') || '[]');
+    let sintetizadorVoz = window.speechSynthesis || null;
+    let aLeraudio = false;
 
     // PALETA DE CORES PARA CATEGORIAS
     const PALETA_CORES = [
@@ -572,6 +681,74 @@
     ];
 
     const mapaCoresCategorias = new Map();
+
+    // TEMA VISUAL (DARK / LIGHT / SEPIA)
+    function aplicarTemaVisual(tema) {
+      temaAtual = tema;
+      document.documentElement.setAttribute('data-theme', tema);
+      localStorage.setItem('zettelkasten_tema', tema);
+
+      const btn = document.getElementById('btn-tema');
+      if (btn) {
+        if (tema === 'dark') btn.innerText = '🌙';
+        else if (tema === 'light') btn.innerText = '☀️';
+        else btn.innerText = '📜';
+      }
+
+      if (todasAsNotas.length > 0) {
+        renderizarGrafo(todasAsNotas);
+      }
+    }
+
+    function alternarTemaVisual() {
+      if (temaAtual === 'dark') aplicarTemaVisual('light');
+      else if (temaAtual === 'light') aplicarTemaVisual('sepia');
+      else aplicarTemaVisual('dark');
+    }
+
+    // GESTÃO DE NOTAS FIXADAS (PINNED)
+    function alternarNotaFixada(idNota) {
+      const idStr = String(idNota).trim();
+      if (notasFixadas.includes(idStr)) {
+        notasFixadas = notasFixadas.filter(id => id !== idStr);
+      } else {
+        notasFixadas.push(idStr);
+      }
+      localStorage.setItem('zettelkasten_pinned', JSON.stringify(notasFixadas));
+      renderizarCartoes(todasAsNotas);
+      if (!document.getElementById('modal-nota').classList.contains('hidden')) {
+        const nota = mapaNotas.get(idStr);
+        if (nota) renderizarModalConteudo(nota);
+      }
+    }
+
+    // LEITOR DE ÁUDIO (TEXT-TO-SPEECH)
+    function alternarLeituraAudio(titulo, conteudo) {
+      if (!sintetizadorVoz) return alert('O teu navegador não suporta leitura por áudio.');
+
+      if (aLeraudio) {
+        sintetizadorVoz.cancel();
+        aLeraudio = false;
+        const btn = document.getElementById('btn-audio-player');
+        if (btn) btn.innerHTML = '🔊 Ouvir';
+        return;
+      }
+
+      const textoLimpo = (titulo + '. ' + conteudo).replace(/\[\[(\d+)\]\]/g, 'nota $1').replace(/[#*`>-]/g, '');
+      const utterance = new SpeechSynthesisUtterance(textoLimpo);
+      utterance.lang = 'pt-PT';
+
+      utterance.onend = () => {
+        aLeraudio = false;
+        const btn = document.getElementById('btn-audio-player');
+        if (btn) btn.innerHTML = '🔊 Ouvir';
+      };
+
+      sintetizadorVoz.speak(utterance);
+      aLeraudio = true;
+      const btn = document.getElementById('btn-audio-player');
+      if (btn) btn.innerHTML = '⏹️ Parar';
+    }
 
     // NAVEGAÇÃO SUAVE
     function irParaGrafo() {
@@ -633,6 +810,7 @@
     }
 
     document.addEventListener('DOMContentLoaded', () => {
+      aplicarTemaVisual(temaAtual);
       carregarZettelkasten();
       verificarParametrosURL();
       gerarLinkBookmarklet();
@@ -679,11 +857,86 @@
       document.getElementById('notas-visiveis').textContent = todasAsNotas.length;
       
       calcularEstatisticasRede();
+      renderizarHeatmapProdutividade();
       renderizarCartoes(todasAsNotas);
       renderizarGrafo(todasAsNotas);
     }
 
-    // CALCULAR ANALYTICS / ESTATÍSTICAS
+    // HEATMAP DE PRODUTIVIDADE & STREAK CORRIGIDO
+    function renderizarHeatmapProdutividade() {
+      const container = document.getElementById('heatmap-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      const contagemDatas = new Map();
+
+      todasAsNotas.forEach(nota => {
+        const dtStr = obterValorPropriedade(nota, 'datacriacao');
+        if (dtStr) {
+          const d = new Date(dtStr);
+          if (!isNaN(d.getTime())) {
+            const ano = d.getFullYear();
+            const mes = String(d.getMonth() + 1).padStart(2, '0');
+            const dia = String(d.getDate()).padStart(2, '0');
+            const isoLocal = `${ano}-${mes}-${dia}`;
+
+            contagemDatas.set(isoLocal, (contagemDatas.get(isoLocal) || 0) + 1);
+          }
+        }
+      });
+
+      const hoje = new Date();
+
+      // 1. DIBUJAR OS 30 DIAS NO QUADRO (Do passado para o presente)
+      for (let i = 29; i >= 0; i--) {
+        const d = new Date();
+        d.setDate(hoje.getDate() - i);
+        
+        const ano = d.getFullYear();
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const dia = String(d.getDate()).padStart(2, '0');
+        const isoLocal = `${ano}-${mes}-${dia}`;
+
+        const qtd = contagemDatas.get(isoLocal) || 0;
+
+        let cor = 'bg-slate-700/50';
+        if (qtd === 1) cor = 'bg-emerald-800';
+        else if (qtd === 2) cor = 'bg-emerald-600';
+        else if (qtd >= 3) cor = 'bg-emerald-400';
+
+        container.innerHTML += `
+          <div class="heatmap-day ${cor} transition-transform hover:scale-125 cursor-pointer" title="${isoLocal}: ${qtd} nota(s)"></div>
+        `;
+      }
+
+      // 2. CALCULAR O STREAK ATUAL DE FORMA PRECISA (Do presente para o passado)
+      let streak = 0;
+      for (let i = 0; i < 30; i++) {
+        const d = new Date();
+        d.setDate(hoje.getDate() - i);
+        
+        const ano = d.getFullYear();
+        const mes = String(d.getMonth() + 1).padStart(2, '0');
+        const dia = String(d.getDate()).padStart(2, '0');
+        const isoLocal = `${ano}-${mes}-${dia}`;
+
+        const qtd = contagemDatas.get(isoLocal) || 0;
+
+        // Se hoje ainda não criaste nota, tolera verificar desde ontem sem quebrar a sequência
+        if (i === 0 && qtd === 0) {
+          continue; 
+        }
+
+        if (qtd > 0) {
+          streak++;
+        } else {
+          break; // Interrompe a contagem assim que encontra o primeiro dia sem notas
+        }
+      }
+
+      document.getElementById('streak-count').textContent = `🔥 ${streak} dia(s) ativo(s) seguidos`;
+    }
+    // CALCULAR ANALYTICS & DENSIDADE DA REDE
     function calcularEstatisticasRede() {
       let totalConexoes = 0;
       let orfasCount = 0;
@@ -712,6 +965,10 @@
       document.getElementById('total-conexoes').textContent = totalConexoes;
       document.getElementById('notas-orfas').textContent = orfasCount;
 
+      // Calcular Densidade
+      const densidade = todasAsNotas.length > 0 ? (totalConexoes / todasAsNotas.length).toFixed(1) : '0.0';
+      document.getElementById('densidade-rede').innerHTML = `${densidade} <span class="text-[10px] font-normal text-slate-400">links/nota</span>`;
+
       let idHubMaisConectado = null;
       let maxConexoes = 0;
       contagemLinks.forEach((qtd, id) => {
@@ -733,12 +990,30 @@
       }
     }
 
-    // 2. RENDERIZAR GRAFO COM FILTRO INTERATIVO POR CATEGORIA
+    // 2. RENDERIZAR GRAFO COM CONTRASTE ADAPTÁVEL AO TEMA
+    function alternarVisibilidadeOrfas() {
+      ocultarOrfasNoGrafo = !ocultarOrfasNoGrafo;
+      const btn = document.getElementById('btn-toggle-orfas');
+      if (btn) {
+        btn.textContent = ocultarOrfasNoGrafo ? '👁️ Mostrar Órfãs' : '👁️ Ocultar Órfãs';
+      }
+      renderizarGrafo(todasAsNotas);
+    }
+
+    function reporFocoGrafo() {
+      if (networkInstance) {
+        networkInstance.fit({ animation: { duration: 800, easingFunction: 'easeInOutQuad' } });
+      }
+    }
+
     function renderizarGrafo(notas) {
       const nodesArray = [];
       const edgesArray = [];
       
       mapaCoresCategorias.clear();
+
+      const corTextoNo = (temaAtual === 'light') ? '#0f172a' : (temaAtual === 'sepia' ? '#2d2113' : '#f1f5f9');
+      const corAresta = (temaAtual === 'light') ? '#4338ca' : (temaAtual === 'sepia' ? '#7c2d12' : '#818cf8');
 
       const idsExistentes = new Set();
       notas.forEach(n => {
@@ -746,33 +1021,12 @@
         if (idValor) idsExistentes.add(String(idValor).trim());
       });
 
+      const nosComConexao = new Set();
+
       notas.forEach(nota => {
         const idStr = String(obterValorPropriedade(nota, 'id')).trim();
         const linksStr = obterValorPropriedade(nota, 'linkspara');
         const conteudo = obterValorPropriedade(nota, 'conteudo');
-        const tituloStr = obterValorPropriedade(nota, 'titulo') || `Nota ${idStr}`;
-        const catStr = obterValorPropriedade(nota, 'categoria') || 'Geral';
-
-        if (!idStr) return;
-
-        const infoCategoria = obterCorCategoria(catStr);
-
-        const eCategoriaAtiva = !categoriaFiltroAtiva || catStr.toLowerCase() === categoriaFiltroAtiva.toLowerCase();
-        const opacidade = eCategoriaAtiva ? 1.0 : 0.15;
-
-        nodesArray.push({
-          id: idStr,
-          label: tituloStr,
-          shape: 'dot',
-          size: eCategoriaAtiva ? 20 : 12,
-          color: {
-            background: infoCategoria.cores.bg,
-            border: infoCategoria.cores.border,
-            highlight: { background: '#a855f7', border: '#c084fc' }
-          },
-          opacity: opacidade,
-          font: { color: eCategoriaAtiva ? '#f1f5f9' : '#475569', size: 12 }
-        });
 
         const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
         const linksManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()) : [];
@@ -780,14 +1034,46 @@
 
         destinos.forEach(destino => {
           if (destino && idsExistentes.has(destino) && destino !== idStr) {
+            nosComConexao.add(idStr);
+            nosComConexao.add(destino);
             edgesArray.push({
               from: idStr,
               to: destino,
-              color: { color: eCategoriaAtiva ? '#818cf8' : '#334155', highlight: '#c084fc', inherit: false },
-              width: eCategoriaAtiva ? 2 : 0.5,
+              color: { color: corAresta, highlight: '#c084fc', inherit: false },
+              width: 2,
               arrows: { to: { enabled: true, scaleFactor: 0.8 } }
             });
           }
+        });
+      });
+
+      notas.forEach(nota => {
+        const idStr = String(obterValorPropriedade(nota, 'id')).trim();
+        const tituloStr = obterValorPropriedade(nota, 'titulo') || `Nota ${idStr}`;
+        const catStr = obterValorPropriedade(nota, 'categoria') || 'Geral';
+        const plataforma = obterValorPropriedade(nota, 'plataforma');
+
+        if (!idStr) return;
+        if (ocultarOrfasNoGrafo && !nosComConexao.has(idStr)) return;
+
+        const infoCategoria = obterCorCategoria(catStr);
+
+        const eCategoriaAtiva = !categoriaFiltroAtiva || catStr.toLowerCase() === categoriaFiltroAtiva.toLowerCase();
+        const opacidade = eCategoriaAtiva ? 1.0 : 0.15;
+        const eMOC = plataforma === 'MOC';
+
+        nodesArray.push({
+          id: idStr,
+          label: eMOC ? `🗺️ ${tituloStr}` : tituloStr,
+          shape: eMOC ? 'diamond' : 'dot',
+          size: eMOC ? 28 : (eCategoriaAtiva ? 20 : 12),
+          color: {
+            background: eMOC ? '#f59e0b' : infoCategoria.cores.bg,
+            border: eMOC ? '#fbbf24' : infoCategoria.cores.border,
+            highlight: { background: '#a855f7', border: '#c084fc' }
+          },
+          opacity: opacidade,
+          font: { color: eCategoriaAtiva ? corTextoNo : '#94a3b8', size: 12, strokeWidth: 2, strokeColor: (temaAtual === 'light' || temaAtual === 'sepia') ? '#ffffff' : '#0f172a' }
         });
       });
 
@@ -795,7 +1081,7 @@
       if (legendaDiv) {
         let legendaHTML = Array.from(mapaCoresCategorias.values()).map(item => {
           const eAtivo = categoriaFiltroAtiva && categoriaFiltroAtiva.toLowerCase() === item.nomeExibicao.toLowerCase();
-          const classeBorda = eAtivo ? 'ring-2 ring-indigo-400 font-bold bg-slate-700' : 'bg-slate-800 hover:bg-slate-750';
+          const classeBorda = eAtivo ? 'ring-2 ring-indigo-400 font-bold bg-slate-700 text-white' : 'bg-slate-800 text-slate-200 hover:bg-slate-750';
           return `
             <span onclick="alternarFiltroCategoriaGrafo('${item.nomeExibicao}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-700 cursor-pointer transition-all ${classeBorda}">
               <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.cores.bg}"></span>
@@ -1036,7 +1322,6 @@
       document.getElementById('btn-submeter').innerHTML = '<span>✏️</span> Guardar Alterações';
       document.getElementById('form-titulo-header').innerHTML = `<span>✏️</span> Editar Nota (${obterValorPropriedade(nota, 'id')})`;
       
-      // Mostrar Botão Cancelar Edição
       document.getElementById('btn-cancelar-edicao').classList.remove('hidden');
 
       document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
@@ -1052,18 +1337,32 @@
       document.getElementById('form-titulo-header').innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
       document.getElementById('painel-sugestoes').classList.add('hidden');
       
-      // Esconder Botão Cancelar Edição
       document.getElementById('btn-cancelar-edicao').classList.add('hidden');
 
       calcularMetricasTexto();
     }
 
-    // 6. RENDERIZAR CARTÕES DE NOTAS
+    // 6. RENDERIZAR CARTÕES DE NOTAS (COM SUPORTE A NOTAS FIXADAS)
     function renderizarCartoes(notas) {
       const container = document.getElementById('cards-container');
+      const pinnedContainer = document.getElementById('pinned-container');
+      const pinnedSection = document.getElementById('secção-fixadas');
+
       container.innerHTML = '';
+      pinnedContainer.innerHTML = '';
 
       document.getElementById('notas-visiveis').textContent = notas.length;
+
+      const notasFixadasLista = notas.filter(n => notasFixadas.includes(String(obterValorPropriedade(n, 'id')).trim()));
+
+      if (notasFixadasLista.length > 0) {
+        pinnedSection.classList.remove('hidden');
+        notasFixadasLista.forEach(nota => {
+          pinnedContainer.appendChild(criarElementoCartao(nota, true));
+        });
+      } else {
+        pinnedSection.classList.add('hidden');
+      }
 
       if (notas.length === 0) {
         container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada com estes critérios.</p>`;
@@ -1077,89 +1376,104 @@
       }
 
       notas.forEach(nota => {
-        const idStr = obterValorPropriedade(nota, 'id');
-        const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
-        const conteudo = obterValorPropriedade(nota, 'conteudo');
-        const plataforma = obterValorPropriedade(nota, 'plataforma');
-        const categoria = obterValorPropriedade(nota, 'categoria');
-        const subcategoria = obterValorPropriedade(nota, 'subcategoria');
-        const urlMedia = obterValorPropriedade(nota, 'urlmedia');
-        const tagsStr = obterValorPropriedade(nota, 'tags');
-        const linksStr = obterValorPropriedade(nota, 'linkspara');
-
-        const tagsArr = tagsStr ? tagsStr.split(',') : [];
-        const linksArr = linksStr ? linksStr.split(',') : [];
-
-        const tagsHTML = tagsArr.map(t => {
-          const tagLimpa = t.trim();
-          if (!tagLimpa) return '';
-          return `<button type="button" onclick="event.stopPropagation(); filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
-        }).join(' ');
-
-        const linksHTML = linksArr.map(linkId => {
-          const targetId = linkId.trim();
-          if (!targetId) return '';
-          const notaAlvo = mapaNotas.get(targetId);
-          const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-          return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
-        }).filter(Boolean).join('');
-
-        const conteudoComWikilinks = processarWikilinks(conteudo || '');
-        const markdownRenderizado = marked.parse(conteudoComWikilinks);
-
-        const cartao = document.createElement('div');
-        cartao.id = `nota-${idStr}`;
-
-        if (modoVisualizacao === 'lista') {
-          cartao.className = 'bg-slate-800/80 border border-slate-700/80 rounded-lg p-3 flex flex-row justify-between items-center hover:border-slate-600 transition-all gap-4';
-          cartao.innerHTML = `
-            <div class="flex items-center gap-3 truncate">
-              <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
-              <span class="text-sm font-bold text-white truncate">${titulo}</span>
-              ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800">${categoria}</span>` : ''}
-            </div>
-            <div class="flex items-center gap-1.5 shrink-0">
-              <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
-              <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️</button>
-            </div>
-          `;
-        } else {
-          cartao.className = 'nota-card bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
-          cartao.innerHTML = `
-            <div class="space-y-3">
-              <div class="flex justify-between items-center">
-                <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
-                <div class="flex items-center gap-1.5">
-                  ${plataforma ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
-                  <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
-                  <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
-                  <button type="button" onclick="eliminarNota('${idStr}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
-                </div>
-              </div>
-
-              ${(categoria || subcategoria) ? `
-                <div class="flex items-center gap-1.5 text-xs font-semibold">
-                  ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
-                  ${subcategoria ? `<span class="text-slate-400">/ ${subcategoria}</span>` : ''}
-                </div>
-              ` : ''}
-
-              <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
-              <div class="markdown-body text-slate-300 text-sm leading-relaxed">
-                ${markdownRenderizado}
-              </div>
-              ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
-            </div>
-
-            <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
-              ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
-              ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
-            </div>
-          `;
-        }
-
-        container.appendChild(cartao);
+        container.appendChild(criarElementoCartao(nota, false));
       });
+    }
+
+    function criarElementoCartao(nota, eFixado) {
+      const idStr = obterValorPropriedade(nota, 'id');
+      const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const plataforma = obterValorPropriedade(nota, 'plataforma');
+      const categoria = obterValorPropriedade(nota, 'categoria');
+      const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+      const urlMedia = obterValorPropriedade(nota, 'urlmedia');
+      const tagsStr = obterValorPropriedade(nota, 'tags');
+      const linksStr = obterValorPropriedade(nota, 'linkspara');
+
+      const eMOC = plataforma === 'MOC';
+      const estaNasFixadas = notasFixadas.includes(String(idStr).trim());
+
+      const tagsArr = tagsStr ? tagsStr.split(',') : [];
+      const linksArr = linksStr ? linksStr.split(',') : [];
+
+      const tagsHTML = tagsArr.map(t => {
+        const tagLimpa = t.trim();
+        if (!tagLimpa) return '';
+        return `<button type="button" onclick="event.stopPropagation(); filtrarPorTag('${tagLimpa}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${tagLimpa}</button>`;
+      }).join(' ');
+
+      const linksHTML = linksArr.map(linkId => {
+        const targetId = linkId.trim();
+        if (!targetId) return '';
+        const notaAlvo = mapaNotas.get(targetId);
+        const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
+        return `<button type="button" onclick="abrirModalNota('${targetId}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${tituloAlvo}</button>`;
+      }).filter(Boolean).join('');
+
+      const conteudoComWikilinks = processarWikilinks(conteudo || '');
+      const markdownRenderizado = marked.parse(conteudoComWikilinks);
+
+      const cartao = document.createElement('div');
+      cartao.id = `nota-${idStr}`;
+
+      let classeEstilo = 'bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
+      if (eMOC) classeEstilo += ' card-moc';
+      if (estaNasFixadas) classeEstilo += ' card-pinned';
+
+      if (modoVisualizacao === 'lista' && !eFixado) {
+        cartao.className = `bg-slate-800/80 border border-slate-700/80 rounded-lg p-3 flex flex-row justify-between items-center hover:border-slate-600 transition-all gap-4 ${eMOC ? 'card-moc' : ''} ${estaNasFixadas ? 'card-pinned' : ''}`;
+        cartao.innerHTML = `
+          <div class="flex items-center gap-3 truncate">
+            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
+            <button type="button" onclick="alternarNotaFixada('${idStr}')" title="Fixar Nota" class="text-xs">${estaNasFixadas ? '📌' : '📍'}</button>
+            ${eMOC ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold">🗺️ MOC</span>` : ''}
+            <span class="text-sm font-bold text-white truncate">${titulo}</span>
+            ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800">${categoria}</span>` : ''}
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
+            <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️</button>
+          </div>
+        `;
+      } else {
+        cartao.className = classeEstilo;
+        cartao.innerHTML = `
+          <div class="space-y-3">
+            <div class="flex justify-between items-center">
+              <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${idStr}</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="alternarNotaFixada('${idStr}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:bg-slate-700 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
+                ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
+                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${plataforma}</span>` : ''}
+                <button type="button" onclick="abrirModalNota('${idStr}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
+                <button type="button" onclick="prepararEdicao('${idStr}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
+                <button type="button" onclick="eliminarNota('${idStr}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
+              </div>
+            </div>
+
+            ${(categoria || subcategoria) ? `
+              <div class="flex items-center gap-1.5 text-xs font-semibold">
+                ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${categoria}</span>` : ''}
+                ${subcategoria ? `<span class="text-slate-400">/ ${subcategoria}</span>` : ''}
+              </div>
+            ` : ''}
+
+            <h3 class="text-base font-bold text-white leading-snug">${titulo}</h3>
+            <div class="markdown-body text-slate-300 text-sm leading-relaxed">
+              ${markdownRenderizado}
+            </div>
+            ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+          </div>
+
+          <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
+            ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
+            ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
+          </div>
+        `;
+      }
+
+      return cartao;
     }
 
     // 7. GUARDAR/EDITAR NOTA
@@ -1305,7 +1619,6 @@
         return score > 0;
       });
 
-      // Ordenar por pontuação de relevância se houver busca
       if (palavrasChave.length > 0) {
         notasFiltradas.sort((a, b) => (b._score || 0) - (a._score || 0));
       }
@@ -1325,7 +1638,7 @@
       document.getElementById('secção-notas').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // 9. ABRIR MODAL COM HISTÓRICO, MODO ZEN E BACKLINKS
+    // 9. ABRIR MODAL COM HISTÓRICO, MODO ZEN, ÁUDIO E SUGESTÕES INTELIGENTES
     function abrirModalNota(idNota, adicionarAoHistorico = false) {
       const idLimpo = String(idNota).trim();
       const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
@@ -1372,6 +1685,8 @@
       const tagsStr = obterValorPropriedade(nota, 'tags');
       const linksStr = obterValorPropriedade(nota, 'linkspara');
 
+      const estaNasFixadas = notasFixadas.includes(String(id).trim());
+
       const palavras = conteudo ? conteudo.trim().split(/\s+/).length : 0;
       const tempoLeitura = Math.ceil(palavras / 200);
 
@@ -1406,8 +1721,32 @@
         return `<button type="button" onclick="abrirModalNota('${bId}', true)" class="text-xs text-emerald-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">⬅️ ${bTitulo} (#${bId})</button>`;
       }).join('');
 
+      // Algoritmo de Conexões Sugeridas (Notas relacionadas não ligadas)
+      const conexoesJaExistentes = new Set([...linksArr, ...backlinks.map(b=>obterValorPropriedade(b,'id')), id]);
+      const sugeridasDescobertas = todasAsNotas.filter(n => {
+        const nId = obterValorPropriedade(n, 'id');
+        if (conexoesJaExistentes.has(nId)) return false;
+        
+        const nCat = obterValorPropriedade(n, 'categoria').toLowerCase();
+        const nTags = obterValorPropriedade(n, 'tags').toLowerCase();
+        
+        const mesmaCat = categoria && nCat.includes(categoria.toLowerCase());
+        const mesmaTag = tagsArr.some(t => t && nTags.includes(t.toLowerCase().trim()));
+        
+        return mesmaCat || mesmaTag;
+      }).slice(0, 3);
+
+      const sugeridasHTML = sugeridasDescobertas.map(s => {
+        const sId = obterValorPropriedade(s, 'id');
+        const sTitulo = obterValorPropriedade(s, 'titulo');
+        return `<button type="button" onclick="fecharModal(); prepararEdicao('${id}'); adicionarLinkManual('${sId}')" class="text-xs text-amber-300 hover:underline bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded flex items-center gap-1">+ Ligar a: ${sTitulo} (#${sId})</button>`;
+      }).join('');
+
       const conteudoComWikilinks = processarWikilinks(conteudo || '');
       const markdownRenderizado = marked.parse(conteudoComWikilinks);
+
+      const tituloParaAudio = titulo.replace(/'/g, "\\'");
+      const conteudoParaAudio = conteudo ? conteudo.replace(/'/g, "\\'").replace(/\n/g, ' ') : '';
 
       modalCorpo.innerHTML = `
         <div class="space-y-4">
@@ -1415,9 +1754,11 @@
             <div class="flex items-center gap-2">
               ${historicoModal.length > 1 ? `<button type="button" onclick="voltarModalHistorico()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded border border-slate-700 transition-colors">⬅️ Voltar</button>` : ''}
               <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${id}</span>
+              <button type="button" onclick="alternarNotaFixada('${id}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs bg-slate-800 p-1 rounded border border-slate-700">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
+              <button type="button" id="btn-audio-player" onclick="alternarLeituraAudio('${tituloParaAudio}', '${conteudoParaAudio}')" class="text-xs text-sky-300 hover:text-sky-200 px-2.5 py-1 rounded bg-sky-950/50 border border-sky-800/60 transition-colors">🔊 Ouvir</button>
               <button type="button" onclick="alternarModoZen()" class="text-xs text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded bg-amber-950/40 border border-amber-800/60 transition-colors" title="Modo Zen (Leitura Plena)">🧘 Zen</button>
               ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${plataforma}</span>` : ''}
               <button type="button" onclick="exportarNotaMarkdown('${id}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
@@ -1448,8 +1789,46 @@
           
           ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS LIGADAS POR ESTA:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
           ${backlinksHTML ? `<div class="pt-3 border-t border-slate-800/80"><span class="text-xs font-bold text-emerald-400 block mb-2">BACKLINKS (NOTAS QUE MENCIONAM ESTA):</span><div class="flex flex-wrap gap-2">${backlinksHTML}</div></div>` : ''}
+          ${sugeridasHTML ? `<div class="pt-3 border-t border-slate-800/80"><span class="text-xs font-bold text-amber-400 block mb-2">💡 SUGESTÕES DE CONEXÃO DESCOBERTAS:</span><div class="flex flex-wrap gap-2">${sugeridasHTML}</div></div>` : ''}
         </div>
       `;
+    }
+
+    // EXPORTAÇÃO EM LOTE PARA OBSIDIAN (.ZIP)
+    async function exportarZipObsidian() {
+      if (todasAsNotas.length === 0) return alert('Sem notas para exportar.');
+      
+      const zip = new JSZip();
+      
+      todasAsNotas.forEach(nota => {
+        const id = obterValorPropriedade(nota, 'id');
+        const titulo = obterValorPropriedade(nota, 'titulo') || `Nota_${id}`;
+        const conteudo = obterValorPropriedade(nota, 'conteudo');
+        const categoria = obterValorPropriedade(nota, 'categoria');
+        const subcategoria = obterValorPropriedade(nota, 'subcategoria');
+        const tags = obterValorPropriedade(nota, 'tags');
+
+        const mdContent = `---
+id: ${id}
+title: "${titulo}"
+category: "${categoria}"
+subcategory: "${subcategoria}"
+tags: [${tags}]
+---
+
+# ${titulo}
+
+${conteudo}
+`;
+        const nomeFicheiro = `${id}_${titulo.replace(/[^a-zA-Z0-9]/g, '_')}.md`;
+        zip.file(nomeFicheiro, mdContent);
+      });
+
+      const blob = await zip.generateAsync({ type: 'blob' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `Zettelkasten_Obsidian_Vault_${new Date().toISOString().split('T')[0]}.zip`;
+      a.click();
     }
 
     // EXPORTAR PARA APLICAÇÕES TIPO OBSIDIAN (.md)
@@ -1509,6 +1888,8 @@ ${conteudo}
     }
 
     function fecharModal() {
+      if (sintetizadorVoz) sintetizadorVoz.cancel();
+      aLeraudio = false;
       emModoZen = false;
       const box = document.getElementById('modal-card-box');
       if (box) box.classList.remove('modo-zen-container');
@@ -1533,7 +1914,23 @@ ${conteudo}
 
     function gerarLinkBookmarklet() {
       const baseUrl = window.location.href.split('?')[0];
-      const code = `javascript:(function(){var t=encodeURIComponent(document.title);var u=encodeURIComponent(window.location.href);window.open('${baseUrl}?title='+t+'&url='+u,'_blank');})();`;
+      
+      // Código que usa uma janela limpa, imune às restrições CSP do YouTube/X/Instagram
+      const code = `javascript:(function(){
+        var urlAtual = window.location.href;
+        var tituloAtual = document.title;
+        
+        // Remove sufixos comuns de títulos (ex: "- YouTube")
+        tituloAtual = tituloAtual.replace(/ - YouTube$/, '').replace(/ \\| X$/, '');
+        
+        var hubUrl = '${baseUrl}?title=' + encodeURIComponent(tituloAtual) + '&url=' + encodeURIComponent(urlAtual);
+        
+        var win = window.open(hubUrl, '_blank');
+        if(!win) {
+          alert('O browser bloqueou a janela! Por favor, permite pop-ups para este site.');
+        }
+      })();`;
+
       const linkEl = document.getElementById('link-bookmarklet');
       if (linkEl) linkEl.href = code;
     }
