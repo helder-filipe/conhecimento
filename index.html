@@ -358,7 +358,7 @@
           </h3>
           <span id="meta-diaria-texto" class="text-xs font-mono font-bold">0 / 3 notas</span>
         </div>
-        <p class="text-[11px] theme-text-muted mb-2">Objetivo: 3 notas ou rascunhos concluídos hoje com ≥ 100 palavras.</p>
+        <p class="text-[11px] theme-text-muted mb-2">Objetivo: 3 notas ou rascunhos concluídos hoje com $\ge$ 100 palavras.</p>
         <div class="w-full theme-input rounded-full h-3 border theme-border overflow-hidden">
           <div id="meta-diaria-barra" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
         </div>
@@ -1672,7 +1672,7 @@
       calcularMetricasTexto();
     }
 
-    // --- RENDERIZAÇÃO DE CARTÕES (ORDEAM CRONOLÓGICA DECRESCENTE OU POR CATEGORIA) ---
+    // --- RENDERIZAÇÃO DE CARTÕES (ORDEM CRONOLÓGICA DECRESCENTE OU POR CATEGORIA) ---
     function renderizarCartoes(notas) {
       const container = document.getElementById('cards-container');
       const pinnedContainer = document.getElementById('pinned-container');
@@ -2095,7 +2095,7 @@
     function renderizarModalConteudo(nota) {
       const modalCorpo = document.getElementById('modal-conteudo-corpo');
 
-      const id = obterValorPropriedade(nota, 'id');
+      const id = String(obterValorPropriedade(nota, 'id')).trim();
       const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
       const conteudo = obterValorPropriedade(nota, 'conteudo');
       const plataforma = obterValorPropriedade(nota, 'plataforma');
@@ -2106,7 +2106,7 @@
       const tagsStr = obterValorPropriedade(nota, 'tags');
       const linksStr = obterValorPropriedade(nota, 'linkspara');
 
-      const estaNasFixadas = notasFixadas.includes(String(id).trim());
+      const estaNasFixadas = notasFixadas.includes(id);
       const eRascunho = estado === 'Rascunho';
 
       const palavras = conteudo ? conteudo.trim().split(/\s+/).length : 0;
@@ -2123,29 +2123,35 @@
 
       const linksHTML = linksArr.map(linkId => {
         const targetId = linkId.trim();
-        if (!targetId) return '';
+        if (!targetId || targetId === id) return ''; // Ignora links para a própria nota
         const notaAlvo = mapaNotas.get(targetId);
         const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
         return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}', true)" class="text-xs text-indigo-500 hover:underline theme-input px-2.5 py-1.5 rounded border theme-border flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
       }).filter(Boolean).join('');
 
+      // --- FILTRO DE BACKLINKS EXCLUINDO A PRÓPRIA NOTA ---
       const backlinks = todasAsNotas.filter(n => {
-        const nId = obterValorPropriedade(n, 'id');
-        if (nId === id) return false;
+        const nId = String(obterValorPropriedade(n, 'id')).trim();
+        if (nId === id) return false; // Exclui estritamente a própria nota
+
         const nConteudo = obterValorPropriedade(n, 'conteudo');
         const nLinks = obterValorPropriedade(n, 'linkspara');
-        return nConteudo.includes(`[[${id}]]`) || (nLinks && nLinks.split(',').map(s=>s.trim()).includes(id));
+        
+        const mensionadaNoTexto = nConteudo.includes(`[[${id}]]`);
+        const mencionadaNosLinks = nLinks && nLinks.split(/[,;]+/).map(s => s.trim()).includes(id);
+        
+        return mensionadaNoTexto || mencionadaNosLinks;
       });
 
       const backlinksHTML = backlinks.map(b => {
-        const bId = obterValorPropriedade(b, 'id');
+        const bId = String(obterValorPropriedade(b, 'id')).trim();
         const bTitulo = obterValorPropriedade(b, 'titulo') || `Nota #${bId}`;
         return `<button type="button" onclick="abrirModalNota('${escapeHTML(bId)}', true)" class="text-xs text-emerald-500 hover:underline theme-input px-2.5 py-1.5 rounded border theme-border flex items-center gap-1">⬅️ ${escapeHTML(bTitulo)} (#${escapeHTML(bId)})</button>`;
       }).join('');
 
-      const conexoesJaExistentes = new Set([...linksArr, ...backlinks.map(b=>obterValorPropriedade(b,'id')), id]);
+      const conexoesJaExistentes = new Set([...linksArr, ...backlinks.map(b => String(obterValorPropriedade(b, 'id')).trim()), id]);
       const sugeridasDescobertas = todasAsNotas.filter(n => {
-        const nId = obterValorPropriedade(n, 'id');
+        const nId = String(obterValorPropriedade(n, 'id')).trim();
         if (conexoesJaExistentes.has(nId)) return false;
         
         const nCat = obterValorPropriedade(n, 'categoria').toLowerCase();
@@ -2158,7 +2164,7 @@
       }).slice(0, 3);
 
       const sugeridasHTML = sugeridasDescobertas.map(s => {
-        const sId = obterValorPropriedade(s, 'id');
+        const sId = String(obterValorPropriedade(s, 'id')).trim();
         const sTitulo = obterValorPropriedade(s, 'titulo');
         return `<button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}'); adicionarLinkManual('${escapeHTML(sId)}')" class="text-xs text-amber-500 hover:underline theme-input border theme-border px-2.5 py-1 rounded flex items-center gap-1">+ Ligar a: ${escapeHTML(sTitulo)} (#${escapeHTML(sId)})</button>`;
       }).join('');
@@ -2295,14 +2301,14 @@
       const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
 
       const idsBacklinks = todasAsNotas.filter(n => {
-        const nId = obterValorPropriedade(n, 'id');
+        const nId = String(obterValorPropriedade(n, 'id')).trim();
         if (nId === id) return false;
         const nConteudo = obterValorPropriedade(n, 'conteudo');
         const nLinks = obterValorPropriedade(n, 'linkspara');
         return nConteudo.includes(`[[${id}]]`) || (nLinks && nLinks.split(/[,;]+/).map(s=>s.trim()).includes(id));
-      }).map(n => obterValorPropriedade(n, 'id'));
+      }).map(n => String(obterValorPropriedade(n, 'id')).trim());
 
-      const todasConexoesIDs = Array.from(new Set([...idsSaida, ...wikilinks, ...idsBacklinks]));
+      const todasConexoesIDs = Array.from(new Set([...idsSaida, ...wikilinks, ...idsBacklinks])).filter(connId => connId !== id);
 
       if (todasConexoesIDs.length > 0) {
         children.push(
