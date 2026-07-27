@@ -78,7 +78,7 @@
       border-radius: 3px;
     }
 
-    /* Estilos para o texto formatado em Markdown (Ajustado para respeitar a hierarquia do título principal) */
+    /* Estilos para o texto formatado em Markdown */
     .markdown-body h1 { font-size: 1.15rem; font-weight: 700; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
     .markdown-body h2 { font-size: 1.05rem; font-weight: 600; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
     .markdown-body h3 { font-size: 0.95rem; font-weight: 600; color: currentColor; margin-top: 0.4rem; margin-bottom: 0.25rem; }
@@ -149,13 +149,13 @@
       line-height: 1.8 !important;
     }
 
-    /* Estilo Cartão MOC (Map of Content) */
+    /* Estilo Cartão MOC */
     .card-moc {
       border: 2px solid #f59e0b !important;
       background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
     }
 
-    /* Estilo Cartão Pinned (Fixado) */
+    /* Estilo Cartão Pinned */
     .card-pinned {
       border: 2px solid #6366f1 !important;
       background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
@@ -167,7 +167,7 @@
       background: rgba(245, 158, 11, 0.03) !important;
     }
 
-    /* Quadradinhos do Heatmap de Produtividade */
+    /* Heatmap */
     .heatmap-day {
       width: 12px;
       height: 12px;
@@ -186,6 +186,9 @@
       </div>
 
       <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
+        <button type="button" onclick="sortearNotaDoDia(true)" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
+          <span>🎲</span> <span class="hidden sm:inline">Nota do Dia</span>
+        </button>
         <button type="button" onclick="irParaFormulario()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
           <span>➕</span> <span class="hidden sm:inline">Criar Nota</span>
         </button>
@@ -263,15 +266,51 @@
       </div>
     </section>
 
-    <!-- PAINEL DE HÁBITOS E PRODUTIVIDADE (HEATMAP DIÁRIO) -->
-    <section class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-md">
-      <div class="flex justify-between items-center mb-2">
-        <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
-          📊 Frequência de Escrita & Atividade (Últimos 30 Dias)
-        </h3>
-        <span id="streak-count" class="text-xs font-bold text-emerald-400">🔥 0 dias seguidos</span>
+    <!-- BANNER DA NOTA DO DIA (MÓDULO DE REFLEXÃO SERENDIPITY) -->
+    <section id="seccao-nota-do-dia" class="hidden bg-gradient-to-r from-amber-950/40 via-slate-800/90 to-indigo-950/40 border-2 border-amber-500/60 p-5 rounded-2xl shadow-xl relative overflow-hidden transition-all">
+      <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
+        <div class="flex items-center gap-2">
+          <span class="bg-amber-500 text-slate-950 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider flex items-center gap-1 shadow">
+            <span>🎲</span> Nota do Dia
+          </span>
+          <span class="text-xs text-amber-200 font-medium">Revisão e Re-reflexão de Conhecimento Antigo</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="sortearNotaDoDia(true)" class="text-xs bg-slate-900/80 hover:bg-amber-500 hover:text-slate-950 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors flex items-center gap-1">
+            <span>🔄</span> Sortear Outra
+          </button>
+        </div>
       </div>
-      <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1"></div>
+
+      <div id="conteudo-nota-do-dia" class="space-y-2"></div>
+    </section>
+
+    <!-- PAINEL DE HÁBITOS, PRODUTIVIDADE E OBJETIVO DIÁRIO -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div class="lg:col-span-2 bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-md">
+        <div class="flex justify-between items-center mb-2">
+          <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+            📊 Frequência de Escrita & Atividade (Últimos 30 Dias)
+          </h3>
+          <span id="streak-count" class="text-xs font-bold text-emerald-400">🔥 0 dias seguidos</span>
+        </div>
+        <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1"></div>
+      </div>
+
+      <!-- META DIÁRIA DE QUALIDADE (5 NOTAS COM ≥ 100 PALAVRAS) -->
+      <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-md flex flex-col justify-between">
+        <div class="flex justify-between items-center mb-1">
+          <h3 class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+            🎯 Meta Diária de Reflexão
+          </h3>
+          <span id="meta-diaria-texto" class="text-xs font-mono font-bold text-slate-300">0 / 5 notas</span>
+        </div>
+        <p class="text-[11px] text-slate-400 mb-2">Objetivo: 5 notas/dia com pelo menos <strong>100 palavras</strong> de reflexão.</p>
+        <div class="w-full bg-slate-900 rounded-full h-3 border border-slate-700 overflow-hidden">
+          <div id="meta-diaria-barra" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
+        </div>
+        <span id="meta-diaria-status" class="text-[10px] text-amber-400 font-semibold mt-1.5 block">Faltam 5 notas densas hoje!</span>
+      </div>
     </section>
 
     <!-- 2. SECÇÃO DE FILTROS E PESQUISA -->
@@ -360,23 +399,23 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
               <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <span>1.</span> O Princípio da Nota Atómica (Uma Ideia por Nota)
+                <span>1.</span> O Princípio da Nota Atómica & Objetivo Diário (≥100 Palavras)
               </h3>
               <p class="text-xs text-slate-300 leading-relaxed">
-                <strong>Regra de Ouro:</strong> Cada nota deve focar-se apenas em um conceito ou reflexão principal.<br>
-                <strong>Evita notas longas:</strong> Em vez de criares uma nota chamada <em>"Anotações sobre Inteligência Artificial"</em>, cria notas pequenas como <em>"Redes Neuronais Convolucionais"</em> ou <em>"O Conceito de Hallucination em LLMs"</em>.<br>
-                <strong>Porquê?</strong> Ideias pequenas e focadas são muito mais fácil de ligar a múltiplos temas diferentes ao longo do tempo.
+                <strong>Regra de Ouro:</strong> Cada nota foca-se numa só ideia com pelo menos <strong>100 palavras</strong> de reflexão própria.<br>
+                <strong>Meta de Produtividade:</strong> Aponta a 5 notas densas por dia para alimentar o teu conhecimento sem acumular notas superficiais.<br>
+                <strong>Fluxo de Trabalho:</strong> Se não tiveres tempo, grava como <code class="text-amber-400">✏️ Rascunho</code> e desenvolve-a mais tarde!
               </p>
             </div>
 
             <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
               <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <span>2.</span> A Lógica dos Links Bidirecionais (`[[ID]]` e Ligar a IDs)
+                <span>2.</span> A Regra das 2 Conexões (`[[ID]]` e Ligar a IDs)
               </h3>
               <p class="text-xs text-slate-300 leading-relaxed">
-                A magia do Zettelkasten não está nas notas isoladas, mas nas conexões entre elas.<br>
-                Sempre que editas uma nota, podes escrever <code class="text-sky-400 font-mono">[[202607241010]]</code> diretamente no corpo do texto ou adicionar o ID no campo <strong>"Ligar a IDs"</strong>.<br>
-                <strong>Visualização:</strong> O teu Graph View vai formar clusters coloridos por Categoria, mostrando os teus "caminhos de pensamento".
+                Para que uma nota ganhe valor, obriga-te a criar **pelo menos 2 conexões** com notas do teu arquivo.<br>
+                Escreve <code class="text-sky-400 font-mono">[[202607241010]]</code> no texto ou preenche o campo <strong>"Ligar a IDs"</strong>.<br>
+                <strong>Visualização:</strong> O Graph View une estas pontes do teu ecossistema mental.
               </p>
             </div>
 
@@ -401,7 +440,7 @@
               </p>
             </div>
 
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
+            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5 md:col-span-2">
               <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <span>5.</span> Navegação Fluida por Tags & Atalhos
               </h3>
@@ -418,9 +457,9 @@
             </h3>
             <ol class="list-decimal pl-5 text-xs text-slate-200 space-y-1">
               <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
-              <li>Abres o Zettelkasten Hub ➔ Crias a nota com o teu próprio resumo em Markdown.</li>
+              <li>Abres o Zettelkasten Hub ➔ Crias a nota com a tua reflexão (procura atingir ≥100 palavras).</li>
               <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
-              <li>Olhas para o Grafo/Busca ➔ Descobres uma nota antiga sobre o mesmo tema e colocas o ID dela no campo "Ligar a IDs" ou escreves <code class="text-sky-300 font-mono">[[ID]]</code> no texto.</li>
+              <li>Olhas para o Grafo/Busca ➔ Descobres 2 notas antigas sobre o mesmo tema e conectas com <code class="text-sky-300 font-mono">[[ID]]</code>.</li>
               <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
             </ol>
           </div>
@@ -551,7 +590,7 @@
             <label class="block text-xs font-medium text-slate-400">
               Conteúdo / Ideia Atómica <span class="text-indigo-400 font-mono">(escreve [[ para ligar notas)</span>
             </label>
-            <div class="text-[11px] text-slate-500 font-mono" id="form-text-metrics">
+            <div class="text-[11px] font-mono" id="form-text-metrics">
               0 pal | 0 car | ~0 min
             </div>
           </div>
@@ -889,8 +928,92 @@
       
       calcularEstatisticasRede();
       renderizarHeatmapProdutividade();
+      atualizarMetaDiaria();
+      sortearNotaDoDia(false); // Carrega a Nota do Dia persistida ou sorteia uma nova
       renderizarCartoes(todasAsNotas);
       renderizarGrafo(todasAsNotas);
+    }
+
+    // --- MÓDULO NOTA DO DIA (SORTEIO ALEATÓRIO DE NOTAS CONCLUÍDAS) ---
+    function sortearNotaDoDia(forcarNovoSorteio = false) {
+      const secção = document.getElementById('seccao-nota-do-dia');
+      const container = document.getElementById('conteudo-nota-do-dia');
+      if (!secção || !container) return;
+
+      const notasConcluidas = todasAsNotas.filter(n => {
+        const estado = obterValorPropriedade(n, 'estado') || 'Concluída';
+        return estado === 'Concluída';
+      });
+
+      if (notasConcluidas.length === 0) {
+        secção.classList.add('hidden');
+        return;
+      }
+
+      const isoHoje = new Date().toISOString().split('T')[0];
+      const cacheNotaDia = localStorage.getItem('zettelkasten_nota_dia');
+      let idNotaDia = null;
+
+      if (!forcarNovoSorteio && cacheNotaDia) {
+        try {
+          const parsed = JSON.parse(cacheNotaDia);
+          if (parsed.data === isoHoje && mapaNotas.has(parsed.id)) {
+            idNotaDia = parsed.id;
+          }
+        } catch(e) {}
+      }
+
+      if (!idNotaDia) {
+        const indiceAleatorio = Math.floor(Math.random() * notasConcluidas.length);
+        const notaSorteada = notasConcluidas[indiceAleatorio];
+        idNotaDia = obterValorPropriedade(notaSorteada, 'id');
+
+        localStorage.setItem('zettelkasten_nota_dia', JSON.stringify({
+          data: isoHoje,
+          id: idNotaDia
+        }));
+      }
+
+      const notaFinal = mapaNotas.get(idNotaDia);
+      if (!notaFinal) {
+        secção.classList.add('hidden');
+        return;
+      }
+
+      const id = obterValorPropriedade(notaFinal, 'id');
+      const titulo = obterValorPropriedade(notaFinal, 'titulo') || 'Sem Título';
+      const conteudo = obterValorPropriedade(notaFinal, 'conteudo') || '';
+      const categoria = obterValorPropriedade(notaFinal, 'categoria');
+      const dtCriacao = obterValorPropriedade(notaFinal, 'datacriacao') || 'Data Desconhecida';
+
+      const conteudoMarkdown = marked.parse(processarWikilinks(conteudo.length > 250 ? conteudo.substring(0, 250) + '...' : conteudo));
+
+      container.innerHTML = `
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/80 p-4 rounded-xl border border-amber-500/30">
+          <div class="space-y-1 max-w-3xl">
+            <div class="flex items-center gap-2 text-xs">
+              <span class="font-mono text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">ID: ${escapeHTML(id)}</span>
+              <span class="text-slate-400">Criada a: ${escapeHTML(dtCriacao)}</span>
+              ${categoria ? `<span class="bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800 font-semibold">${escapeHTML(categoria)}</span>` : ''}
+            </div>
+            <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold text-white hover:text-amber-300 transition-colors cursor-pointer">${escapeHTML(titulo)}</h3>
+            <div class="markdown-body text-xs text-slate-300 line-clamp-2 leading-relaxed">
+              ${conteudoMarkdown}
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
+            <button type="button" onclick="abrirModalNota('${escapeHTML(id)}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors shadow">
+              👁️ Ler Completa
+            </button>
+            <button type="button" onclick="prepararEdicao('${escapeHTML(id)}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow">
+              ✏️ Refletir & Atualizar
+            </button>
+          </div>
+        </div>
+      `;
+
+      secção.classList.remove('hidden');
     }
 
     function renderizarHeatmapProdutividade() {
@@ -951,6 +1074,46 @@
 
       const streakEl = document.getElementById('streak-count');
       if (streakEl) streakEl.textContent = `🔥 ${streak} dia(s) ativo(s) seguidos`;
+    }
+
+    function atualizarMetaDiaria() {
+      const isoHoje = new Date().toISOString().split('T')[0];
+      
+      const notasDensashoje = todasAsNotas.filter(nota => {
+        const dtStr = obterValorPropriedade(nota, 'datacriacao');
+        const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
+        const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
+        
+        let eHoje = false;
+        if (dtStr) {
+          const d = new Date(dtStr);
+          if (!isNaN(d.getTime())) {
+            eHoje = d.toISOString().split('T')[0] === isoHoje;
+          }
+        }
+        return eHoje && palavras >= 100;
+      });
+
+      const count = Math.min(notasDensashoje.length, 5);
+      const percentual = Math.round((count / 5) * 100);
+
+      const txtMeta = document.getElementById('meta-diaria-texto');
+      const barraMeta = document.getElementById('meta-diaria-barra');
+      const statusMeta = document.getElementById('meta-diaria-status');
+
+      if (txtMeta) txtMeta.textContent = `${count} / 5 notas`;
+      if (barraMeta) barraMeta.style.width = `${percentual}%`;
+      
+      if (statusMeta) {
+        if (count >= 5) {
+          statusMeta.textContent = '🎉 Objetivo Diário Concluído! Excelente reflexão!';
+          statusMeta.className = 'text-[10px] text-emerald-400 font-bold mt-1.5 block';
+        } else {
+          const faltam = 5 - count;
+          statusMeta.textContent = `Faltam ${faltam} nota(s) densa(s) (≥100 pal) hoje!`;
+          statusMeta.className = 'text-[10px] text-amber-400 font-semibold mt-1.5 block';
+        }
+      }
     }
 
     function calcularEstatisticasRede() {
@@ -1243,7 +1406,14 @@
       const tempoLeitura = Math.ceil(palavras / 200);
 
       const metricsEl = document.getElementById('form-text-metrics');
-      if (metricsEl) metricsEl.textContent = `${palavras} pal | ${carateres} car | ~${tempoLeitura} min`;
+      if (metricsEl) {
+        if (palavras >= 100) {
+          metricsEl.innerHTML = `<span class="text-emerald-400 font-bold">✅ Reflexão Aprovada (${palavras} pal | ~${tempoLeitura} min)</span>`;
+        } else {
+          const faltam = 100 - palavras;
+          metricsEl.innerHTML = `<span class="text-amber-400">${palavras} pal | ${carateres} car (faltam ${faltam} pal p/ meta)</span>`;
+        }
+      }
     }
 
     function atualizarSugestoesConexao() {
@@ -1848,7 +2018,7 @@
           </div>
 
           <div class="text-[11px] text-slate-500 font-mono flex items-center gap-3 pt-1">
-            <span>📝 ${palavras} palavras</span>
+            <span>📝 ${palavras} palavras ${palavras >= 100 ? '<span class="text-emerald-400 font-bold">(≥100 reflexão)</span>' : ''}</span>
             <span>⏱️ ~${tempoLeitura} min de leitura</span>
           </div>
 
