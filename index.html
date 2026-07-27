@@ -78,10 +78,10 @@
       border-radius: 3px;
     }
 
-    /* Estilos para o texto formatado em Markdown */
-    .markdown-body h1 { font-size: 1.25rem; font-weight: 700; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
-    .markdown-body h2 { font-size: 1.1rem; font-weight: 600; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
-    .markdown-body h3 { font-size: 1rem; font-weight: 600; color: currentColor; margin-top: 0.4rem; margin-bottom: 0.25rem; }
+    /* Estilos para o texto formatado em Markdown (Ajustado para respeitar a hierarquia do título principal) */
+    .markdown-body h1 { font-size: 1.15rem; font-weight: 700; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+    .markdown-body h2 { font-size: 1.05rem; font-weight: 600; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
+    .markdown-body h3 { font-size: 0.95rem; font-weight: 600; color: currentColor; margin-top: 0.4rem; margin-bottom: 0.25rem; }
     .markdown-body p { margin-bottom: 0.5rem; }
     .markdown-body ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
     .markdown-body ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
@@ -1478,13 +1478,13 @@
       if (modoVisualizacao === 'lista' && !eFixado) {
         cartao.className = `bg-slate-800/80 border border-slate-700/80 rounded-lg p-3 flex flex-row justify-between items-center hover:border-slate-600 transition-all gap-4 ${eMOC ? 'card-moc' : ''} ${eRascunho ? 'card-rascunho' : ''} ${estaNasFixadas ? 'card-pinned' : ''}`;
         cartao.innerHTML = `
-          <div class="flex items-center gap-3 truncate">
-            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${escapeHTML(idStr)}</span>
-            <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="Fixar Nota" class="text-xs">${estaNasFixadas ? '📌' : '📍'}</button>
-            ${eRascunho ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold">✏️ Rascunho</span>` : ''}
-            ${eMOC ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold">🗺️ MOC</span>` : ''}
-            <span class="text-sm font-bold text-white truncate">${escapeHTML(titulo)}</span>
-            ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800">${escapeHTML(categoria)}</span>` : ''}
+          <div class="flex items-center gap-3 truncate min-w-0">
+            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded shrink-0">ID: ${escapeHTML(idStr)}</span>
+            <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="Fixar Nota" class="text-xs shrink-0">${estaNasFixadas ? '📌' : '📍'}</button>
+            ${eRascunho ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">✏️ Rascunho</span>` : ''}
+            ${eMOC ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">🗺️ MOC</span>` : ''}
+            <span onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-base sm:text-lg font-black text-white hover:text-indigo-300 transition-colors cursor-pointer truncate" title="Clique para abrir a nota">${escapeHTML(titulo)}</span>
+            ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800 shrink-0">${escapeHTML(categoria)}</span>` : ''}
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
@@ -1495,13 +1495,13 @@
         cartao.className = classeEstilo;
         cartao.innerHTML = `
           <div class="space-y-3">
-            <div class="flex justify-between items-center">
+            <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${escapeHTML(idStr)}</span>
-              <div class="flex items-center gap-1.5">
+              <div class="flex flex-wrap items-center gap-1.5">
                 <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:bg-slate-700 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
-                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
-                ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
-                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-0.5 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
+                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
+                ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
+                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
                 <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
                 <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
                 <button type="button" onclick="eliminarNota('${escapeHTML(idStr)}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
@@ -1515,7 +1515,7 @@
               </div>
             ` : ''}
 
-            <h3 class="text-base font-bold text-white leading-snug">${escapeHTML(titulo)}</h3>
+            <h3 onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-lg sm:text-xl font-extrabold text-white leading-snug cursor-pointer hover:text-indigo-300 transition-colors" title="Clique para abrir a nota">${escapeHTML(titulo)}</h3>
             <div class="markdown-body text-slate-300 text-sm leading-relaxed">
               ${markdownRenderizado}
             </div>
@@ -1842,7 +1842,7 @@
             </div>
           ` : ''}
 
-          <h2 class="text-xl font-bold text-white leading-snug">${escapeHTML(titulo)}</h2>
+          <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">${escapeHTML(titulo)}</h2>
           <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
             ${markdownRenderizado}
           </div>
