@@ -27,30 +27,48 @@
     /* TEMAS VISUAIS CUSTOMIZADOS (DARK, LIGHT, SEPIA) */
     html[data-theme="dark"] {
       --bg-main: #0f172a;
-      --bg-card: rgba(30, 41, 59, 0.8);
+      --bg-card: #1e293b;
       --bg-input: #0f172a;
+      --bg-header: rgba(30, 41, 59, 0.85);
       --text-main: #f1f5f9;
+      --text-muted: #94a3b8;
       --border-color: #334155;
       --graph-text: #f1f5f9;
       --graph-edge: #818cf8;
+      --code-bg: rgba(15, 23, 42, 0.6);
+      --badge-bg: #1e1b4b;
+      --badge-text: #818cf8;
+      --badge-border: #3730a3;
     }
     html[data-theme="light"] {
-      --bg-main: #f8fafc;
+      --bg-main: #f1f5f9;
       --bg-card: #ffffff;
-      --bg-input: #f1f5f9;
+      --bg-input: #f8fafc;
+      --bg-header: rgba(255, 255, 255, 0.9);
       --text-main: #0f172a;
+      --text-muted: #475569;
       --border-color: #cbd5e1;
       --graph-text: #0f172a;
       --graph-edge: #4338ca;
+      --code-bg: #e2e8f0;
+      --badge-bg: #e0e7ff;
+      --badge-text: #3730a3;
+      --badge-border: #c7d2fe;
     }
     html[data-theme="sepia"] {
-      --bg-main: #fbf0d9;
-      --bg-card: #f4e4c1;
+      --bg-main: #f5e6c8;
+      --bg-card: #fdf6e3;
       --bg-input: #ebd7b2;
-      --text-main: #433422;
+      --bg-header: rgba(253, 246, 227, 0.9);
+      --text-main: #362819;
+      --text-muted: #65533f;
       --border-color: #d6c09b;
       --graph-text: #2d2113;
       --graph-edge: #7c2d12;
+      --code-bg: #ebd7b2;
+      --badge-bg: #eee0c9;
+      --badge-text: #7c2d12;
+      --badge-border: #d6c09b;
     }
 
     body {
@@ -59,10 +77,31 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
+    /* Estilização Dinâmica de Módulos / Cartões */
+    .theme-card {
+      background-color: var(--bg-card) !important;
+      border-color: var(--border-color) !important;
+      color: var(--text-main) !important;
+    }
+
+    .theme-input {
+      background-color: var(--bg-input) !important;
+      border-color: var(--border-color) !important;
+      color: var(--text-main) !important;
+    }
+
+    .theme-text-muted {
+      color: var(--text-muted) !important;
+    }
+
+    .theme-border {
+      border-color: var(--border-color) !important;
+    }
+
     #graph-container {
       width: 100%;
       height: 520px;
-      background-color: var(--bg-main);
+      background-color: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 0.75rem;
     }
@@ -79,15 +118,25 @@
     }
 
     /* Estilos para o texto formatado em Markdown */
-    .markdown-body h1 { font-size: 1.15rem; font-weight: 700; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
-    .markdown-body h2 { font-size: 1.05rem; font-weight: 600; color: currentColor; margin-top: 0.5rem; margin-bottom: 0.25rem; }
-    .markdown-body h3 { font-size: 0.95rem; font-weight: 600; color: currentColor; margin-top: 0.4rem; margin-bottom: 0.25rem; }
-    .markdown-body p { margin-bottom: 0.5rem; }
+    .markdown-body {
+      color: var(--text-main);
+    }
+    .markdown-body h1, .markdown-body h2, .markdown-body h3 { 
+      font-weight: 700; 
+      color: var(--text-main); 
+      margin-top: 0.5rem; 
+      margin-bottom: 0.25rem; 
+    }
+    .markdown-body h1 { font-size: 1.15rem; }
+    .markdown-body h2 { font-size: 1.05rem; }
+    .markdown-body h3 { font-size: 0.95rem; }
+    .markdown-body p { margin-bottom: 0.5rem; color: var(--text-main); }
     .markdown-body ul { list-style-type: disc; padding-left: 1.25rem; margin-bottom: 0.5rem; }
     .markdown-body ol { list-style-type: decimal; padding-left: 1.25rem; margin-bottom: 0.5rem; }
-    .markdown-body blockquote { border-left: 3px solid #6366f1; padding-left: 0.75rem; opacity: 0.8; font-style: italic; margin: 0.5rem 0; }
-    .markdown-body code { background-color: rgba(15, 23, 42, 0.4); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.85em; color: #38bdf8; }
-    .markdown-body strong { font-weight: 700; }
+    .markdown-body blockquote { border-left: 3px solid #6366f1; padding-left: 0.75rem; opacity: 0.9; font-style: italic; margin: 0.5rem 0; }
+    .markdown-body code { background-color: var(--code-bg); padding: 0.1rem 0.3rem; border-radius: 0.25rem; font-family: monospace; font-size: 0.85em; color: #0284c7; }
+    html[data-theme="dark"] .markdown-body code { color: #38bdf8; }
+    .markdown-body strong { font-weight: 700; color: var(--text-main); }
     .markdown-body em { font-style: italic; }
 
     /* Estilo especial para os wikilinks [[ID]] */
@@ -95,9 +144,9 @@
       display: inline-flex;
       align-items: center;
       gap: 0.25rem;
-      background-color: #1e1b4b;
-      color: #818cf8;
-      border: 1px solid #3730a3;
+      background-color: var(--badge-bg);
+      color: var(--badge-text);
+      border: 1px solid var(--badge-border);
       padding: 0.1rem 0.4rem;
       border-radius: 0.375rem;
       font-size: 0.8rem;
@@ -108,9 +157,7 @@
       transition: all 0.2s;
     }
     .wikilink-badge:hover {
-      background-color: #312e81;
-      color: #a5b4fc;
-      border-color: #4338ca;
+      opacity: 0.85;
     }
 
     /* Lista suspenso Autocomplete */
@@ -118,22 +165,23 @@
       position: absolute;
       max-height: 180px;
       overflow-y: auto;
-      background-color: var(--bg-main);
+      background-color: var(--bg-card);
       border: 1px solid var(--border-color);
       border-radius: 0.5rem;
       z-index: 50;
       width: calc(100% - 1.5rem);
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.2);
     }
     .autocomplete-item {
       padding: 0.5rem 0.75rem;
       cursor: pointer;
       font-size: 0.8rem;
+      color: var(--text-main);
       border-bottom: 1px solid var(--border-color);
     }
     .autocomplete-item:hover {
-      background-color: #1e1b4b;
-      color: #818cf8;
+      background-color: var(--badge-bg);
+      color: var(--badge-text);
     }
 
     /* Estilo do Modo Zen */
@@ -142,7 +190,7 @@
       height: 96vh !important;
       max-height: 96vh !important;
       padding: 2.5rem !important;
-      background-color: #090d16 !important;
+      background-color: var(--bg-card) !important;
     }
     .modo-zen-container .markdown-body {
       font-size: 1.05rem !important;
@@ -152,19 +200,16 @@
     /* Estilo Cartão MOC */
     .card-moc {
       border: 2px solid #f59e0b !important;
-      background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
     }
 
     /* Estilo Cartão Pinned */
     .card-pinned {
       border: 2px solid #6366f1 !important;
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.08) 0%, rgba(30, 41, 59, 0.8) 100%) !important;
     }
 
     /* Estilo Cartão Rascunho */
     .card-rascunho {
       border: 1px dashed #f59e0b !important;
-      background: rgba(245, 158, 11, 0.03) !important;
     }
 
     /* Heatmap */
@@ -178,11 +223,11 @@
 <body class="min-h-screen font-sans antialiased">
 
   <!-- Navegação / Cabeçalho -->
-  <header class="border-b border-slate-800/70 bg-slate-800/70 sticky top-0 z-40 backdrop-blur-md shadow-lg shadow-slate-950/20">
+  <header class="border-b theme-border sticky top-0 z-40 backdrop-blur-md shadow-lg shadow-black/5" style="background-color: var(--bg-header);">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-end gap-3">
       <div class="flex flex-col items-start gap-1">
-        <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-16 sm:h-20 object-contain rounded-lg shadow-md border border-slate-600/50">
-        <p class="text-[11px] sm:text-xs text-slate-300 font-medium">Centro de Aprendizagem e Rede de Conhecimento</p>
+        <img src="Zettelkasten hub logo2.png" alt="Zettelkasten Hub Logo" class="h-16 sm:h-20 object-contain rounded-lg shadow-md border theme-border">
+        <p class="text-[11px] sm:text-xs font-medium theme-text-muted">Centro de Aprendizagem e Rede de Conhecimento</p>
       </div>
 
       <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
@@ -192,21 +237,21 @@
         <button type="button" onclick="irParaFormulario()" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
           <span>➕</span> <span class="hidden sm:inline">Criar Nota</span>
         </button>
-        <button type="button" onclick="irParaGrafo()" class="bg-slate-700 hover:bg-slate-600 text-indigo-300 hover:text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
+        <button type="button" onclick="irParaGrafo()" class="theme-card hover:opacity-80 text-indigo-500 text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 border theme-border shadow-md">
           <span>🕸️</span> <span class="hidden sm:inline">Ver Grafos</span>
         </button>
-        <button type="button" onclick="exportarZipObsidian()" title="Exportar todas as notas em lote (.zip para Obsidian)" class="bg-slate-700 hover:bg-slate-600 text-sky-400 p-2 rounded-lg transition-colors border border-slate-600 shadow-md flex items-center gap-1 text-xs">
-          📦 <span class="hidden md:inline text-slate-200">ZIP</span>
+        <button type="button" onclick="exportarZipObsidian()" title="Exportar todas as notas em lote (.zip para Obsidian)" class="theme-card hover:opacity-80 text-sky-500 p-2 rounded-lg transition-colors border theme-border shadow-md flex items-center gap-1 text-xs">
+          📦 <span class="hidden md:inline font-semibold">ZIP</span>
         </button>
-        <button type="button" onclick="exportarBackupJSON()" title="Exportar Backup Global (JSON)" class="bg-slate-700 hover:bg-slate-600 text-emerald-400 p-2 rounded-lg transition-colors border border-slate-600 shadow-md">
-          💾 <span class="hidden md:inline text-xs ml-1 text-slate-200">Backup</span>
+        <button type="button" onclick="exportarBackupJSON()" title="Exportar Backup Global (JSON)" class="theme-card hover:opacity-80 text-emerald-500 p-2 rounded-lg transition-colors border theme-border shadow-md">
+          💾 <span class="hidden md:inline text-xs ml-1 font-semibold">Backup</span>
         </button>
         
-        <button type="button" id="btn-tema" onclick="alternarTemaVisual()" title="Mudar Tema (Dark/Light/Sepia)" class="bg-slate-700 hover:bg-slate-600 text-amber-300 p-2 rounded-lg transition-colors border border-slate-600 shadow-md text-xs">
+        <button type="button" id="btn-tema" onclick="alternarTemaVisual()" title="Mudar Tema (Dark/Light/Sepia)" class="theme-card hover:opacity-80 text-amber-500 p-2 rounded-lg transition-colors border theme-border shadow-md text-xs">
           🌙
         </button>
 
-        <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="bg-slate-700 hover:bg-slate-600 text-slate-200 p-2 rounded-lg transition-colors flex items-center justify-center font-medium border border-slate-600 shadow-md">
+        <button type="button" onclick="carregarZettelkasten()" title="Atualizar Dados (Ctrl+R)" aria-label="Atualizar Dados" class="theme-card hover:opacity-80 p-2 rounded-lg transition-colors flex items-center justify-center font-medium border theme-border shadow-md">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
         </button>
       </div>
@@ -215,68 +260,68 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
-    <!-- 1. PAINEL DE METRICAS DA REDE -->
+    <!-- 1. PAINEL DE METRICAS DA REDE (AGORA COM FILTROS ATALHO) -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+      <div onclick="filtrarPorMetrica('todas')" class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md cursor-pointer hover:border-indigo-500 hover:scale-[1.02] transition-all group" title="Clique para ver todas as notas">
         <div>
-          <p class="text-xs font-medium text-slate-400">Total de Notas</p>
-          <p id="total-notas" class="text-2xl font-bold text-indigo-400">0</p>
+          <p class="text-xs font-medium theme-text-muted group-hover:text-indigo-500">Total de Notas</p>
+          <p id="total-notas" class="text-2xl font-bold text-indigo-500">0</p>
         </div>
         <span class="text-2xl">📝</span>
       </div>
 
-      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+      <div onclick="filtrarPorMetrica('conectadas')" class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md cursor-pointer hover:border-emerald-500 hover:scale-[1.02] transition-all group" title="Clique para ver notas com conexões">
         <div>
-          <p class="text-xs font-medium text-slate-400">Conexões na Rede</p>
-          <p id="total-conexoes" class="text-2xl font-bold text-emerald-400">0</p>
+          <p class="text-xs font-medium theme-text-muted group-hover:text-emerald-500">Conexões na Rede</p>
+          <p id="total-conexoes" class="text-2xl font-bold text-emerald-500">0</p>
         </div>
         <span class="text-2xl">🔗</span>
       </div>
 
-      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+      <div class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md">
         <div>
-          <p class="text-xs font-medium text-slate-400">Densidade</p>
-          <p id="densidade-rede" class="text-xl font-bold text-sky-400">0.0 <span id="saude-label" class="text-[10px] font-normal text-slate-400">links/nota</span></p>
+          <p class="text-xs font-medium theme-text-muted">Densidade</p>
+          <p id="densidade-rede" class="text-xl font-bold text-sky-500">0.0 <span id="saude-label" class="text-[10px] font-normal theme-text-muted">links/nota</span></p>
         </div>
         <span class="text-2xl">📊</span>
       </div>
 
-      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+      <div class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md">
         <div>
-          <p class="text-xs font-medium text-slate-400">Nota Central</p>
-          <p id="nota-hub" class="text-xs font-bold text-amber-300 truncate max-w-[110px]" title="Nenhuma">-</p>
+          <p class="text-xs font-medium theme-text-muted">Nota Central</p>
+          <p id="nota-hub" class="text-xs font-bold text-amber-500 truncate max-w-[110px]" title="Nenhuma">-</p>
         </div>
         <span class="text-2xl">🌟</span>
       </div>
 
-      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+      <div onclick="filtrarPorMetrica('orfas')" class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md cursor-pointer hover:border-purple-500 hover:scale-[1.02] transition-all group" title="Clique para ver notas sem conexões (Órfãs)">
         <div>
-          <p class="text-xs font-medium text-slate-400">Notas Órfãs</p>
-          <p id="notas-orfas" class="text-2xl font-bold text-purple-400">0</p>
+          <p class="text-xs font-medium theme-text-muted group-hover:text-purple-500">Notas Órfãs</p>
+          <p id="notas-orfas" class="text-2xl font-bold text-purple-500">0</p>
         </div>
         <span class="text-2xl">🔍</span>
       </div>
 
-      <div class="bg-slate-800/80 border border-slate-700/80 rounded-xl p-4 flex items-center justify-between shadow-md">
+      <div onclick="filtrarPorMetrica('rascunhos')" class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md cursor-pointer hover:border-amber-500 hover:scale-[1.02] transition-all group" title="Clique para ver rascunhos pendentes">
         <div>
-          <p class="text-xs font-medium text-slate-400">Rascunhos</p>
-          <p id="total-rascunhos" class="text-2xl font-bold text-amber-400">0</p>
+          <p class="text-xs font-medium theme-text-muted group-hover:text-amber-500">Rascunhos</p>
+          <p id="total-rascunhos" class="text-2xl font-bold text-amber-500">0</p>
         </div>
         <span class="text-2xl">✏️</span>
       </div>
     </section>
 
     <!-- BANNER DA NOTA DO DIA (MÓDULO DE REFLEXÃO SERENDIPITY) -->
-    <section id="seccao-nota-do-dia" class="hidden bg-gradient-to-r from-amber-950/40 via-slate-800/90 to-indigo-950/40 border-2 border-amber-500/60 p-5 rounded-2xl shadow-xl relative overflow-hidden transition-all">
+    <section id="seccao-nota-do-dia" class="hidden theme-card border-2 border-amber-500/60 p-5 rounded-2xl shadow-xl relative overflow-hidden transition-all">
       <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
         <div class="flex items-center gap-2">
           <span class="bg-amber-500 text-slate-950 text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider flex items-center gap-1 shadow">
             <span>🎲</span> Nota do Dia
           </span>
-          <span class="text-xs text-amber-200 font-medium">Revisão e Re-reflexão de Conhecimento Antigo</span>
+          <span class="text-xs font-medium theme-text-muted">Revisão e Re-reflexão de Conhecimento Antigo</span>
         </div>
         <div class="flex items-center gap-2">
-          <button type="button" onclick="sortearNotaDoDia(true)" class="text-xs bg-slate-900/80 hover:bg-amber-500 hover:text-slate-950 text-amber-300 px-3 py-1.5 rounded-lg border border-amber-500/40 transition-colors flex items-center gap-1">
+          <button type="button" onclick="sortearNotaDoDia(true)" class="text-xs theme-input hover:border-amber-500 text-amber-600 font-semibold px-3 py-1.5 rounded-lg border theme-border transition-colors flex items-center gap-1">
             <span>🔄</span> Sortear Outra
           </button>
         </div>
@@ -287,44 +332,44 @@
 
     <!-- PAINEL DE HÁBITOS, PRODUTIVIDADE E OBJETIVO DIÁRIO -->
     <section class="grid grid-cols-1 lg:grid-cols-3 gap-4">
-      <div class="lg:col-span-2 bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-md">
+      <div class="lg:col-span-2 theme-card p-4 rounded-xl border shadow-md">
         <div class="flex justify-between items-center mb-2">
-          <h3 class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+          <h3 class="text-xs font-bold flex items-center gap-1.5">
             📊 Frequência de Escrita & Atividade (Últimos 30 Dias)
           </h3>
-          <span id="streak-count" class="text-xs font-bold text-emerald-400">🔥 0 dias seguidos</span>
+          <span id="streak-count" class="text-xs font-bold text-emerald-500">🔥 0 dias seguidos</span>
         </div>
         <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1"></div>
       </div>
 
       <!-- META DIÁRIA DE QUALIDADE (5 NOTAS COM ≥ 100 PALAVRAS) -->
-      <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-md flex flex-col justify-between">
+      <div class="theme-card p-4 rounded-xl border shadow-md flex flex-col justify-between">
         <div class="flex justify-between items-center mb-1">
-          <h3 class="text-xs font-bold text-indigo-300 flex items-center gap-1.5">
+          <h3 class="text-xs font-bold text-indigo-500 flex items-center gap-1.5">
             🎯 Meta Diária de Reflexão
           </h3>
-          <span id="meta-diaria-texto" class="text-xs font-mono font-bold text-slate-300">0 / 5 notas</span>
+          <span id="meta-diaria-texto" class="text-xs font-mono font-bold">0 / 5 notas</span>
         </div>
-        <p class="text-[11px] text-slate-400 mb-2">Objetivo: 5 notas/dia com, pelo menos, <strong>100 palavras</strong> de reflexão.</p>
-        <div class="w-full bg-slate-900 rounded-full h-3 border border-slate-700 overflow-hidden">
+        <p class="text-[11px] theme-text-muted mb-2">Objetivo: 5 notas/dia com, pelo menos, <strong>100 palavras</strong> de reflexão.</p>
+        <div class="w-full theme-input rounded-full h-3 border theme-border overflow-hidden">
           <div id="meta-diaria-barra" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
         </div>
-        <span id="meta-diaria-status" class="text-[10px] text-amber-400 font-semibold mt-1.5 block">Faltam 5 notas densas hoje!</span>
+        <span id="meta-diaria-status" class="text-[10px] text-amber-500 font-semibold mt-1.5 block">Faltam 5 notas densas hoje!</span>
       </div>
     </section>
 
     <!-- 2. SECÇÃO DE FILTROS E PESQUISA -->
-    <section id="secção-pesquisa" class="flex flex-col md:flex-row gap-4 justify-between items-center bg-slate-800/80 p-4 rounded-xl border border-slate-700 shadow-lg scroll-mt-24">
+    <section id="secção-pesquisa" class="flex flex-col md:flex-row gap-4 justify-between items-center theme-card p-4 rounded-xl border shadow-lg scroll-mt-24">
       <div class="w-full md:w-80 relative flex items-center">
-        <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 pr-20 text-sm text-slate-200 focus:outline-none focus:border-indigo-500 transition-colors">
-        <button type="button" id="btn-limpar-busca" onclick="limparBusca()" class="hidden absolute right-12 text-slate-400 hover:text-white p-1 font-bold text-xs" title="Limpar Pesquisa">✕</button>
-        <span class="absolute right-2.5 text-[10px] font-mono text-slate-500 border border-slate-700 px-1.5 py-0.5 rounded pointer-events-none">Ctrl+K</span>
+        <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full theme-input border rounded-lg px-3 py-2 pr-20 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+        <button type="button" id="btn-limpar-busca" onclick="limparBusca()" class="hidden absolute right-12 theme-text-muted hover:opacity-100 p-1 font-bold text-xs" title="Limpar Pesquisa">✕</button>
+        <span class="absolute right-2.5 text-[10px] font-mono theme-text-muted border theme-border px-1.5 py-0.5 rounded pointer-events-none">Ctrl+K</span>
       </div>
       
-      <div class="flex flex-wrap items-center gap-3 text-xs text-slate-400 w-full md:w-auto justify-between md:justify-end">
+      <div class="flex flex-wrap items-center gap-3 text-xs theme-text-muted w-full md:w-auto justify-between md:justify-end">
         <div class="flex items-center gap-1.5">
           <span>✏️ Estado:</span>
-          <select id="filtro-estado" onchange="filtrarNotas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+          <select id="filtro-estado" onchange="filtrarNotas()" class="theme-input border rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500">
             <option value="tudo">Todas</option>
             <option value="Concluída">✅ Concluídas</option>
             <option value="Rascunho">✏️ Rascunhos</option>
@@ -333,7 +378,7 @@
 
         <div class="flex items-center gap-1.5">
           <span>🗓️ Período:</span>
-          <select id="filtro-data" onchange="filtrarNotas()" class="bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-200 focus:outline-none focus:border-indigo-500">
+          <select id="filtro-data" onchange="filtrarNotas()" class="theme-input border rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500">
             <option value="tudo">Tudo</option>
             <option value="hoje">Hoje</option>
             <option value="7dias">Últimos 7 dias</option>
@@ -342,180 +387,180 @@
           </select>
         </div>
 
-        <div>Visíveis: <span id="notas-visiveis" class="font-bold text-indigo-400">0</span></div>
+        <div>Visíveis: <span id="notas-visiveis" class="font-bold text-indigo-500">0</span></div>
         
-        <div class="flex items-center gap-1 bg-slate-900 border border-slate-700 p-1 rounded-lg">
+        <div class="flex items-center gap-1 theme-input border p-1 rounded-lg">
           <button type="button" id="btn-view-cards" onclick="alternarModoVisualizacao('grelha')" class="px-2 py-1 rounded bg-indigo-600 text-white font-medium text-[11px]" title="Modo Grelha / Cartões">🖼️ Cartões</button>
-          <button type="button" id="btn-view-list" onclick="alternarModoVisualizacao('lista')" class="px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]" title="Modo Lista Densa">☰ Lista Densa</button>
+          <button type="button" id="btn-view-list" onclick="alternarModoVisualizacao('lista')" class="px-2 py-1 rounded hover:opacity-80 theme-text-muted font-medium text-[11px]" title="Modo Lista Densa">☰ Lista Densa</button>
         </div>
       </div>
     </section>
 
     <!-- SECÇÃO DE NOTAS FIXADAS (PINNED) -->
     <section id="secção-fixadas" class="hidden scroll-mt-24">
-      <h2 class="text-sm font-bold text-indigo-300 mb-3 flex items-center gap-2">
+      <h2 class="text-sm font-bold text-indigo-500 mb-3 flex items-center gap-2">
         <span>📌</span> Notas Fixadas / Destaques
       </h2>
       <div id="pinned-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"></div>
-      <hr class="border-slate-800 my-6">
+      <hr class="theme-border my-6">
     </section>
 
     <!-- 3. GRELHA DE CARTÕES DE NOTAS -->
     <section id="secção-notas" class="scroll-mt-24">
-      <h2 class="text-lg font-semibold text-slate-200 mb-4 flex items-center gap-2">
+      <h2 class="text-lg font-semibold mb-4 flex items-center gap-2">
         <span>📝</span> Notas Atómicas
       </h2>
       <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
     </section>
 
-    <hr class="border-slate-800">
+    <hr class="theme-border">
 
     <!-- 4. FORMULÁRIO PARA CRIAR/EDITAR NOTA -->
-    <section id="form-container" class="bg-slate-800/80 p-6 rounded-xl border border-slate-700/80 shadow-xl scroll-mt-24 relative">
+    <section id="form-container" class="theme-card p-6 rounded-xl border shadow-xl scroll-mt-24 relative">
       <div class="flex flex-wrap justify-between items-center mb-4 gap-2">
-        <h2 id="form-titulo-header" class="text-lg font-bold text-indigo-400 flex items-center gap-2">
+        <h2 id="form-titulo-header" class="text-lg font-bold text-indigo-500 flex items-center gap-2">
           <span>➕</span> Criar Nova Nota Zettelkasten
         </h2>
         <div class="flex items-center gap-2 sm:gap-3">
-          <button type="button" onclick="irParaNotas()" class="bg-slate-900 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-2.5 py-1.5 rounded-lg border border-slate-700 transition-colors flex items-center gap-1">
+          <button type="button" onclick="irParaNotas()" class="theme-input hover:opacity-80 text-xs px-2.5 py-1.5 rounded-lg border theme-border transition-colors flex items-center gap-1">
             <span>⬆️</span> Voltar às Notas
           </button>
-          <button type="button" onclick="limparFormulario()" class="text-xs text-slate-400 hover:text-slate-200 underline">
+          <button type="button" onclick="limparFormulario()" class="text-xs theme-text-muted hover:opacity-100 underline">
             Limpar / Nova Nota
           </button>
         </div>
       </div>
 
       <!-- GUIA ZETTELKASTEN & CHEATSHEET -->
-      <div class="mb-6 bg-slate-900/60 border border-slate-700/60 rounded-xl p-4">
+      <div class="mb-6 theme-input border rounded-xl p-4">
         <div class="flex justify-between items-center cursor-pointer select-none" onclick="toggleGuiaZettelkasten()">
-          <h3 class="text-xs sm:text-sm font-bold text-indigo-300 flex items-center gap-2">
+          <h3 class="text-xs sm:text-sm font-bold text-indigo-500 flex items-center gap-2">
             <span>🧠</span> Guia Prático de Utilização Eficiente & Sintaxe Markdown
           </h3>
-          <span id="guia-icon" class="text-[11px] text-slate-400 bg-slate-800 px-2.5 py-1 rounded border border-slate-700">▼ Expandir Guia</span>
+          <span id="guia-icon" class="text-[11px] theme-text-muted theme-card px-2.5 py-1 rounded border theme-border">▼ Expandir Guia</span>
         </div>
 
-        <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t border-slate-700/60 text-sm text-slate-300 space-y-6">
+        <div id="guia-conteudo" class="hidden mt-4 pt-4 border-t theme-border text-sm space-y-6">
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <div class="theme-card p-4 rounded-lg border space-y-1.5">
+              <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <span>1.</span> O Princípio da Nota Atómica & Objetivo Diário (≥100 Palavras)
               </h3>
-              <p class="text-xs text-slate-300 leading-relaxed">
+              <p class="text-xs leading-relaxed theme-text-muted">
                 <strong>Regra de Ouro:</strong> Cada nota foca-se numa só ideia com pelo menos <strong>100 palavras</strong> de reflexão própria.<br>
                 <strong>Meta de Produtividade:</strong> Aponta a 5 notas densas por dia para alimentar o teu conhecimento sem acumular notas superficiais.<br>
-                <strong>Fluxo de Trabalho:</strong> Se não tiveres tempo, grava como <code class="text-amber-400">✏️ Rascunho</code> e desenvolve-a mais tarde!
+                <strong>Fluxo de Trabalho:</strong> Se não tiveres tempo, grava como <code class="text-amber-500">✏️ Rascunho</code> e desenvolve-a mais tarde!
               </p>
             </div>
 
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <div class="theme-card p-4 rounded-lg border space-y-1.5">
+              <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <span>2.</span> A Regra das 2 Conexões (`[[ID]]` e Ligar a IDs)
               </h3>
-              <p class="text-xs text-slate-300 leading-relaxed">
+              <p class="text-xs leading-relaxed theme-text-muted">
                 Para que uma nota ganhe valor, obriga-te a criar **pelo menos 2 conexões** com notas do teu arquivo.<br>
-                Escreve <code class="text-sky-400 font-mono">[[202607241010]]</code> no texto ou preenche o campo <strong>"Ligar a IDs"</strong>.<br>
+                Escreve <code class="text-sky-500 font-mono">[[202607241010]]</code> no texto ou preenche o campo <strong>"Ligar a IDs"</strong>.<br>
                 <strong>Visualização:</strong> O Graph View une estas pontes do teu ecossistema mental.
               </p>
             </div>
 
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <div class="theme-card p-4 rounded-lg border space-y-1.5">
+              <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <span>3.</span> Uso Estratégico de Categorias e Subcategorias
               </h3>
-              <p class="text-xs text-slate-300 leading-relaxed">
+              <p class="text-xs leading-relaxed theme-text-muted">
                 <strong>Categoria:</strong> O grande "domínio" do conhecimento (ex: <em>Programação, Marketing, Produtividade, Padel</em>). Isto define a cor do nó no mapa e na legenda.<br>
                 <strong>Subcategoria:</strong> O nicho específico dentro desse domínio (ex: <em>JavaScript, SEO, Treino Mental</em>).<br>
                 <strong>Consistência:</strong> Mantém os nomes das categorias padronizados.
               </p>
             </div>
 
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5">
-              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <div class="theme-card p-4 rounded-lg border space-y-1.5">
+              <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <span>4.</span> Captura Rápida de Recursos Multimédia
               </h3>
-              <p class="text-xs text-slate-300 leading-relaxed">
+              <p class="text-xs leading-relaxed theme-text-muted">
                 <strong>Links de apoio:</strong> Usa a caixa de captura rápida ou cola vídeos do YouTube, artigos da Web ou posts do X/Twitter no campo de URLs.<br>
                 <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas em grelha para reveres visualmente a fonte original.
               </p>
             </div>
 
-            <div class="bg-slate-900/60 p-4 rounded-lg border border-slate-800 space-y-1.5 md:col-span-2">
-              <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider flex items-center gap-1.5">
+            <div class="theme-card p-4 rounded-lg border space-y-1.5 md:col-span-2">
+              <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider flex items-center gap-1.5">
                 <span>5.</span> Navegação Fluida por Tags & Atalhos
               </h3>
-              <p class="text-xs text-slate-300 leading-relaxed">
-                Usa tags abrangentes (ex: <code class="text-indigo-400">#conceito</code>, <code class="text-indigo-400">#tutorial</code>). Clica em qualquer <strong>#tag</strong> num cartão para filtrar.<br>
-                <strong>Atalhos úteis:</strong> <code class="text-indigo-300">Ctrl+N</code> (Nova Nota), <code class="text-indigo-300">Ctrl+K</code> (Pesquisar), <code class="text-indigo-300">Esc</code> (Fechar modal/limpar).
+              <p class="text-xs leading-relaxed theme-text-muted">
+                Usa tags abrangentes (ex: <code class="text-indigo-500">#conceito</code>, <code class="text-indigo-500">#tutorial</code>). Clica em qualquer <strong>#tag</strong> num cartão para filtrar.<br>
+                <strong>Atalhos úteis:</strong> <code class="text-indigo-500">Ctrl+N</code> (Nova Nota), <code class="text-indigo-500">Ctrl+K</code> (Pesquisar), <code class="text-indigo-500">Esc</code> (Fechar modal/limpar).
               </p>
             </div>
           </div>
 
-          <div class="bg-indigo-950/40 border border-indigo-800/60 p-4 rounded-lg">
-            <h3 class="font-bold text-indigo-300 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
+          <div class="theme-card border p-4 rounded-lg">
+            <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
               💡 Exemplo Prático de um Fluxo de Trabalho:
             </h3>
-            <ol class="list-decimal pl-5 text-xs text-slate-200 space-y-1">
+            <ol class="list-decimal pl-5 text-xs space-y-1 theme-text-muted">
               <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
               <li>Abres o Zettelkasten Hub ➔ Crias a nota com a tua reflexão (procura atingir ≥100 palavras).</li>
               <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
-              <li>Olhas para o Grafo/Busca ➔ Descobres 2 notas antigas sobre o mesmo tema e conectas com <code class="text-sky-300 font-mono">[[ID]]</code>.</li>
+              <li>Olhas para o Grafo/Busca ➔ Descobres 2 notas antigas sobre o mesmo tema e conectas com <code class="text-sky-500 font-mono">[[ID]]</code>.</li>
               <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
             </ol>
           </div>
 
           <div>
-            <h3 class="font-bold text-slate-100 mb-2 text-xs uppercase tracking-wider text-indigo-300 flex items-center gap-1.5">
+            <h3 class="font-bold mb-2 text-xs uppercase tracking-wider text-indigo-500 flex items-center gap-1.5">
               <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian Style)
             </h3>
             <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs border-collapse bg-slate-900/70 rounded-lg overflow-hidden border border-slate-800">
+              <table class="w-full text-left text-xs border-collapse theme-card rounded-lg overflow-hidden border">
                 <thead>
-                  <tr class="bg-slate-950/80 text-slate-400 border-b border-slate-800">
+                  <tr class="theme-input border-b">
                     <th class="p-2.5 font-semibold">Símbolo / Elemento</th>
                     <th class="p-2.5 font-semibold">Como Escrever (Sintaxe)</th>
                     <th class="p-2.5 font-semibold">Resultado Visual na Nota</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-800/60 text-slate-300 font-mono">
+                <tbody class="divide-y theme-border font-mono">
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Wikilink / Nota Conectada</td>
-                    <td class="p-2.5 text-sky-400">[[202607241010]]</td>
+                    <td class="p-2.5 font-sans font-medium">Wikilink / Nota Conectada</td>
+                    <td class="p-2.5 text-sky-500">[[202607241010]]</td>
                     <td class="p-2.5 font-sans"><span class="wikilink-badge">🔗 Nota #202607241010</span></td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Título Principal (H1)</td>
-                    <td class="p-2.5 text-sky-400"># Título Exemplo</td>
-                    <td class="p-2.5 font-sans text-base font-bold text-white">Título Exemplo</td>
+                    <td class="p-2.5 font-sans font-medium">Título Principal (H1)</td>
+                    <td class="p-2.5 text-sky-500"># Título Exemplo</td>
+                    <td class="p-2.5 font-sans text-base font-bold">Título Exemplo</td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Subtítulo Nível 2 (H2)</td>
-                    <td class="p-2.5 text-sky-400">## Seção Importante</td>
-                    <td class="p-2.5 font-sans text-sm font-semibold text-slate-200">Seção Importante</td>
+                    <td class="p-2.5 font-sans font-medium">Subtítulo Nível 2 (H2)</td>
+                    <td class="p-2.5 text-sky-500">## Seção Importante</td>
+                    <td class="p-2.5 font-sans text-sm font-semibold">Seção Importante</td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Negrito</td>
-                    <td class="p-2.5 text-sky-400">**conceito chave**</td>
-                    <td class="p-2.5 font-sans font-bold text-white">conceito chave</td>
+                    <td class="p-2.5 font-sans font-medium">Texto em Negrito</td>
+                    <td class="p-2.5 text-sky-500">**conceito chave**</td>
+                    <td class="p-2.5 font-sans font-bold">conceito chave</td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Texto em Itálico</td>
-                    <td class="p-2.5 text-sky-400">*termo em destaque* ou _termo_</td>
-                    <td class="p-2.5 font-sans italic text-slate-300">termo em destaque</td>
+                    <td class="p-2.5 font-sans font-medium">Texto em Itálico</td>
+                    <td class="p-2.5 text-sky-500">*termo em destaque* ou _termo_</td>
+                    <td class="p-2.5 font-sans italic">termo em destaque</td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Bloco de Citação</td>
-                    <td class="p-2.5 text-sky-400">&gt; O conhecimento acumula-se.</td>
-                    <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic text-slate-400">O conhecimento acumula-se.</td>
+                    <td class="p-2.5 font-sans font-medium">Bloco de Citação</td>
+                    <td class="p-2.5 text-sky-500">&gt; O conhecimento acumula-se.</td>
+                    <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic theme-text-muted">O conhecimento acumula-se.</td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Código em Linha</td>
-                    <td class="p-2.5 text-sky-400">`npm install`</td>
-                    <td class="p-2.5"><code class="bg-slate-950 px-1.5 py-0.5 rounded text-sky-400">npm install</code></td>
+                    <td class="p-2.5 font-sans font-medium">Código em Linha</td>
+                    <td class="p-2.5 text-sky-500">`npm install`</td>
+                    <td class="p-2.5"><code class="theme-input px-1.5 py-0.5 rounded text-sky-500">npm install</code></td>
                   </tr>
                   <tr>
-                    <td class="p-2.5 font-sans font-medium text-slate-200">Lista Não-Ordenada</td>
-                    <td class="p-2.5 text-sky-400">- Item 1<br>* Item 2</td>
+                    <td class="p-2.5 font-sans font-medium">Lista Não-Ordenada</td>
+                    <td class="p-2.5 text-sky-500">- Item 1<br>* Item 2</td>
                     <td class="p-2.5 font-sans">
                       <ul class="list-disc pl-4 space-y-0.5">
                         <li>Item 1</li>
@@ -531,12 +576,12 @@
       </div>
       
       <!-- CAMPO DE CAPTURA RÁPIDA POR URL -->
-      <div class="bg-indigo-950/40 border border-indigo-800/60 p-3.5 rounded-xl mb-5 shadow-inner">
-        <label class="block text-xs font-bold text-indigo-300 mb-1 flex items-center gap-1.5">
+      <div class="theme-input border p-3.5 rounded-xl mb-5 shadow-inner">
+        <label class="block text-xs font-bold text-indigo-500 mb-1 flex items-center gap-1.5">
           <span>⚡</span> Captura Rápida por Link (YouTube, X, Instagram ou Web):
         </label>
         <div class="flex gap-2">
-          <input type="url" id="input-captura-rapida" placeholder="Cola aqui um link (ex: https://www.youtube.com/watch?v=...)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-xs text-slate-200 focus:border-indigo-500 focus:outline-none">
+          <input type="url" id="input-captura-rapida" placeholder="Cola aqui um link (ex: https://www.youtube.com/watch?v=...)" class="w-full theme-card border rounded-lg px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
           <button type="button" onclick="processarCapturaRapida(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shrink-0 flex items-center gap-1">
             <span>🚀</span> Extrair Dados
           </button>
@@ -548,13 +593,13 @@
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="md:col-span-1">
-            <label class="block text-xs font-medium text-slate-400 mb-1">Título da Nota</label>
-            <input type="text" id="novo-titulo" required placeholder="Ex: Algoritmo de Busca em Grafos" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Título da Nota</label>
+            <input type="text" id="novo-titulo" required placeholder="Ex: Algoritmo de Busca em Grafos" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
           
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Plataforma / Origem</label>
-            <select id="nova-plataforma" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Plataforma / Origem</label>
+            <select id="nova-plataforma" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
               <option value="Nota">Nota Pessoal</option>
               <option value="YouTube">YouTube</option>
               <option value="Instagram">Instagram</option>
@@ -565,8 +610,8 @@
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Estado da Nota</label>
-            <select id="novo-estado" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Estado da Nota</label>
+            <select id="novo-estado" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
               <option value="Concluída">✅ Concluída (Permanente)</option>
               <option value="Rascunho">✏️ Rascunho (Provisória)</option>
             </select>
@@ -575,60 +620,60 @@
 
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Categoria</label>
-            <input type="text" id="nova-categoria" oninput="atualizarSugestoesConexao()" placeholder="Ex: Marketing, Programação, Padel" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Categoria</label>
+            <input type="text" id="nova-categoria" oninput="atualizarSugestoesConexao()" placeholder="Ex: Marketing, Programação, Padel" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Subcategoria</label>
-            <input type="text" id="nova-subcategoria" placeholder="Ex: SEO, JavaScript, Tática" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Subcategoria</label>
+            <input type="text" id="nova-subcategoria" placeholder="Ex: SEO, JavaScript, Tática" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
 
         <div class="relative">
           <div class="flex justify-between items-center mb-1">
-            <label class="block text-xs font-medium text-slate-400">
-              Conteúdo / Ideia Atómica <span class="text-indigo-400 font-mono">(escreve [[ para ligar notas)</span>
+            <label class="block text-xs font-medium theme-text-muted">
+              Conteúdo / Ideia Atómica <span class="text-indigo-500 font-mono">(escreve [[ para ligar notas)</span>
             </label>
             <div class="text-[11px] font-mono" id="form-text-metrics">
               0 pal | 0 car | ~0 min
             </div>
           </div>
 
-          <div class="flex flex-wrap gap-1 bg-slate-950 p-1.5 rounded-t-lg border border-slate-700 border-b-0 text-xs">
-            <button type="button" onclick="inserirMarkdown('**', '**')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold" title="Negrito">B</button>
-            <button type="button" onclick="inserirMarkdown('*', '*')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 italic" title="Itálico">I</button>
-            <button type="button" onclick="inserirMarkdown('# ')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold" title="Título">H1</button>
-            <button type="button" onclick="inserirMarkdown('> ')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" title="Citação">“ ”</button>
-            <button type="button" onclick="inserirMarkdown('`', '`')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-sky-400 font-mono" title="Código">&lt;/&gt;</button>
-            <button type="button" onclick="inserirMarkdown('- ')" class="px-2 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-200" title="Lista">• Lista</button>
-            <button type="button" onclick="inserirMarkdown('[[', ']]')" class="px-2 py-0.5 rounded bg-indigo-950 text-indigo-300 border border-indigo-800 font-mono" title="Wikilink">[[ Link ]]</button>
+          <div class="flex flex-wrap gap-1 theme-input p-1.5 rounded-t-lg border border-b-0 text-xs">
+            <button type="button" onclick="inserirMarkdown('**', '**')" class="px-2 py-0.5 rounded theme-card hover:opacity-80 font-bold" title="Negrito">B</button>
+            <button type="button" onclick="inserirMarkdown('*', '*')" class="px-2 py-0.5 rounded theme-card hover:opacity-80 italic" title="Itálico">I</button>
+            <button type="button" onclick="inserirMarkdown('# ')" class="px-2 py-0.5 rounded theme-card hover:opacity-80 font-bold" title="Título">H1</button>
+            <button type="button" onclick="inserirMarkdown('> ')" class="px-2 py-0.5 rounded theme-card hover:opacity-80" title="Citação">“ ”</button>
+            <button type="button" onclick="inserirMarkdown('`', '`')" class="px-2 py-0.5 rounded theme-card hover:opacity-80 text-sky-500 font-mono" title="Código">&lt;/&gt;</button>
+            <button type="button" onclick="inserirMarkdown('- ')" class="px-2 py-0.5 rounded theme-card hover:opacity-80" title="Lista">• Lista</button>
+            <button type="button" onclick="inserirMarkdown('[[', ']]')" class="px-2 py-0.5 rounded theme-card text-indigo-500 border theme-border font-mono" title="Wikilink">[[ Link ]]</button>
           </div>
 
-          <textarea id="novo-conteudo" rows="4" required oninput="aoDigitarConteudo(event)" placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full bg-slate-900 border border-slate-700 rounded-b-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none"></textarea>
+          <textarea id="novo-conteudo" rows="4" required oninput="aoDigitarConteudo(event)" placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full theme-input border rounded-b-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
           
           <div id="autocomplete-list" class="autocomplete-dropdown hidden"></div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">URLs dos Recursos (separados por vírgula)</label>
-            <input type="text" id="novo-url" placeholder="https://youtube.com/..., https://artigo.com/..." class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">URLs dos Recursos (separados por vírgula)</label>
+            <input type="text" id="novo-url" placeholder="https://youtube.com/..., https://artigo.com/..." class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Tags (separadas por vírgulas)</label>
-            <input type="text" id="novas-tags" oninput="atualizarSugestoesConexao()" placeholder="javascript, redes, zettelkasten" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Tags (separadas por vírgulas)</label>
+            <input type="text" id="novas-tags" oninput="atualizarSugestoesConexao()" placeholder="javascript, redes, zettelkasten" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
-            <label class="block text-xs font-medium text-slate-400 mb-1">Ligar a IDs (separados por vírgula)</label>
-            <input type="text" id="novos-links" placeholder="Ex: 202607241010, 202607241012" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-200 focus:border-indigo-500 focus:outline-none">
+            <label class="block text-xs font-medium theme-text-muted mb-1">Ligar a IDs (separados por vírgula)</label>
+            <input type="text" id="novos-links" placeholder="Ex: 202607241010, 202607241012" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
 
-        <div id="painel-sugestoes" class="hidden bg-slate-950/60 p-3 rounded-lg border border-slate-800">
-          <span class="text-xs font-bold text-indigo-300 block mb-1.5">💡 Sugestões de Conexão (Clica para ligar o ID):</span>
+        <div id="painel-sugestoes" class="hidden theme-input p-3 rounded-lg border">
+          <span class="text-xs font-bold text-indigo-500 block mb-1.5">💡 Sugestões de Conexão (Clica para ligar o ID):</span>
           <div id="sugestoes-lista" class="flex flex-wrap gap-2"></div>
         </div>
 
@@ -637,39 +682,39 @@
             <span>💾</span> Guardar Nota no Zettelkasten
           </button>
           
-          <button type="button" id="btn-cancelar-edicao" onclick="limparFormulario()" class="hidden bg-slate-700 hover:bg-red-600/80 text-slate-200 hover:text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
+          <button type="button" id="btn-cancelar-edicao" onclick="limparFormulario()" class="hidden bg-slate-700 hover:bg-red-600/80 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
             <span>🚫</span> Cancelar Edição
           </button>
         </div>
       </form>
     </section>
 
-    <hr class="border-slate-800">
+    <hr class="theme-border">
 
     <!-- 5. SECÇÃO DO GRAFO -->
     <section id="secção-grafo" class="scroll-mt-24">
       <div class="flex flex-wrap sm:flex-row items-center justify-between mb-3 gap-2">
         <div class="flex items-center gap-3">
-          <h2 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+          <h2 class="text-lg font-semibold flex items-center gap-2">
             <span>🕸️</span> Mapa de Conexões (Graph View)
           </h2>
-          <button type="button" onclick="irParaNotas()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs px-2.5 py-1 rounded-lg border border-slate-700 transition-colors flex items-center gap-1">
+          <button type="button" onclick="irParaNotas()" class="theme-card hover:opacity-80 text-xs px-2.5 py-1 rounded-lg border theme-border transition-colors flex items-center gap-1">
             <span>⬆️</span> Voltar às Notas
           </button>
         </div>
 
         <div class="flex items-center gap-2 text-xs">
-          <button type="button" id="btn-repor-grafo" onclick="reporFocoGrafo()" class="bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors" title="Repor posição inicial da câmara">
+          <button type="button" id="btn-repor-grafo" onclick="reporFocoGrafo()" class="theme-card hover:opacity-80 text-indigo-500 px-2.5 py-1 rounded-lg border theme-border transition-colors" title="Repor posição inicial da câmara">
             🎯 Repor Foco
           </button>
-          <button type="button" id="btn-toggle-orfas" onclick="alternarVisibilidadeOrfas()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded-lg border border-slate-700 transition-colors">
+          <button type="button" id="btn-toggle-orfas" onclick="alternarVisibilidadeOrfas()" class="theme-card hover:opacity-80 px-2.5 py-1 rounded-lg border theme-border transition-colors">
             👁️ Ocultar Órfãs
           </button>
-          <span id="graph-status" class="text-xs text-slate-400">A carregar rede...</span>
+          <span id="graph-status" class="text-xs theme-text-muted">A carregar rede...</span>
         </div>
       </div>
 
-      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs text-slate-300 select-none"></div>
+      <div id="categorias-legenda" class="flex flex-wrap gap-2 mb-3 text-xs select-none"></div>
 
       <div id="graph-container" class="shadow-2xl relative">
         <div id="graph-loader" class="absolute inset-0 flex items-center justify-center bg-slate-900/80 rounded-xl z-10">
@@ -680,8 +725,8 @@
 
     <!-- MODAL -->
     <div id="modal-nota" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4 transition-all" onclick="if(event.target === this) fecharModal()">
-      <div id="modal-card-box" class="bg-slate-900 border border-slate-700/80 rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto transition-all">
-        <button type="button" onclick="fecharModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white bg-slate-800/80 hover:bg-slate-700 w-8 h-8 flex items-center justify-center rounded-lg transition-colors z-10">
+      <div id="modal-card-box" class="theme-card border rounded-2xl max-w-2xl w-full p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto transition-all">
+        <button type="button" onclick="fecharModal()" class="absolute top-4 right-4 theme-text-muted hover:opacity-100 theme-input w-8 h-8 flex items-center justify-center rounded-lg transition-colors z-10 border theme-border">
           ✕
         </button>
         <div id="modal-conteudo-corpo"></div>
@@ -929,7 +974,7 @@
       calcularEstatisticasRede();
       renderizarHeatmapProdutividade();
       atualizarMetaDiaria();
-      sortearNotaDoDia(false); // Carrega a Nota do Dia persistida ou sorteia uma nova
+      sortearNotaDoDia(false);
       renderizarCartoes(todasAsNotas);
       renderizarGrafo(todasAsNotas);
     }
@@ -989,15 +1034,15 @@
       const conteudoMarkdown = marked.parse(processarWikilinks(conteudo.length > 250 ? conteudo.substring(0, 250) + '...' : conteudo));
 
       container.innerHTML = `
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 bg-slate-900/80 p-4 rounded-xl border border-amber-500/30">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 theme-input p-4 rounded-xl border">
           <div class="space-y-1 max-w-3xl">
             <div class="flex items-center gap-2 text-xs">
-              <span class="font-mono text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-800">ID: ${escapeHTML(id)}</span>
-              <span class="text-slate-400">Criada a: ${escapeHTML(dtCriacao)}</span>
-              ${categoria ? `<span class="bg-indigo-950 text-indigo-300 px-2 py-0.5 rounded border border-indigo-800 font-semibold">${escapeHTML(categoria)}</span>` : ''}
+              <span class="font-mono text-amber-500 theme-card px-2 py-0.5 rounded border theme-border font-bold">ID: ${escapeHTML(id)}</span>
+              <span class="theme-text-muted">Criada a: ${escapeHTML(dtCriacao)}</span>
+              ${categoria ? `<span class="theme-card text-indigo-500 px-2 py-0.5 rounded border theme-border font-semibold">${escapeHTML(categoria)}</span>` : ''}
             </div>
-            <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold text-white hover:text-amber-300 transition-colors cursor-pointer">${escapeHTML(titulo)}</h3>
-            <div class="markdown-body text-xs text-slate-300 line-clamp-2 leading-relaxed">
+            <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold hover:text-amber-500 transition-colors cursor-pointer">${escapeHTML(titulo)}</h3>
+            <div class="markdown-body text-xs line-clamp-2 leading-relaxed">
               ${conteudoMarkdown}
             </div>
           </div>
@@ -1042,13 +1087,13 @@
         const isoLocal = d.toISOString().split('T')[0];
         const qtd = contagemDatas.get(isoLocal) || 0;
 
-        let cor = 'bg-slate-700/50';
-        if (qtd === 1) cor = 'bg-emerald-800';
-        else if (qtd === 2) cor = 'bg-emerald-600';
+        let cor = 'theme-input';
+        if (qtd === 1) cor = 'bg-emerald-700/60';
+        else if (qtd === 2) cor = 'bg-emerald-500';
         else if (qtd >= 3) cor = 'bg-emerald-400';
 
         const dayDiv = document.createElement('div');
-        dayDiv.className = `heatmap-day ${cor} transition-transform hover:scale-125 cursor-pointer`;
+        dayDiv.className = `heatmap-day ${cor} transition-transform hover:scale-125 cursor-pointer border theme-border`;
         dayDiv.title = `${isoLocal}: ${qtd} nota(s)`;
         fragmento.appendChild(dayDiv);
       }
@@ -1107,11 +1152,11 @@
       if (statusMeta) {
         if (count >= 5) {
           statusMeta.textContent = '🎉 Objetivo Diário Concluído! Excelente reflexão!';
-          statusMeta.className = 'text-[10px] text-emerald-400 font-bold mt-1.5 block';
+          statusMeta.className = 'text-[10px] text-emerald-500 font-bold mt-1.5 block';
         } else {
           const faltam = 5 - count;
           statusMeta.textContent = `Faltam ${faltam} nota(s) densa(s) (≥100 pal) hoje!`;
-          statusMeta.className = 'text-[10px] text-amber-400 font-semibold mt-1.5 block';
+          statusMeta.className = 'text-[10px] text-amber-500 font-semibold mt-1.5 block';
         }
       }
     }
@@ -1158,7 +1203,7 @@
 
       const densidade = todasAsNotas.length > 0 ? (totalConexoes / todasAsNotas.length).toFixed(1) : '0.0';
       const elDensidade = document.getElementById('densidade-rede');
-      if (elDensidade) elDensidade.innerHTML = `${densidade} <span class="text-[10px] font-normal text-slate-400">links/nota</span>`;
+      if (elDensidade) elDensidade.innerHTML = `${densidade} <span class="text-[10px] font-normal theme-text-muted">links/nota</span>`;
 
       let idHubMaisConectado = null;
       let maxConexoes = 0;
@@ -1181,6 +1226,48 @@
           elHub.textContent = 'Nenhuma';
         }
       }
+    }
+
+    // --- FUNÇÃO PARA FILTRAR NOTAS CLICANDO NOS CARTOES DE MÉTRICAS ---
+    function filtrarPorMetrica(tipo) {
+      const inputBusca = document.getElementById('input-busca');
+      if (inputBusca) inputBusca.value = '';
+      const btnLimpar = document.getElementById('btn-limpar-busca');
+      if (btnLimpar) btnLimpar.classList.add('hidden');
+
+      let notasFiltradas = [];
+
+      if (tipo === 'todas') {
+        notasFiltradas = [...todasAsNotas];
+        const selectEstado = document.getElementById('filtro-estado');
+        if (selectEstado) selectEstado.value = 'tudo';
+      } 
+      else if (tipo === 'rascunhos') {
+        notasFiltradas = todasAsNotas.filter(n => (obterValorPropriedade(n, 'estado') || 'Concluída') === 'Rascunho');
+        const selectEstado = document.getElementById('filtro-estado');
+        if (selectEstado) selectEstado.value = 'Rascunho';
+      } 
+      else if (tipo === 'orfas') {
+        notasFiltradas = todasAsNotas.filter(n => {
+          const linksStr = obterValorPropriedade(n, 'linkspara');
+          const conteudo = obterValorPropriedade(n, 'conteudo') || '';
+          const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []);
+          const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
+          return wikilinks.length === 0 && conexoesManuais.length === 0;
+        });
+      } 
+      else if (tipo === 'conectadas') {
+        notasFiltradas = todasAsNotas.filter(n => {
+          const linksStr = obterValorPropriedade(n, 'linkspara');
+          const conteudo = obterValorPropriedade(n, 'conteudo') || '';
+          const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []);
+          const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
+          return wikilinks.length > 0 || conexoesManuais.length > 0;
+        });
+      }
+
+      renderizarCartoes(notasFiltradas);
+      document.getElementById('secção-notas').scrollIntoView({ behavior: 'smooth' });
     }
 
     function alternarVisibilidadeOrfas() {
@@ -1282,9 +1369,9 @@
       if (legendaDiv) {
         let legendaHTML = Array.from(mapaCoresCategorias.values()).map(item => {
           const eAtivo = categoriaFiltroAtiva && categoriaFiltroAtiva.toLowerCase() === item.nomeExibicao.toLowerCase();
-          const classeBorda = eAtivo ? 'ring-2 ring-indigo-400 font-bold bg-slate-700 text-white' : 'bg-slate-800 text-slate-200 hover:bg-slate-750';
+          const classeBorda = eAtivo ? 'ring-2 ring-indigo-500 font-bold theme-card' : 'theme-card hover:opacity-80';
           return `
-            <span onclick="alternarFiltroCategoriaGrafo('${escapeHTML(item.nomeExibicao)}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-slate-700 cursor-pointer transition-all ${classeBorda}">
+            <span onclick="alternarFiltroCategoriaGrafo('${escapeHTML(item.nomeExibicao)}')" class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border theme-border cursor-pointer transition-all ${classeBorda}">
               <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${item.cores.bg}"></span>
               <span>${escapeHTML(item.nomeExibicao)}</span>
             </span>
@@ -1293,7 +1380,7 @@
 
         if (categoriaFiltroAtiva) {
           legendaHTML += `
-            <button onclick="alternarFiltroCategoriaGrafo(null)" class="text-xs text-indigo-400 hover:underline px-2 py-1">
+            <button onclick="alternarFiltroCategoriaGrafo(null)" class="text-xs text-indigo-500 hover:underline px-2 py-1">
               ✕ Limpar Filtro
             </button>
           `;
@@ -1408,10 +1495,10 @@
       const metricsEl = document.getElementById('form-text-metrics');
       if (metricsEl) {
         if (palavras >= 100) {
-          metricsEl.innerHTML = `<span class="text-emerald-400 font-bold">✅ Reflexão Aprovada (${palavras} pal | ~${tempoLeitura} min)</span>`;
+          metricsEl.innerHTML = `<span class="text-emerald-500 font-bold">✅ Reflexão Aprovada (${palavras} pal | ~${tempoLeitura} min)</span>`;
         } else {
           const faltam = 100 - palavras;
-          metricsEl.innerHTML = `<span class="text-amber-400">${palavras} pal | ${carateres} car (faltam ${faltam} pal p/ meta)</span>`;
+          metricsEl.innerHTML = `<span class="text-amber-500">${palavras} pal | ${carateres} car (faltam ${faltam} pal p/ meta)</span>`;
         }
       }
     }
@@ -1439,7 +1526,7 @@
         lista.innerHTML = sugeridas.map(s => {
           const id = obterValorPropriedade(s, 'id');
           const tit = obterValorPropriedade(s, 'titulo');
-          return `<button type="button" onclick="adicionarLinkManual('${escapeHTML(id)}')" class="bg-indigo-950 hover:bg-indigo-900 text-indigo-300 border border-indigo-800 text-[11px] px-2 py-0.5 rounded transition-colors">+ ${escapeHTML(tit)} (#${escapeHTML(id)})</button>`;
+          return `<button type="button" onclick="adicionarLinkManual('${escapeHTML(id)}')" class="theme-card hover:opacity-80 text-indigo-500 border theme-border text-[11px] px-2 py-0.5 rounded transition-colors">+ ${escapeHTML(tit)} (#${escapeHTML(id)})</button>`;
         }).join('');
         painel.classList.remove('hidden');
       } else {
@@ -1464,10 +1551,10 @@
 
       if (modo === 'lista') {
         if (btnLista) btnLista.className = "px-2 py-1 rounded bg-indigo-600 text-white font-medium text-[11px]";
-        if (btnGrelha) btnGrelha.className = "px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]";
+        if (btnGrelha) btnGrelha.className = "px-2 py-1 rounded hover:opacity-80 theme-text-muted font-medium text-[11px]";
       } else {
         if (btnGrelha) btnGrelha.className = "px-2 py-1 rounded bg-indigo-600 text-white font-medium text-[11px]";
-        if (btnLista) btnLista.className = "px-2 py-1 rounded hover:bg-slate-800 text-slate-400 font-medium text-[11px]";
+        if (btnLista) btnLista.className = "px-2 py-1 rounded hover:opacity-80 theme-text-muted font-medium text-[11px]";
       }
       renderizarCartoes(todasAsNotas);
     }
@@ -1489,7 +1576,7 @@
         if (matchYT && matchYT[2].length === 11) {
           const videoId = matchYT[2];
           return `
-            <div class="rounded-lg overflow-hidden border border-slate-700/80 bg-slate-950 shadow-inner">
+            <div class="rounded-lg overflow-hidden border theme-border theme-input shadow-inner">
               <div class="aspect-video w-full relative">
                 <iframe class="w-full h-full" src="https://www.youtube-nocookie.com/embed/${escapeHTML(videoId)}?enablejsapi=1" title="YouTube" frameborder="0" allowfullscreen></iframe>
               </div>
@@ -1499,10 +1586,10 @@
 
         const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
         return `
-          <div class="rounded-lg overflow-hidden border border-slate-700/80 bg-slate-900/60 group">
+          <div class="rounded-lg overflow-hidden border theme-border theme-input group">
             <a href="${escapeHTML(urlValida)}" target="_blank" rel="noopener noreferrer" class="block">
-              <div class="aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
-                <img src="${escapeHTML(imagemApiUrl)}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-3 text-xs text-slate-500\\'>🔗 ${escapeHTML(urlValida)}</div>';" />
+              <div class="aspect-video w-full theme-input flex items-center justify-center overflow-hidden">
+                <img src="${escapeHTML(imagemApiUrl)}" alt="Preview" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-3 text-xs theme-text-muted\\'>🔗 ${escapeHTML(urlValida)}</div>';" />
               </div>
             </a>
           </div>
@@ -1585,7 +1672,7 @@
       }
 
       if (notas.length === 0) {
-        container.innerHTML = `<p class="text-slate-500 text-sm col-span-full">Nenhuma nota encontrada com estes critérios.</p>`;
+        container.innerHTML = `<p class="theme-text-muted text-sm col-span-full">Nenhuma nota encontrada com estes critérios.</p>`;
         return;
       }
 
@@ -1623,7 +1710,7 @@
       const tagsHTML = tagsArr.map(t => {
         const tagLimpa = t.trim();
         if (!tagLimpa) return '';
-        return `<button type="button" onclick="event.stopPropagation(); filtrarPorTag('${escapeHTML(tagLimpa)}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-[11px] px-2 py-0.5 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${escapeHTML(tagLimpa)}</button>`;
+        return `<button type="button" onclick="event.stopPropagation(); filtrarPorTag('${escapeHTML(tagLimpa)}')" class="theme-input hover:opacity-80 text-indigo-500 text-[11px] px-2 py-0.5 rounded-full border theme-border font-mono transition-colors cursor-pointer">#${escapeHTML(tagLimpa)}</button>`;
       }).join(' ');
 
       const linksHTML = linksArr.map(linkId => {
@@ -1631,7 +1718,7 @@
         if (!targetId) return '';
         const notaAlvo = mapaNotas.get(targetId);
         const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-        return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}')" class="text-xs text-indigo-400 hover:underline flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
+        return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}')" class="text-xs text-indigo-500 hover:underline flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
       }).filter(Boolean).join('');
 
       const conteudoComWikilinks = processarWikilinks(conteudo || '');
@@ -1640,25 +1727,25 @@
       const cartao = document.createElement('div');
       cartao.id = `nota-${idStr}`;
 
-      let classeEstilo = 'bg-slate-800/80 border border-slate-700/80 rounded-xl p-5 flex flex-col justify-between shadow-lg hover:border-slate-600 transition-all';
+      let classeEstilo = 'theme-card border rounded-xl p-5 flex flex-col justify-between shadow-lg hover:opacity-95 transition-all';
       if (eMOC) classeEstilo += ' card-moc';
       if (eRascunho) classeEstilo += ' card-rascunho';
       if (estaNasFixadas) classeEstilo += ' card-pinned';
 
       if (modoVisualizacao === 'lista' && !eFixado) {
-        cartao.className = `bg-slate-800/80 border border-slate-700/80 rounded-lg p-3 flex flex-row justify-between items-center hover:border-slate-600 transition-all gap-4 ${eMOC ? 'card-moc' : ''} ${eRascunho ? 'card-rascunho' : ''} ${estaNasFixadas ? 'card-pinned' : ''}`;
+        cartao.className = `theme-card border rounded-lg p-3 flex flex-row justify-between items-center hover:opacity-95 transition-all gap-4 ${eMOC ? 'card-moc' : ''} ${eRascunho ? 'card-rascunho' : ''} ${estaNasFixadas ? 'card-pinned' : ''}`;
         cartao.innerHTML = `
           <div class="flex items-center gap-3 truncate min-w-0">
-            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded shrink-0">ID: ${escapeHTML(idStr)}</span>
+            <span class="text-xs font-mono theme-text-muted theme-input px-2 py-0.5 rounded shrink-0 border theme-border">ID: ${escapeHTML(idStr)}</span>
             <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="Fixar Nota" class="text-xs shrink-0">${estaNasFixadas ? '📌' : '📍'}</button>
-            ${eRascunho ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">✏️ Rascunho</span>` : ''}
-            ${eMOC ? `<span class="bg-amber-500/20 text-amber-300 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">🗺️ MOC</span>` : ''}
-            <span onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-base sm:text-lg font-black text-white hover:text-indigo-300 transition-colors cursor-pointer truncate" title="Clique para abrir a nota">${escapeHTML(titulo)}</span>
-            ${categoria ? `<span class="hidden sm:inline bg-indigo-950/80 text-indigo-300 text-[10px] px-2 py-0.5 rounded border border-indigo-800 shrink-0">${escapeHTML(categoria)}</span>` : ''}
+            ${eRascunho ? `<span class="bg-amber-500/20 text-amber-500 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">✏️ Rascunho</span>` : ''}
+            ${eMOC ? `<span class="bg-amber-500/20 text-amber-500 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">🗺️ MOC</span>` : ''}
+            <span onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-base sm:text-lg font-black hover:text-indigo-500 transition-colors cursor-pointer truncate" title="Clique para abrir a nota">${escapeHTML(titulo)}</span>
+            ${categoria ? `<span class="hidden sm:inline theme-input text-indigo-500 text-[10px] px-2 py-0.5 rounded border theme-border shrink-0">${escapeHTML(categoria)}</span>` : ''}
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800">👁️ Ver</button>
-            <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️</button>
+            <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-500 font-medium px-2 py-0.5 rounded theme-input border theme-border">👁️ Ver</button>
+            <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs theme-text-muted font-medium px-2 py-0.5 rounded theme-input border theme-border">✏️</button>
           </div>
         `;
       } else {
@@ -1666,33 +1753,33 @@
         cartao.innerHTML = `
           <div class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${escapeHTML(idStr)}</span>
+              <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
               <div class="flex flex-wrap items-center gap-1.5">
-                <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:bg-slate-700 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
-                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
-                ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
-                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
-                <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
-                <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
-                <button type="button" onclick="eliminarNota('${escapeHTML(idStr)}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
+                <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:opacity-80 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
+                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
+                ${eMOC ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
+                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-500 theme-input px-2.5 py-0.5 rounded border theme-border">${escapeHTML(plataforma)}</span>` : ''}
+                <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-500 font-medium px-2 py-0.5 rounded theme-input border theme-border">👁️ Ver</button>
+                <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs theme-text-muted font-medium px-2 py-0.5 rounded theme-input border theme-border">✏️ Editar</button>
+                <button type="button" onclick="eliminarNota('${escapeHTML(idStr)}')" class="text-xs text-red-500 hover:text-red-400 font-medium px-2 py-0.5 rounded theme-input border theme-border transition-colors" title="Eliminar Nota">🗑️</button>
               </div>
             </div>
 
             ${(categoria || subcategoria) ? `
               <div class="flex items-center gap-1.5 text-xs font-semibold">
-                ${categoria ? `<span class="bg-indigo-950/80 text-indigo-300 px-2.5 py-0.5 rounded-md border border-indigo-800/60">${escapeHTML(categoria)}</span>` : ''}
-                ${subcategoria ? `<span class="text-slate-400">/ ${escapeHTML(subcategoria)}</span>` : ''}
+                ${categoria ? `<span class="theme-input text-indigo-500 px-2.5 py-0.5 rounded-md border theme-border">${escapeHTML(categoria)}</span>` : ''}
+                ${subcategoria ? `<span class="theme-text-muted">/ ${escapeHTML(subcategoria)}</span>` : ''}
               </div>
             ` : ''}
 
-            <h3 onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-lg sm:text-xl font-extrabold text-white leading-snug cursor-pointer hover:text-indigo-300 transition-colors" title="Clique para abrir a nota">${escapeHTML(titulo)}</h3>
-            <div class="markdown-body text-slate-300 text-sm leading-relaxed">
+            <h3 onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-lg sm:text-xl font-extrabold leading-snug cursor-pointer hover:text-indigo-500 transition-colors" title="Clique para abrir a nota">${escapeHTML(titulo)}</h3>
+            <div class="markdown-body text-sm leading-relaxed">
               ${markdownRenderizado}
             </div>
             ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
           </div>
 
-          <div class="mt-4 pt-3 border-t border-slate-700/60 space-y-3">
+          <div class="mt-4 pt-3 border-t theme-border space-y-3">
             ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
             ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
           </div>
@@ -1933,7 +2020,7 @@
       const tagsHTML = tagsArr.map(t => {
         const tagLimpa = t.trim();
         if (!tagLimpa) return '';
-        return `<button type="button" onclick="filtrarPorTag('${escapeHTML(tagLimpa)}')" class="bg-indigo-950/80 hover:bg-indigo-900 text-indigo-300 hover:text-indigo-200 text-xs px-2.5 py-1 rounded-full border border-indigo-800/60 font-mono transition-colors cursor-pointer">#${escapeHTML(tagLimpa)}</button>`;
+        return `<button type="button" onclick="filtrarPorTag('${escapeHTML(tagLimpa)}')" class="theme-input hover:opacity-80 text-indigo-500 text-xs px-2.5 py-1 rounded-full border theme-border font-mono transition-colors cursor-pointer">#${escapeHTML(tagLimpa)}</button>`;
       }).join(' ');
 
       const linksHTML = linksArr.map(linkId => {
@@ -1941,7 +2028,7 @@
         if (!targetId) return '';
         const notaAlvo = mapaNotas.get(targetId);
         const tituloAlvo = notaAlvo ? obterValorPropriedade(notaAlvo, 'titulo') : `Nota #${targetId}`;
-        return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}', true)" class="text-xs text-indigo-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
+        return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}', true)" class="text-xs text-indigo-500 hover:underline theme-input px-2.5 py-1.5 rounded border theme-border flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
       }).filter(Boolean).join('');
 
       const backlinks = todasAsNotas.filter(n => {
@@ -1955,7 +2042,7 @@
       const backlinksHTML = backlinks.map(b => {
         const bId = obterValorPropriedade(b, 'id');
         const bTitulo = obterValorPropriedade(b, 'titulo') || `Nota #${bId}`;
-        return `<button type="button" onclick="abrirModalNota('${escapeHTML(bId)}', true)" class="text-xs text-emerald-400 hover:underline bg-slate-950/50 px-2.5 py-1.5 rounded border border-slate-800 flex items-center gap-1">⬅️ ${escapeHTML(bTitulo)} (#${escapeHTML(bId)})</button>`;
+        return `<button type="button" onclick="abrirModalNota('${escapeHTML(bId)}', true)" class="text-xs text-emerald-500 hover:underline theme-input px-2.5 py-1.5 rounded border theme-border flex items-center gap-1">⬅️ ${escapeHTML(bTitulo)} (#${escapeHTML(bId)})</button>`;
       }).join('');
 
       const conexoesJaExistentes = new Set([...linksArr, ...backlinks.map(b=>obterValorPropriedade(b,'id')), id]);
@@ -1975,7 +2062,7 @@
       const sugeridasHTML = sugeridasDescobertas.map(s => {
         const sId = obterValorPropriedade(s, 'id');
         const sTitulo = obterValorPropriedade(s, 'titulo');
-        return `<button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}'); adicionarLinkManual('${escapeHTML(sId)}')" class="text-xs text-amber-300 hover:underline bg-amber-950/40 border border-amber-800/60 px-2.5 py-1 rounded flex items-center gap-1">+ Ligar a: ${escapeHTML(sTitulo)} (#${escapeHTML(sId)})</button>`;
+        return `<button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}'); adicionarLinkManual('${escapeHTML(sId)}')" class="text-xs text-amber-500 hover:underline theme-input border theme-border px-2.5 py-1 rounded flex items-center gap-1">+ Ligar a: ${escapeHTML(sTitulo)} (#${escapeHTML(sId)})</button>`;
       }).join('');
 
       const conteudoComWikilinks = processarWikilinks(conteudo || '');
@@ -1986,48 +2073,48 @@
 
       modalCorpo.innerHTML = `
         <div class="space-y-4">
-          <div class="flex flex-wrap items-center justify-between border-b border-slate-800 pb-3 pr-10 gap-2">
+          <div class="flex flex-wrap items-center justify-between border-b theme-border pb-3 pr-10 gap-2">
             <div class="flex items-center gap-2">
-              ${historicoModal.length > 1 ? `<button type="button" onclick="voltarModalHistorico()" class="text-xs bg-slate-800 hover:bg-slate-700 text-indigo-300 px-2.5 py-1 rounded border border-slate-700 transition-colors">⬅️ Voltar</button>` : ''}
-              <span class="text-xs font-mono text-slate-400 bg-slate-950 px-2.5 py-1 rounded border border-slate-800">ID: ${escapeHTML(id)}</span>
-              <button type="button" onclick="alternarNotaFixada('${escapeHTML(id)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs bg-slate-800 p-1 rounded border border-slate-700">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
-              ${eRascunho ? `<span class="text-xs font-bold text-amber-400 bg-amber-950/80 px-2.5 py-1 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
+              ${historicoModal.length > 1 ? `<button type="button" onclick="voltarModalHistorico()" class="text-xs theme-input hover:opacity-80 text-indigo-500 px-2.5 py-1 rounded border theme-border transition-colors">⬅️ Voltar</button>` : ''}
+              <span class="text-xs font-mono theme-text-muted theme-input px-2.5 py-1 rounded border theme-border">ID: ${escapeHTML(id)}</span>
+              <button type="button" onclick="alternarNotaFixada('${escapeHTML(id)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs theme-input p-1 rounded border theme-border">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
+              ${eRascunho ? `<span class="text-xs font-bold text-amber-500 theme-input px-2.5 py-1 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
-              <button type="button" id="btn-audio-player" onclick="alternarLeituraAudio('${escapeHTML(tituloParaAudio)}', '${escapeHTML(conteudoParaAudio)}')" class="text-xs text-sky-300 hover:text-sky-200 px-2.5 py-1 rounded bg-sky-950/50 border border-sky-800/60 transition-colors">🔊 Ouvir</button>
-              <button type="button" onclick="alternarModoZen()" class="text-xs text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded bg-amber-950/40 border border-amber-800/60 transition-colors" title="Modo Zen (Leitura Plena)">🧘 Zen</button>
-              ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
-              <button type="button" onclick="exportarNotaDocx('${escapeHTML(id)}')" title="Exportar para Word (.docx) com conexões" class="text-xs text-blue-400 hover:text-blue-300 px-2.5 py-1 rounded bg-blue-950/40 border border-blue-800/60 transition-colors font-semibold">📄 Word (.docx)</button>
-              <button type="button" onclick="exportarNotaMarkdown('${escapeHTML(id)}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
-              <button type="button" onclick="copiarTextoNota('${escapeHTML(id)}')" title="Copiar texto" class="text-xs text-emerald-400 hover:text-emerald-300 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-800/60 transition-colors">📋 Copiar</button>
-              <button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
-              <button type="button" onclick="eliminarNota('${escapeHTML(id)}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2.5 py-1 rounded bg-red-950/40 border border-red-900/60 transition-colors">🗑️ Eliminar</button>
+              <button type="button" id="btn-audio-player" onclick="alternarLeituraAudio('${escapeHTML(tituloParaAudio)}', '${escapeHTML(conteudoParaAudio)}')" class="text-xs text-sky-500 hover:opacity-80 px-2.5 py-1 rounded theme-input border theme-border transition-colors">🔊 Ouvir</button>
+              <button type="button" onclick="alternarModoZen()" class="text-xs text-amber-500 hover:opacity-80 px-2.5 py-1 rounded theme-input border theme-border transition-colors" title="Modo Zen (Leitura Plena)">🧘 Zen</button>
+              ${plataforma ? `<span class="text-xs font-semibold text-purple-500 theme-input px-2.5 py-1 rounded border theme-border">${escapeHTML(plataforma)}</span>` : ''}
+              <button type="button" onclick="exportarNotaDocx('${escapeHTML(id)}')" title="Exportar para Word (.docx) com conexões" class="text-xs text-blue-500 hover:opacity-80 px-2.5 py-1 rounded theme-input border theme-border transition-colors font-semibold">📄 Word (.docx)</button>
+              <button type="button" onclick="exportarNotaMarkdown('${escapeHTML(id)}')" title="Exportar ficheiro .md" class="text-xs text-sky-500 hover:opacity-80 px-2.5 py-1 rounded theme-input border theme-border transition-colors">📥 .md</button>
+              <button type="button" onclick="copiarTextoNota('${escapeHTML(id)}')" title="Copiar texto" class="text-xs text-emerald-500 hover:opacity-80 px-2.5 py-1 rounded theme-input border theme-border transition-colors">📋 Copiar</button>
+              <button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}')" class="text-xs hover:text-indigo-500 px-3 py-1 rounded theme-input border theme-border transition-colors">✏️ Editar</button>
+              <button type="button" onclick="eliminarNota('${escapeHTML(id)}')" class="text-xs text-red-500 hover:text-red-400 font-medium px-2.5 py-1 rounded theme-input border theme-border transition-colors">🗑️ Eliminar</button>
             </div>
           </div>
 
           ${(categoria || subcategoria) ? `
-            <div class="text-xs font-semibold text-indigo-400">
-              ${escapeHTML(categoria || '')} ${subcategoria ? `<span class="text-slate-500">/ ${escapeHTML(subcategoria)}</span>` : ''}
+            <div class="text-xs font-semibold text-indigo-500">
+              ${escapeHTML(categoria || '')} ${subcategoria ? `<span class="theme-text-muted">/ ${escapeHTML(subcategoria)}</span>` : ''}
             </div>
           ` : ''}
 
-          <h2 class="text-2xl sm:text-3xl font-black text-white leading-tight">${escapeHTML(titulo)}</h2>
-          <div class="markdown-body text-slate-300 text-sm leading-relaxed bg-slate-950/40 p-4 rounded-xl border border-slate-800/80">
+          <h2 class="text-2xl sm:text-3xl font-black leading-tight">${escapeHTML(titulo)}</h2>
+          <div class="markdown-body text-sm leading-relaxed theme-input p-4 rounded-xl border theme-border">
             ${markdownRenderizado}
           </div>
 
-          <div class="text-[11px] text-slate-500 font-mono flex items-center gap-3 pt-1">
-            <span>📝 ${palavras} palavras ${palavras >= 100 ? '<span class="text-emerald-400 font-bold">(≥100 reflexão)</span>' : ''}</span>
+          <div class="text-[11px] theme-text-muted font-mono flex items-center gap-3 pt-1">
+            <span>📝 ${palavras} palavras ${palavras >= 100 ? '<span class="text-emerald-500 font-bold">(≥100 reflexão)</span>' : ''}</span>
             <span>⏱️ ~${tempoLeitura} min de leitura</span>
           </div>
 
           ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
           ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
           
-          ${linksHTML ? `<div class="pt-3 border-t border-slate-800"><span class="text-xs font-bold text-slate-400 block mb-2">NOTAS LIGADAS POR ESTA:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
-          ${backlinksHTML ? `<div class="pt-3 border-t border-slate-800/80"><span class="text-xs font-bold text-emerald-400 block mb-2">BACKLINKS (NOTAS QUE MENCIONAM ESTA):</span><div class="flex flex-wrap gap-2">${backlinksHTML}</div></div>` : ''}
-          ${sugeridasHTML ? `<div class="pt-3 border-t border-slate-800/80"><span class="text-xs font-bold text-amber-400 block mb-2">💡 SUGESTÕES DE CONEXÃO DESCOBERTAS:</span><div class="flex flex-wrap gap-2">${sugeridasHTML}</div></div>` : ''}
+          ${linksHTML ? `<div class="pt-3 border-t theme-border"><span class="text-xs font-bold theme-text-muted block mb-2">NOTAS LIGADAS POR ESTA:</span><div class="flex flex-wrap gap-2">${linksHTML}</div></div>` : ''}
+          ${backlinksHTML ? `<div class="pt-3 border-t theme-border"><span class="text-xs font-bold text-emerald-500 block mb-2">BACKLINKS (NOTAS QUE MENCIONAM ESTA):</span><div class="flex flex-wrap gap-2">${backlinksHTML}</div></div>` : ''}
+          ${sugeridasHTML ? `<div class="pt-3 border-t theme-border"><span class="text-xs font-bold text-amber-500 block mb-2">💡 SUGESTÕES DE CONEXÃO DESCOBERTAS:</span><div class="flex flex-wrap gap-2">${sugeridasHTML}</div></div>` : ''}
         </div>
       `;
     }
