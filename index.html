@@ -139,6 +139,14 @@
     .markdown-body strong { font-weight: 700; color: var(--text-main); }
     .markdown-body em { font-style: italic; }
 
+    /* Trunca o Markdown no cartão para no máximo 8 linhas */
+    .line-clamp-8 {
+      display: -webkit-box;
+      -webkit-line-clamp: 8;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
     /* Estilo especial para os wikilinks [[ID]] */
     .wikilink-badge {
       display: inline-flex;
@@ -260,7 +268,7 @@
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-8">
 
-    <!-- 1. PAINEL DE METRICAS DA REDE (AGORA COM FILTROS ATALHO) -->
+    <!-- 1. PAINEL DE METRICAS DA REDE -->
     <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
       <div onclick="filtrarPorMetrica('todas')" class="theme-card border rounded-xl p-4 flex items-center justify-between shadow-md cursor-pointer hover:border-indigo-500 hover:scale-[1.02] transition-all group" title="Clique para ver todas as notas">
         <div>
@@ -342,23 +350,23 @@
         <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1"></div>
       </div>
 
-      <!-- META DIÁRIA DE QUALIDADE (5 NOTAS COM ≥ 100 PALAVRAS) -->
+      <!-- META DIÁRIA DE QUALIDADE (3 NOTAS COM ≥ 100 PALAVRAS) -->
       <div class="theme-card p-4 rounded-xl border shadow-md flex flex-col justify-between">
         <div class="flex justify-between items-center mb-1">
           <h3 class="text-xs font-bold text-indigo-500 flex items-center gap-1.5">
             🎯 Meta Diária de Reflexão
           </h3>
-          <span id="meta-diaria-texto" class="text-xs font-mono font-bold">0 / 5 notas</span>
+          <span id="meta-diaria-texto" class="text-xs font-mono font-bold">0 / 3 notas</span>
         </div>
-        <p class="text-[11px] theme-text-muted mb-2">Objetivo: 5 notas/dia com, pelo menos, <strong>100 palavras</strong> de reflexão.</p>
+        <p class="text-[11px] theme-text-muted mb-2">Objetivo: 3 notas ou rascunhos concluídos hoje com $\ge$ 100 palavras.</p>
         <div class="w-full theme-input rounded-full h-3 border theme-border overflow-hidden">
           <div id="meta-diaria-barra" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
         </div>
-        <span id="meta-diaria-status" class="text-[10px] text-amber-500 font-semibold mt-1.5 block">Faltam 5 notas densas hoje!</span>
+        <span id="meta-diaria-status" class="text-[10px] text-amber-500 font-semibold mt-1.5 block">Faltam 3 notas densas hoje!</span>
       </div>
     </section>
 
-    <!-- 2. SECÇÃO DE FILTROS E PESQUISA -->
+    <!-- 2. SECÇÃO DE FILTROS, ORDENAÇÃO E PESQUISA -->
     <section id="secção-pesquisa" class="flex flex-col md:flex-row gap-4 justify-between items-center theme-card p-4 rounded-xl border shadow-lg scroll-mt-24">
       <div class="w-full md:w-80 relative flex items-center">
         <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full theme-input border rounded-lg px-3 py-2 pr-20 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
@@ -367,6 +375,16 @@
       </div>
       
       <div class="flex flex-wrap items-center gap-3 text-xs theme-text-muted w-full md:w-auto justify-between md:justify-end">
+        
+        <!-- SELETOR DE ORDENAÇÃO (CRONOLÓGICA DECRESCENTE OU POR CATEGORIA) -->
+        <div class="flex items-center gap-1.5">
+          <span>📑 Ordenar:</span>
+          <select id="filtro-ordenacao" onchange="filtrarNotas()" class="theme-input border rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500 font-semibold text-indigo-400">
+            <option value="cronologica">🗓️ Mais Recentes Primeiro</option>
+            <option value="categoria">🏷️ Categoria (A-Z)</option>
+          </select>
+        </div>
+
         <div class="flex items-center gap-1.5">
           <span>✏️ Estado:</span>
           <select id="filtro-estado" onchange="filtrarNotas()" class="theme-input border rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500">
@@ -448,8 +466,8 @@
               </h3>
               <p class="text-xs leading-relaxed theme-text-muted">
                 <strong>Regra de Ouro:</strong> Cada nota foca-se numa só ideia com pelo menos <strong>100 palavras</strong> de reflexão própria.<br>
-                <strong>Meta de Produtividade:</strong> Aponta a 5 notas densas por dia para alimentar o teu conhecimento sem acumular notas superficiais.<br>
-                <strong>Fluxo de Trabalho:</strong> Se não tiveres tempo, grava como <code class="text-amber-500">✏️ Rascunho</code> e desenvolve-a mais tarde!
+                <strong>Meta de Produtividade:</strong> Aponta a 3 notas densas por dia (ou conclusão de rascunhos antigos).<br>
+                <strong>Fluxo de Trabalho:</strong> Se não tiveres tempo, grava como <code class="text-amber-500">✏️ Rascunho</code> e preenche-a mais tarde!
               </p>
             </div>
 
@@ -502,7 +520,7 @@
             </h3>
             <ol class="list-decimal pl-5 text-xs space-y-1 theme-text-muted">
               <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
-              <li>Abres o Zettelkasten Hub ➔ Crias a nota com a tua reflexão (procura atingir ≥100 palavras).</li>
+              <li>Abres o Zettelkasten Hub ➔ Crias a nota com a tua reflexão (procura atingir $\ge$ 100 palavras).</li>
               <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
               <li>Olhas para o Grafo/Busca ➔ Descobres 2 notas antigas sobre o mesmo tema e conectas com <code class="text-sky-500 font-mono">[[ID]]</code>.</li>
               <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
@@ -611,7 +629,7 @@
 
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Estado da Nota</label>
-            <select id="novo-estado" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <select id="novo-estado" onchange="aoMudarEstadoFormulario()" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
               <option value="Concluída">✅ Concluída (Permanente)</option>
               <option value="Rascunho">✏️ Rascunho (Provisória)</option>
             </select>
@@ -1069,7 +1087,7 @@
       const contagemDatas = new Map();
 
       todasAsNotas.forEach(nota => {
-        const dtStr = obterValorPropriedade(nota, 'datacriacao');
+        const dtStr = obterValorPropriedade(nota, 'dataatualizacao') || obterValorPropriedade(nota, 'datacriacao');
         if (dtStr) {
           const d = new Date(dtStr);
           if (!isNaN(d.getTime())) {
@@ -1125,36 +1143,39 @@
       const isoHoje = new Date().toISOString().split('T')[0];
       
       const notasDensashoje = todasAsNotas.filter(nota => {
-        const dtStr = obterValorPropriedade(nota, 'datacriacao');
+        const dtCriacao = obterValorPropriedade(nota, 'datacriacao');
+        const dtAtualizacao = obterValorPropriedade(nota, 'dataatualizacao');
+        const estado = obterValorPropriedade(nota, 'estado') || 'Concluída';
         const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
         const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
         
-        let eHoje = false;
-        if (dtStr) {
-          const d = new Date(dtStr);
-          if (!isNaN(d.getTime())) {
-            eHoje = d.toISOString().split('T')[0] === isoHoje;
-          }
+        let eAtivaHoje = false;
+
+        if (dtCriacao && new Date(dtCriacao).toISOString().split('T')[0] === isoHoje) {
+          eAtivaHoje = true;
+        } else if (dtAtualizacao && new Date(dtAtualizacao).toISOString().split('T')[0] === isoHoje) {
+          eAtivaHoje = true;
         }
-        return eHoje && palavras >= 100;
+
+        return eAtivaHoje && estado === 'Concluída' && palavras >= 100;
       });
 
-      const count = Math.min(notasDensashoje.length, 5);
-      const percentual = Math.round((count / 5) * 100);
+      const count = Math.min(notasDensashoje.length, 3);
+      const percentual = Math.round((count / 3) * 100);
 
       const txtMeta = document.getElementById('meta-diaria-texto');
       const barraMeta = document.getElementById('meta-diaria-barra');
       const statusMeta = document.getElementById('meta-diaria-status');
 
-      if (txtMeta) txtMeta.textContent = `${count} / 5 notas`;
+      if (txtMeta) txtMeta.textContent = `${count} / 3 notas`;
       if (barraMeta) barraMeta.style.width = `${percentual}%`;
       
       if (statusMeta) {
-        if (count >= 5) {
+        if (count >= 3) {
           statusMeta.textContent = '🎉 Objetivo Diário Concluído! Excelente reflexão!';
           statusMeta.className = 'text-[10px] text-emerald-500 font-bold mt-1.5 block';
         } else {
-          const faltam = 5 - count;
+          const faltam = 3 - count;
           statusMeta.textContent = `Faltam ${faltam} nota(s) densa(s) (≥100 pal) hoje!`;
           statusMeta.className = 'text-[10px] text-amber-500 font-semibold mt-1.5 block';
         }
@@ -1228,7 +1249,6 @@
       }
     }
 
-    // --- FUNÇÃO PARA FILTRAR NOTAS CLICANDO NOS CARTOES DE MÉTRICAS ---
     function filtrarPorMetrica(tipo) {
       const inputBusca = document.getElementById('input-busca');
       if (inputBusca) inputBusca.value = '';
@@ -1441,6 +1461,15 @@
       calcularMetricasTexto();
     }
 
+    function aoMudarEstadoFormulario() {
+      const estado = document.getElementById('novo-estado').value;
+      const textarea = document.getElementById('novo-conteudo');
+      if (estado === 'Rascunho' && !textarea.value.trim()) {
+        textarea.value = 'Por concluir...';
+        calcularMetricasTexto();
+      }
+    }
+
     function aoDigitarConteudo(e) {
       calcularMetricasTexto();
       const textarea = e.target;
@@ -1643,6 +1672,7 @@
       calcularMetricasTexto();
     }
 
+    // --- RENDERIZAÇÃO DE CARTÕES (ORDEAM CRONOLÓGICA DECRESCENTE OU POR CATEGORIA) ---
     function renderizarCartoes(notas) {
       const container = document.getElementById('cards-container');
       const pinnedContainer = document.getElementById('pinned-container');
@@ -1656,9 +1686,7 @@
       const elVisiveis = document.getElementById('notas-visiveis');
       if (elVisiveis) elVisiveis.textContent = notas.length;
 
-      const fragNormal = document.createDocumentFragment();
       const fragPinned = document.createDocumentFragment();
-
       const notasFixadasLista = notas.filter(n => notasFixadas.includes(String(obterValorPropriedade(n, 'id')).trim()));
 
       if (notasFixadasLista.length > 0 && pinnedSection) {
@@ -1676,22 +1704,80 @@
         return;
       }
 
-      if (modoVisualizacao === 'lista') {
-        container.className = "flex flex-col gap-2";
-      } else {
-        container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
-      }
+      const modoOrdenacao = document.getElementById('filtro-ordenacao') ? document.getElementById('filtro-ordenacao').value : 'cronologica';
 
-      notas.forEach(nota => {
-        fragNormal.appendChild(criarElementoCartao(nota, false));
-      });
-      container.appendChild(fragNormal);
+      if (modoOrdenacao === 'categoria') {
+        // --- ORDENAÇÃO POR CATEGORIA COM TÍTULOS DE SECÇÃO ---
+        container.className = "flex flex-col gap-8";
+
+        // Agrupa por categoria
+        const gruposCategorias = new Map();
+        notas.forEach(nota => {
+          const cat = (obterValorPropriedade(nota, 'categoria') || 'Geral').trim();
+          const catChave = cat.toUpperCase();
+          if (!gruposCategorias.has(catChave)) {
+            gruposCategorias.set(catChave, []);
+          }
+          gruposCategorias.get(catChave).push(nota);
+        });
+
+        // Ordena as chaves das categorias alfabeticamente
+        const categoriasOrdenadas = Array.from(gruposCategorias.keys()).sort((a, b) => a.localeCompare(b));
+
+        categoriasOrdenadas.forEach(catNome => {
+          const listaNotasCat = gruposCategorias.get(catNome);
+          
+          // Ordena as notas dentro de cada categoria da mais recente para a mais antiga
+          listaNotasCat.sort((a, b) => String(obterValorPropriedade(b, 'id')).localeCompare(String(obterValorPropriedade(a, 'id'))));
+
+          const seccaoCat = document.createElement('div');
+          seccaoCat.className = 'space-y-4';
+
+          seccaoCat.innerHTML = `
+            <div class="flex items-center gap-3 border-b-2 theme-border pb-2">
+              <span class="text-lg">📂</span>
+              <h3 class="text-base font-bold tracking-wide text-indigo-400 uppercase">${escapeHTML(catNome)}</h3>
+              <span class="text-xs font-mono theme-input px-2 py-0.5 rounded border theme-border theme-text-muted">${listaNotasCat.length} nota(s)</span>
+            </div>
+          `;
+
+          const gridNotas = document.createElement('div');
+          gridNotas.className = modoVisualizacao === 'lista' ? "flex flex-col gap-2" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+
+          listaNotasCat.forEach(nota => {
+            gridNotas.appendChild(criarElementoCartao(nota, false));
+          });
+
+          seccaoCat.appendChild(gridNotas);
+          container.appendChild(seccaoCat);
+        });
+
+      } else {
+        // --- ORDENAÇÃO CRONOLÓGICA DECRESCENTE (MAIS RECENTES PRIMEIRO NO TOPO) ---
+        const notasOrdenadas = [...notas].sort((a, b) => {
+          const idA = String(obterValorPropriedade(a, 'id'));
+          const idB = String(obterValorPropriedade(b, 'id'));
+          return idB.localeCompare(idA);
+        });
+
+        if (modoVisualizacao === 'lista') {
+          container.className = "flex flex-col gap-2";
+        } else {
+          container.className = "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+        }
+
+        const fragNormal = document.createDocumentFragment();
+        notasOrdenadas.forEach(nota => {
+          fragNormal.appendChild(criarElementoCartao(nota, false));
+        });
+        container.appendChild(fragNormal);
+      }
     }
 
     function criarElementoCartao(nota, eFixado) {
       const idStr = obterValorPropriedade(nota, 'id');
       const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
-      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
       const plataforma = obterValorPropriedade(nota, 'plataforma');
       const estado = obterValorPropriedade(nota, 'estado') || 'Concluída';
       const categoria = obterValorPropriedade(nota, 'categoria');
@@ -1721,16 +1807,13 @@
         return `<button type="button" onclick="abrirModalNota('${escapeHTML(targetId)}')" class="text-xs text-indigo-500 hover:underline flex items-center gap-1">🔗 ${escapeHTML(tituloAlvo)}</button>`;
       }).filter(Boolean).join('');
 
-      const conteudoComWikilinks = processarWikilinks(conteudo || '');
+      const conteudoComWikilinks = processarWikilinks(conteudo);
       const markdownRenderizado = marked.parse(conteudoComWikilinks);
+
+      const eTextoLongo = conteudo.split('\n').length > 8 || conteudo.length > 300;
 
       const cartao = document.createElement('div');
       cartao.id = `nota-${idStr}`;
-
-      let classeEstilo = 'theme-card border rounded-xl p-5 flex flex-col justify-between shadow-lg hover:opacity-95 transition-all';
-      if (eMOC) classeEstilo += ' card-moc';
-      if (eRascunho) classeEstilo += ' card-rascunho';
-      if (estaNasFixadas) classeEstilo += ' card-pinned';
 
       if (modoVisualizacao === 'lista' && !eFixado) {
         cartao.className = `theme-card border rounded-lg p-3 flex flex-row justify-between items-center hover:opacity-95 transition-all gap-4 ${eMOC ? 'card-moc' : ''} ${eRascunho ? 'card-rascunho' : ''} ${estaNasFixadas ? 'card-pinned' : ''}`;
@@ -1749,9 +1832,14 @@
           </div>
         `;
       } else {
+        let classeEstilo = 'theme-card border rounded-xl p-5 flex flex-col justify-between shadow-lg transition-all min-h-[380px] overflow-hidden relative group';
+        if (eMOC) classeEstilo += ' card-moc';
+        if (eRascunho) classeEstilo += ' card-rascunho';
+        if (estaNasFixadas) classeEstilo += ' card-pinned';
+
         cartao.className = classeEstilo;
         cartao.innerHTML = `
-          <div class="space-y-3">
+          <div class="space-y-3 flex-grow">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
               <div class="flex flex-wrap items-center gap-1.5">
@@ -1772,16 +1860,25 @@
               </div>
             ` : ''}
 
-            <h3 onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-lg sm:text-xl font-extrabold leading-snug cursor-pointer hover:text-indigo-500 transition-colors" title="Clique para abrir a nota">${escapeHTML(titulo)}</h3>
-            <div class="markdown-body text-sm leading-relaxed">
+            <h3 onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-lg font-extrabold leading-snug cursor-pointer hover:text-indigo-500 transition-colors truncate" title="${escapeHTML(titulo)}">${escapeHTML(titulo)}</h3>
+            
+            <div class="markdown-body text-xs sm:text-sm leading-relaxed line-clamp-8">
               ${markdownRenderizado}
             </div>
+
+            ${eTextoLongo ? `
+              <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs font-bold text-indigo-500 hover:underline block pt-0.5">
+                ... Ver nota completa
+              </button>
+            ` : ''}
+
             ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
+
+            ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
           </div>
 
-          <div class="mt-4 pt-3 border-t theme-border space-y-3">
-            ${urlMedia ? gerarPreviewMedia(urlMedia, plataforma) : ''}
-            ${linksHTML ? `<div class="pt-1 flex flex-col gap-1">${linksHTML}</div>` : ''}
+          <div class="mt-4 pt-2 border-t theme-border shrink-0">
+            ${linksHTML ? `<div class="flex flex-wrap gap-2 truncate">${linksHTML}</div>` : '<span class="text-[11px] theme-text-muted italic">Sem conexões diretas</span>'}
           </div>
         `;
       }
@@ -1820,7 +1917,8 @@
         UrlMedia: document.getElementById('novo-url').value,
         Tags: document.getElementById('novas-tags').value,
         LinksPara: document.getElementById('novos-links').value,
-        DataCriacao: new Date().toISOString().split('T')[0]
+        DataCriacao: idExistente && mapaNotas.has(idExistente) ? obterValorPropriedade(mapaNotas.get(idExistente), 'datacriacao') : new Date().toISOString().split('T')[0],
+        DataAtualizacao: new Date().toISOString().split('T')[0]
       };
 
       try {
@@ -1869,7 +1967,7 @@
       }
     }
 
-    // DEBOUNCE PARA A BUSCA (Melhoria de Performance)
+    // DEBOUNCE PARA A BUSCA
     function aoDigitarBusca() {
       const val = document.getElementById('input-busca').value;
       const btnLimpar = document.getElementById('btn-limpar-busca');
@@ -2141,7 +2239,6 @@
 
       const children = [];
 
-      // Título da Nota Principal
       children.push(
         new Paragraph({
           text: titulo,
@@ -2150,7 +2247,6 @@
         })
       );
 
-      // Metadados
       children.push(
         new Paragraph({
           children: [
@@ -2177,7 +2273,6 @@
         );
       }
 
-      // Linha Divisória
       children.push(
         new Paragraph({
           text: "---------------------------------------------------------------------------------------------------",
@@ -2185,7 +2280,6 @@
         })
       );
 
-      // Conteúdo Principal
       children.push(
         new Paragraph({
           text: "Conteúdo da Nota Principal",
@@ -2197,7 +2291,6 @@
       const paragrafosConteudo = converterMarkdownParaDocx(conteudo, Paragraph, TextRun, HeadingLevel);
       children.push(...paragrafosConteudo);
 
-      // --- BUSCA DE NOTAS COM LIGAÇÃO DIRETA ---
       const idsSaida = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
       const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
 
