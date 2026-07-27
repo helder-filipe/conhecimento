@@ -20,6 +20,9 @@
   <!-- JSZip para exportação em Lote (.zip) -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
+  <!-- docx.js para exportação individual em Word (.docx) -->
+  <script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+
   <style>
     /* TEMAS VISUAIS CUSTOMIZADOS (DARK, LIGHT, SEPIA) */
     html[data-theme="dark"] {
@@ -1496,9 +1499,9 @@
               <span class="text-[11px] font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded">ID: ${escapeHTML(idStr)}</span>
               <div class="flex items-center gap-1.5">
                 <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:bg-slate-700 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
-                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
-                ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
-                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2 py-0.5 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
+                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-400 bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
+                ${eMOC ? `<span class="text-[11px] font-bold text-amber-300 bg-amber-950/80 px-2.5 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
+                ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-0.5 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
                 <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-400 font-medium px-2 py-0.5 rounded bg-indigo-950/60 border border-indigo-800/50">👁️ Ver</button>
                 <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs text-slate-400 font-medium px-2 py-0.5 rounded bg-slate-900 border border-slate-700">✏️ Editar</button>
                 <button type="button" onclick="eliminarNota('${escapeHTML(idStr)}')" class="text-xs text-red-400 hover:text-red-300 font-medium px-2 py-0.5 rounded bg-red-950/40 border border-red-900/60 transition-colors" title="Eliminar Nota">🗑️</button>
@@ -1825,6 +1828,7 @@
               <button type="button" id="btn-audio-player" onclick="alternarLeituraAudio('${escapeHTML(tituloParaAudio)}', '${escapeHTML(conteudoParaAudio)}')" class="text-xs text-sky-300 hover:text-sky-200 px-2.5 py-1 rounded bg-sky-950/50 border border-sky-800/60 transition-colors">🔊 Ouvir</button>
               <button type="button" onclick="alternarModoZen()" class="text-xs text-amber-300 hover:text-amber-200 px-2.5 py-1 rounded bg-amber-950/40 border border-amber-800/60 transition-colors" title="Modo Zen (Leitura Plena)">🧘 Zen</button>
               ${plataforma ? `<span class="text-xs font-semibold text-purple-300 bg-purple-950/60 px-2.5 py-1 rounded border border-purple-800/50">${escapeHTML(plataforma)}</span>` : ''}
+              <button type="button" onclick="exportarNotaDocx('${escapeHTML(id)}')" title="Exportar para Word (.docx) com conexões" class="text-xs text-blue-400 hover:text-blue-300 px-2.5 py-1 rounded bg-blue-950/40 border border-blue-800/60 transition-colors font-semibold">📄 Word (.docx)</button>
               <button type="button" onclick="exportarNotaMarkdown('${escapeHTML(id)}')" title="Exportar ficheiro .md" class="text-xs text-sky-400 hover:text-sky-300 px-2.5 py-1 rounded bg-sky-950/40 border border-sky-800/60 transition-colors">📥 .md</button>
               <button type="button" onclick="copiarTextoNota('${escapeHTML(id)}')" title="Copiar texto" class="text-xs text-emerald-400 hover:text-emerald-300 px-2.5 py-1 rounded bg-emerald-950/40 border border-emerald-800/60 transition-colors">📋 Copiar</button>
               <button type="button" onclick="fecharModal(); prepararEdicao('${escapeHTML(id)}')" class="text-xs text-slate-300 hover:text-indigo-400 px-3 py-1 rounded bg-slate-800 border border-slate-700 transition-colors">✏️ Editar</button>
@@ -1856,6 +1860,200 @@
           ${sugeridasHTML ? `<div class="pt-3 border-t border-slate-800/80"><span class="text-xs font-bold text-amber-400 block mb-2">💡 SUGESTÕES DE CONEXÃO DESCOBERTAS:</span><div class="flex flex-wrap gap-2">${sugeridasHTML}</div></div>` : ''}
         </div>
       `;
+    }
+
+    // --- EXPORTAÇÃO PARA MICROSOFT WORD (.DOCX) ---
+    async function exportarNotaDocx(idNota) {
+      const nota = mapaNotas.get(String(idNota).trim());
+      if (!nota) return alert('Nota não encontrada.');
+
+      if (typeof docx === 'undefined') {
+        return alert('A biblioteca Word ainda está a carregar. Tenta novamente em instantes.');
+      }
+
+      const { Document, Packer, Paragraph, TextRun, HeadingLevel } = docx;
+
+      const id = obterValorPropriedade(nota, 'id');
+      const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+      const conteudo = obterValorPropriedade(nota, 'conteudo');
+      const categoria = obterValorPropriedade(nota, 'categoria') || 'Sem Categoria';
+      const subcategoria = obterValorPropriedade(nota, 'subcategoria') || '-';
+      const urlMedia = obterValorPropriedade(nota, 'urlmedia');
+      const estado = obterValorPropriedade(nota, 'estado') || 'Concluída';
+      const linksStr = obterValorPropriedade(nota, 'linkspara');
+
+      const children = [];
+
+      // Título da Nota Principal
+      children.push(
+        new Paragraph({
+          text: titulo,
+          heading: HeadingLevel.HEADING_1,
+          spaceAfter: { after: 200 }
+        })
+      );
+
+      // Metadados
+      children.push(
+        new Paragraph({
+          children: [
+            new TextRun({ text: "ID: ", bold: true }),
+            new TextRun(id + "  |  "),
+            new TextRun({ text: "Estado: ", bold: true }),
+            new TextRun(estado + "  |  "),
+            new TextRun({ text: "Categoria: ", bold: true }),
+            new TextRun(`${categoria} / ${subcategoria}`)
+          ],
+          spaceAfter: { after: 150 }
+        })
+      );
+
+      if (urlMedia) {
+        children.push(
+          new Paragraph({
+            children: [
+              new TextRun({ text: "URL / Fonte: ", bold: true }),
+              new TextRun({ text: urlMedia, color: "0066CC", underline: {} })
+            ],
+            spaceAfter: { after: 200 }
+          })
+        );
+      }
+
+      // Linha Divisória
+      children.push(
+        new Paragraph({
+          text: "---------------------------------------------------------------------------------------------------",
+          spaceAfter: { after: 300 }
+        })
+      );
+
+      // Conteúdo Principal
+      children.push(
+        new Paragraph({
+          text: "Conteúdo da Nota Principal",
+          heading: HeadingLevel.HEADING_2,
+          spaceAfter: { after: 150 }
+        })
+      );
+
+      const paragrafosConteudo = converterMarkdownParaDocx(conteudo, Paragraph, TextRun, HeadingLevel);
+      children.push(...paragrafosConteudo);
+
+      // --- BUSCA DE NOTAS COM LIGAÇÃO DIRETA ---
+      const idsSaida = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
+      const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
+
+      const idsBacklinks = todasAsNotas.filter(n => {
+        const nId = obterValorPropriedade(n, 'id');
+        if (nId === id) return false;
+        const nConteudo = obterValorPropriedade(n, 'conteudo');
+        const nLinks = obterValorPropriedade(n, 'linkspara');
+        return nConteudo.includes(`[[${id}]]`) || (nLinks && nLinks.split(/[,;]+/).map(s=>s.trim()).includes(id));
+      }).map(n => obterValorPropriedade(n, 'id'));
+
+      const todasConexoesIDs = Array.from(new Set([...idsSaida, ...wikilinks, ...idsBacklinks]));
+
+      if (todasConexoesIDs.length > 0) {
+        children.push(
+          new Paragraph({
+            text: "---------------------------------------------------------------------------------------------------",
+            spaceBefore: { before: 400 },
+            spaceAfter: { after: 200 }
+          }),
+          new Paragraph({
+            text: "🔗 Notas Conectadas (Ligações Diretas)",
+            heading: HeadingLevel.HEADING_2,
+            spaceAfter: { after: 200 }
+          })
+        );
+
+        todasConexoesIDs.forEach(connId => {
+          const notaConectada = mapaNotas.get(connId);
+          if (notaConectada) {
+            const cTitulo = obterValorPropriedade(notaConectada, 'titulo') || `Nota #${connId}`;
+            const cConteudo = obterValorPropriedade(notaConectada, 'conteudo');
+            const cCategoria = obterValorPropriedade(notaConectada, 'categoria') || 'Geral';
+            const cSubcategoria = obterValorPropriedade(notaConectada, 'subcategoria') || '-';
+            const cUrl = obterValorPropriedade(notaConectada, 'urlmedia');
+
+            children.push(
+              new Paragraph({
+                text: `• ${cTitulo} (ID: ${connId})`,
+                heading: HeadingLevel.HEADING_3,
+                spaceBefore: { before: 200 },
+                spaceAfter: { after: 100 }
+              }),
+              new Paragraph({
+                children: [
+                  new TextRun({ text: "Categoria: ", bold: true }),
+                  new TextRun(`${cCategoria} / ${cSubcategoria}`)
+                ],
+                spaceAfter: { after: 100 }
+              })
+            );
+
+            if (cUrl) {
+              children.push(
+                new Paragraph({
+                  children: [
+                    new TextRun({ text: "URL: ", bold: true }),
+                    new TextRun({ text: cUrl, color: "0066CC", underline: {} })
+                  ],
+                  spaceAfter: { after: 100 }
+                })
+              );
+            }
+
+            const paragrafosConectada = converterMarkdownParaDocx(cConteudo, Paragraph, TextRun, HeadingLevel);
+            children.push(...paragrafosConectada);
+          }
+        });
+      }
+
+      const doc = new Document({
+        sections: [{
+          properties: {},
+          children: children
+        }]
+      });
+
+      const blob = await Packer.toBlob(doc);
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      const nomeFicheiro = `${id}_${titulo.replace(/[^a-zA-Z0-9]/g, '_')}_Completa.docx`;
+      a.download = nomeFicheiro;
+      a.click();
+    }
+
+    function converterMarkdownParaDocx(textoMarkdown, Paragraph, TextRun, HeadingLevel) {
+      if (!textoMarkdown) return [];
+
+      const linhas = textoMarkdown.split('\n');
+      const elementos = [];
+
+      linhas.forEach(linha => {
+        const l = linha.trim();
+        if (!l) return;
+
+        if (l.startsWith('# ')) {
+          elementos.push(new Paragraph({ text: l.replace('# ', ''), heading: HeadingLevel.HEADING_2, spaceAfter: { after: 100 } }));
+        } else if (l.startsWith('## ')) {
+          elementos.push(new Paragraph({ text: l.replace('## ', ''), heading: HeadingLevel.HEADING_3, spaceAfter: { after: 100 } }));
+        } else if (l.startsWith('- ') || l.startsWith('* ')) {
+          elementos.push(new Paragraph({ text: l.substring(2), bullet: { level: 0 }, spaceAfter: { after: 50 } }));
+        } else if (l.startsWith('> ')) {
+          elementos.push(new Paragraph({ 
+            children: [new TextRun({ text: l.replace('> ', ''), italic: true, color: "555555" })],
+            spaceAfter: { after: 100 }
+          }));
+        } else {
+          const textoLimpo = l.replace(/\[\[(\d+)\]\]/g, 'Nota #$1');
+          elementos.push(new Paragraph({ text: textoLimpo, spaceAfter: { after: 100 } }));
+        }
+      });
+
+      return elementos;
     }
 
     async function exportarZipObsidian() {
