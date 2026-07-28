@@ -1664,17 +1664,16 @@
         `;
       }
 
-      // 2. Bloco da Imagem de Capa (SÓ É RENDERIZADO SE O CAMPO urlImagem TIVER TEXTO)
+      // 2. Bloco da Imagem de Capa (Ajustada para conter a imagem completa)
       if (urlImagem && urlImagem.trim() !== '') {
         htmlFinal += `
-          <div class="mt-3 rounded-xl overflow-hidden border theme-border theme-input shadow-md h-48 flex items-center justify-center bg-slate-900/40 p-1">
+          <div class="mt-3 rounded-xl overflow-hidden border theme-border theme-input shadow-md h-52 flex items-center justify-center bg-slate-900/60 p-2">
             <img src="${escapeHTML(urlImagem.trim())}" alt="Capa" class="max-w-full max-h-full object-contain rounded-lg" onerror="this.parentElement.style.display='none';">
           </div>
         `;
       }
 
-      // 3. Bloco da Publicação (SÓ GERA A MINIATURA CLICÁVEL SE NÃO HOUVER UMA CAPA CUSTOMIZADA)
-      // Isto evita ter duas imagens na mesma nota!
+      // 3. Bloco dos Links de Recursos (YouTube, Instagram, Web)
       if (urlsStr) {
         const urls = urlsStr.split(/[,;\n]+/).map(u => u.trim()).filter(Boolean);
         if (urls.length > 0) {
@@ -1684,7 +1683,7 @@
               urlValida = 'https://' + urlValida;
             }
 
-            // Suporte para vídeos do YouTube Embedded
+            // Suporte para vídeos do YouTube Embedded (Roda diretamente na nota)
             const matchYT = urlValida.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
             if (matchYT && matchYT[2].length === 11) {
               const videoId = matchYT[2];
@@ -1697,7 +1696,7 @@
               `;
             }
 
-            // Se o utilizador já colocou uma capa manual em `urlImagem`, mostramos apenas o botão/link discreto do post
+            // Se o utilizador já colocou uma capa em urlImagem, mostra apenas o botão/link
             if (urlImagem && urlImagem.trim() !== '') {
               return `
                 <a href="${escapeHTML(urlValida)}" target="_blank" rel="noopener noreferrer" class="block mt-2 p-2.5 rounded-lg border theme-border theme-input hover:border-indigo-500 hover:text-indigo-400 transition-all text-xs font-semibold flex items-center gap-2 group">
@@ -1708,13 +1707,13 @@
               `;
             }
 
-            // Se NÃO preencheu o campo da imagem, carrega apenas UMA miniatura clicável da própria publicação
+            // Miniatura do Microlink ajustada para mostrar a IMAGEM COMPLETA (object-contain + fundo escuro)
             const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
             return `
               <div class="rounded-lg overflow-hidden border theme-border theme-input group mt-2">
                 <a href="${escapeHTML(urlValida)}" target="_blank" rel="noopener noreferrer" class="block hover:opacity-90 transition-opacity">
-                  <div class="aspect-video w-full theme-input flex items-center justify-center overflow-hidden">
-                    <img src="${escapeHTML(imagemApiUrl)}" alt="Preview da publicação" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" 
+                  <div class="aspect-video w-full theme-input flex items-center justify-center overflow-hidden bg-slate-900/60 p-1">
+                    <img src="${escapeHTML(imagemApiUrl)}" alt="Preview da publicação" class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-300 rounded" 
                         onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-3 text-xs text-indigo-500 font-semibold flex items-center gap-1.5 flex-wrap\\'><span>🔗 Abrir Publicação no Instagram:</span> <span class=\\'underline truncate max-w-full\\'>${escapeHTML(urlValida)}</span></div>';" />
                   </div>
                 </a>
