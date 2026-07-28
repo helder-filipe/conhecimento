@@ -381,7 +381,7 @@
             </h3>
             <span id="meta-diaria-texto" class="text-xs font-mono font-bold">0 / 3 notas</span>
           </div>
-          <p class="text-[11px] theme-text-muted mb-2">Objetivo: 3 notas ou rascunhos concluídos hoje com $\ge$ 100 palavras.</p>
+          <p class="text-[11px] theme-text-muted mb-2">Objetivo: 3 notas ou rascunhos concluídos hoje com ≥ 100 palavras.</p>
           <div class="w-full theme-input rounded-full h-3 border theme-border overflow-hidden">
             <div id="meta-diaria-barra" class="bg-gradient-to-r from-indigo-500 to-emerald-400 h-full w-0 transition-all duration-500"></div>
           </div>
@@ -1134,7 +1134,7 @@
       const contagemDatas = new Map();
 
       todasAsNotas.forEach(nota => {
-        const dtStr = obterValorPropriedade(nota, 'dataatualizacao') || obterValorPropriedade(nota, 'datacriacao');
+        const dtStr = obterValorPropriedade(nota, 'dataconclusao') || obterValorPropriedade(nota, 'dataatualizacao') || obterValorPropriedade(nota, 'datacriacao');
         if (dtStr) {
           const d = new Date(dtStr);
           if (!isNaN(d.getTime())) {
@@ -1190,21 +1190,38 @@
       const isoHoje = new Date().toISOString().split('T')[0];
       
       const notasDensashoje = todasAsNotas.filter(nota => {
+        const dtConclusao = obterValorPropriedade(nota, 'dataconclusao');
         const dtCriacao = obterValorPropriedade(nota, 'datacriacao');
         const dtAtualizacao = obterValorPropriedade(nota, 'dataatualizacao');
         const estado = obterValorPropriedade(nota, 'estado') || 'Concluída';
         const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
         const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
         
-        let eAtivaHoje = false;
+        let eConcluidaHoje = false;
 
-        if (dtCriacao && new Date(dtCriacao).toISOString().split('T')[0] === isoHoje) {
-          eAtivaHoje = true;
-        } else if (dtAtualizacao && new Date(dtAtualizacao).toISOString().split('T')[0] === isoHoje) {
-          eAtivaHoje = true;
+        // Se existir DataConclusao gravada no Sheets, ela é a referência prioritária
+        if (dtConclusao) {
+          const dConc = new Date(dtConclusao);
+          if (!isNaN(dConc.getTime()) && dConc.toISOString().split('T')[0] === isoHoje) {
+            eConcluidaHoje = true;
+          }
+        } else {
+          // Fallback seguro para notas criadas/editadas antes da nova coluna
+          if (dtCriacao) {
+            const dCria = new Date(dtCriacao);
+            if (!isNaN(dCria.getTime()) && dCria.toISOString().split('T')[0] === isoHoje) {
+              eConcluidaHoje = true;
+            }
+          }
+          if (dtAtualizacao) {
+            const dAtu = new Date(dtAtualizacao);
+            if (!isNaN(dAtu.getTime()) && dAtu.toISOString().split('T')[0] === isoHoje) {
+              eConcluidaHoje = true;
+            }
+          }
         }
 
-        return eAtivaHoje && estado === 'Concluída' && palavras >= 100;
+        return eConcluidaHoje && estado === 'Concluída' && palavras >= 100;
       });
 
       const count = Math.min(notasDensashoje.length, 3);
@@ -1963,6 +1980,8 @@
 
       const idExistente = document.getElementById('form-id').value;
       const agora = new Date();
+      const isoHoje = agora.toISOString().split('T')[0];
+
       const idFinal = idExistente || (
         agora.getFullYear().toString() +
         String(agora.getMonth() + 1).padStart(2, '0') +
@@ -1973,6 +1992,29 @@
 
       const elEstado = document.getElementById('novo-estado');
       const estadoValor = elEstado ? elEstado.value : 'Concluída';
+
+      // LÓGICA DE GESTÃO DA DATACONCLUSÃO
+      let notaExistente = idExistente ? mapaNotas.get(idExistente) : null;
+      let estadoAnterior = notaExistente ? (obterValorPropriedade(notaExistente, 'estado') || 'Concluída') : null;
+      let dataConclusaoAnterior = notaExistente ? obterValorPropriedade(notaExistente, 'dataconclusao') : '';
+
+      let dataConclusaoFinal = '';
+
+      if (estadoValor === 'Concluída') {
+        if (!notaExistente) {
+          // Nota totalmente nova criada como Concluída
+          dataConclusaoFinal = isoHoje;
+        } else if (estadoAnterior === 'Rascunho') {
+          // Transição de Rascunho para Concluída
+          dataConclusaoFinal = isoHoje;
+        } else {
+          // Nota já era Concluída anteriormente, mantém a data de conclusão original (ou associa hoje se não existia)
+          dataConclusaoFinal = dataConclusaoAnterior || isoHoje;
+        }
+      } else {
+        // Se é Rascunho, a DataConclusao fica vazia
+        dataConclusaoFinal = '';
+      }
 
       const novaNota = {
         ID: idFinal,
@@ -1987,9 +2029,21 @@
         Fonte: document.getElementById('nova-fonte').value,
         Tags: document.getElementById('novas-tags').value,
         LinksPara: document.getElementById('novos-links').value,
-        DataCriacao: idExistente && mapaNotas.has(idExistente) ? obterValorPropriedade(mapaNotas.get(idExistente), 'datacriacao') : new Date().toISOString().split('T')[0],
-        DataAtualizacao: new Date().toISOString().split('T')[0]
+        DataCriacao: notaExistente ? obterValorPropriedade(notaExistente, 'datacriacao') : isoHoje,
+        DataAtualizacao: isoHoje,
+        DataConclusao: dataConclusaoFinal
       };
+
+      // ⚡ ATUALIZAÇÃO IMEDIATA NO CACHE LOCAL (EFEITO INSTANTÂNEO NO INDEX.HTML)
+      const indiceLocal = todasAsNotas.findIndex(n => String(obterValorPropriedade(n, 'id')).trim() === String(idFinal).trim());
+      if (indiceLocal !== -1) {
+        todasAsNotas[indiceLocal] = novaNota;
+      } else {
+        todasAsNotas.unshift(novaNota);
+      }
+
+      localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
+      atualizarInterfaceNotas();
 
       try {
         await fetch(API_URL, {
@@ -2000,12 +2054,12 @@
         });
 
         limparFormulario();
-        alert('Nota guardada com sucesso!');
-        setTimeout(() => carregarZettelkasten(), 1500);
+        alert('Nota guardada e sincronizada com sucesso!');
+        setTimeout(() => carregarZettelkasten(), 2000);
 
       } catch (erro) {
         console.error('Erro ao guardar nota:', erro);
-        alert('Erro ao guardar a nota.');
+        alert('A nota foi atualizada no teu ecram, mas houve um erro ao sincronizar com o Google Sheets.');
       } finally {
         btn.disabled = false;
       }
@@ -2020,6 +2074,11 @@
         return;
       }
 
+      // ⚡ REMOÇÃO INSTANTÂNEA LOCAL
+      todasAsNotas = todasAsNotas.filter(n => String(obterValorPropriedade(n, 'id')).trim() !== idLimpo);
+      localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
+      atualizarInterfaceNotas();
+
       try {
         await fetch(API_URL, {
           method: 'POST',
@@ -2029,11 +2088,11 @@
         });
 
         fecharModal();
-        alert('A eliminar a nota...');
-        setTimeout(() => carregarZettelkasten(), 1500);
+        alert('Nota eliminada com sucesso!');
+        setTimeout(() => carregarZettelkasten(), 2000);
       } catch (erro) {
         console.error('Erro ao eliminar nota:', erro);
-        alert('Erro ao eliminar a nota.');
+        alert('Erro ao eliminar a nota no servidor.');
       }
     }
 
