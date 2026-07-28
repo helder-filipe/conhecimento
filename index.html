@@ -77,7 +77,6 @@
       transition: background-color 0.3s, color 0.3s;
     }
 
-    /* Estilização Dinâmica de Módulos / Cartões */
     .theme-card {
       background-color: var(--bg-card) !important;
       border-color: var(--border-color) !important;
@@ -117,7 +116,6 @@
       border-radius: 3px;
     }
 
-    /* Estilos para o texto formatado em Markdown */
     .markdown-body {
       color: var(--text-main);
     }
@@ -139,7 +137,6 @@
     .markdown-body strong { font-weight: 700; color: var(--text-main); }
     .markdown-body em { font-style: italic; }
 
-    /* Trunca o Markdown no cartão para no máximo 8 linhas */
     .line-clamp-8 {
       display: -webkit-box;
       -webkit-line-clamp: 8;
@@ -147,7 +144,6 @@
       overflow: hidden;
     }
 
-    /* Estilo especial para os wikilinks [[ID]] */
     .wikilink-badge {
       display: inline-flex;
       align-items: center;
@@ -168,7 +164,6 @@
       opacity: 0.85;
     }
 
-    /* Lista suspenso Autocomplete */
     .autocomplete-dropdown {
       position: absolute;
       max-height: 180px;
@@ -192,7 +187,6 @@
       color: var(--badge-text);
     }
 
-    /* Estilo do Modo Zen */
     .modo-zen-container {
       max-width: 900px !important;
       height: 96vh !important;
@@ -205,29 +199,16 @@
       line-height: 1.8 !important;
     }
 
-    /* Estilo Cartão MOC */
-    .card-moc {
-      border: 2px solid #f59e0b !important;
-    }
+    .card-moc { border: 2px solid #f59e0b !important; }
+    .card-pinned { border: 2px solid #6366f1 !important; }
+    .card-rascunho { border: 1px dashed #f59e0b !important; }
 
-    /* Estilo Cartão Pinned */
-    .card-pinned {
-      border: 2px solid #6366f1 !important;
-    }
-
-    /* Estilo Cartão Rascunho */
-    .card-rascunho {
-      border: 1px dashed #f59e0b !important;
-    }
-
-    /* Heatmap */
     .heatmap-day {
       width: 12px;
       height: 12px;
       border-radius: 2px;
     }
 
-    /* Módulos Expansíveis / Accordion */
     details summary {
       cursor: pointer;
       user-select: none;
@@ -235,6 +216,25 @@
     }
     details summary::-webkit-details-marker {
       display: none;
+    }
+
+    /* ESTILO PARA A ANIMAÇÃO DO FLASHCARD */
+    .perspective-1000 {
+      perspective: 1000px;
+    }
+    .flashcard-inner {
+      transition: transform 0.6s;
+      transform-style: preserve-3d;
+    }
+    .flashcard-inner.flipped {
+      transform: rotateY(180deg);
+    }
+    .flashcard-front, .flashcard-back {
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+    .flashcard-back {
+      transform: rotateY(180deg);
     }
   </style>
 </head>
@@ -249,6 +249,9 @@
       </div>
 
       <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap justify-end">
+        <button type="button" onclick="iniciarSessaoFlashcards()" class="bg-purple-600 hover:bg-purple-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
+          <span>🎴</span> <span class="hidden sm:inline">Flashcards</span>
+        </button>
         <button type="button" onclick="sortearNotaDoDia(true)" class="bg-amber-600 hover:bg-amber-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors flex items-center gap-1.5 shadow-md">
           <span>🎲</span> <span class="hidden sm:inline">Nota do Dia</span>
         </button>
@@ -277,6 +280,66 @@
   </header>
 
   <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- SECÇÃO NOVO MÓDULO: FLASHCARDS DINÂMICOS DE ACTIVE RECALL -->
+    <section id="seccao-flashcards" class="hidden theme-card border-2 border-purple-500/60 p-6 rounded-2xl shadow-2xl transition-all">
+      <div class="flex flex-wrap justify-between items-center mb-4 gap-2 border-b theme-border pb-3">
+        <div class="flex items-center gap-2">
+          <span class="bg-purple-600 text-white text-xs font-black px-2.5 py-1 rounded-md uppercase tracking-wider flex items-center gap-1 shadow">
+            <span>🎴</span> Active Recall Dinâmico
+          </span>
+          <span class="text-xs font-medium theme-text-muted">Desafio de Retenção Dinâmica das Notas Concluídas</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="flashcard-contador" class="text-xs font-mono font-bold text-purple-400">0 / 0</span>
+          <button type="button" onclick="fecharFlashcards()" class="text-xs theme-input hover:text-red-400 font-semibold px-2.5 py-1 rounded-lg border theme-border transition-colors">
+            ✕ Fechar
+          </button>
+        </div>
+      </div>
+
+      <!-- CARD DE FLASHCARD INTERATIVO -->
+      <div class="perspective-1000 max-w-2xl mx-auto my-4">
+        <div id="flashcard-inner" class="flashcard-inner relative w-full min-h-[280px] cursor-pointer" onclick="virarFlashcard()">
+          
+          <!-- FRENTE DO FLASHCARD -->
+          <div class="flashcard-front absolute inset-0 theme-input border-2 border-purple-500/40 rounded-xl p-6 flex flex-col justify-between shadow-xl">
+            <div>
+              <div class="flex justify-between items-center text-xs theme-text-muted mb-3">
+                <span id="fc-categoria" class="text-purple-400 font-bold uppercase tracking-wider">CATEGORIA</span>
+                <span class="text-[10px] bg-purple-950 text-purple-300 px-2 py-0.5 rounded border border-purple-800">Clique para Revelar a Resposta</span>
+              </div>
+              <p class="text-xs text-indigo-400 font-semibold mb-1" id="fc-tipo-pergunta">Pergunta Dinâmica:</p>
+              <h3 id="fc-pergunta" class="text-lg sm:text-xl font-bold leading-relaxed break-words text-purple-200">A carregar pergunta...</h3>
+            </div>
+            <div class="text-center text-xs theme-text-muted italic pt-4 border-t theme-border">
+              🔄 Clica em qualquer zona do cartão para virar
+            </div>
+          </div>
+
+          <!-- VERSO DO FLASHCARD -->
+          <div class="flashcard-back absolute inset-0 theme-card border-2 border-emerald-500/40 rounded-xl p-6 flex flex-col justify-between shadow-xl">
+            <div class="overflow-y-auto max-h-[190px]">
+              <div class="flex justify-between items-center text-xs theme-text-muted mb-2">
+                <span id="fc-titulo-nota" class="text-emerald-400 font-bold">Título da Nota</span>
+                <span class="text-[10px] bg-emerald-950 text-emerald-300 px-2 py-0.5 rounded border border-emerald-800">Resposta / Conteúdo</span>
+              </div>
+              <div id="fc-resposta" class="markdown-body text-xs leading-relaxed"></div>
+            </div>
+
+            <div class="flex justify-between items-center pt-3 border-t theme-border gap-2">
+              <button type="button" onclick="event.stopPropagation(); proximoFlashcard(false)" class="bg-red-900/60 hover:bg-red-800 text-red-200 text-xs font-semibold px-3 py-1.5 rounded-lg border border-red-700 transition-colors w-1/2">
+                🔴 Difícil / Rever
+              </button>
+              <button type="button" onclick="event.stopPropagation(); proximoFlashcard(true)" class="bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-600 transition-colors w-1/2">
+                🟢 Fáci / Dominado
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
 
     <!-- BANNER DA NOTA DO DIA (MÓDULO DE REFLEXÃO SERENDIPITY) -->
     <section id="seccao-nota-do-dia" class="hidden theme-card border-2 border-amber-500/60 p-5 rounded-2xl shadow-xl relative overflow-hidden transition-all">
@@ -400,7 +463,6 @@
       
       <div class="flex flex-wrap items-center gap-3 text-xs theme-text-muted w-full md:w-auto justify-between md:justify-end">
         
-        <!-- SELETOR DE ORDENAÇÃO (CRONOLÓGICA DECRESCENTE OU POR CATEGORIA) -->
         <div class="flex items-center gap-1.5">
           <span>📑 Ordenar:</span>
           <select id="filtro-ordenacao" onchange="filtrarNotas()" class="theme-input border rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500 font-semibold text-indigo-400">
@@ -615,7 +677,7 @@
         </div>
       </details>
       
-      <!-- CAMPO DE CAPTURA RÁPIDA POR URL (GRAVA COMO RASCUNHO E PREENCHE "POR CONCLUIR...") -->
+      <!-- CAMPO DE CAPTURA RÁPIDA POR URL -->
       <div class="theme-input border p-3.5 rounded-xl mb-5 shadow-inner">
         <label class="block text-xs font-bold text-indigo-500 mb-1 flex items-center gap-1.5">
           <span>⚡</span> Captura Rápida por Link (YouTube, Podcasts, Livros, X, Instagram ou Web):
@@ -804,6 +866,11 @@
     let ocultarOrfasNoGrafo = false;
     let debounceTimer = null;
 
+    // VARIÁVEIS PARA O MÓDULO DE FLASHCARDS
+    let flashcardsFila = [];
+    let flashcardIndiceAtual = 0;
+    let flashcardVirado = false;
+
     let temaAtual = localStorage.getItem('zettelkasten_tema') || 'dark';
     let notasFixadas = [];
     try {
@@ -828,7 +895,6 @@
 
     const mapaCoresCategorias = new Map();
 
-    // UTILITÁRIO DE SEGURANÇA: Escape HTML para evitar XSS
     function escapeHTML(str) {
       if (typeof str !== 'string') return '';
       return str.replace(/[&<>"']/g, match => ({
@@ -935,7 +1001,6 @@
       document.getElementById('secção-pesquisa').scrollIntoView({ behavior: 'smooth' });
     }
 
-    // OBTENÇÃO DINÂMICA DE PROPRIEDADES (Aceita nomes exatos ou com variações de maiúsculas/minúsculas/espaços)
     function obterValorPropriedade(objeto, chaveProcurada) {
       if (!objeto || typeof objeto !== 'object') return '';
       const keys = Object.keys(objeto);
@@ -1044,6 +1109,104 @@
       renderizarGrafo(todasAsNotas);
     }
 
+    // --- MÓDULO FLASHCARDS (GERAÇÃO DINÂMICA DE PERGUNTAS DE ACTIVE RECALL) ---
+    function iniciarSessaoFlashcards() {
+      const notasConcluidas = todasAsNotas.filter(n => {
+        const estado = obterValorPropriedade(n, 'estado') || 'Concluída';
+        return estado === 'Concluída';
+      });
+
+      if (notasConcluidas.length === 0) {
+        return alert('Precisas de ter pelo menos uma nota com estado "Concluída" para usar os Flashcards!');
+      }
+
+      // Baralha as notas concluídas
+      const notasEmbaralhadas = [...notasConcluidas].sort(() => 0.5 - Math.random());
+
+      flashcardsFila = notasEmbaralhadas.map(nota => {
+        const titulo = obterValorPropriedade(nota, 'titulo') || 'Sem Título';
+        const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
+        const categoria = obterValorPropriedade(nota, 'categoria') || 'Geral';
+
+        // TENTATIVA 1: Cloze Deletion (Procura por termos em negrito)
+        const termosNegrito = (conteudo.match(/\*\*(.*?)\*\*/g) || []).map(t => t.replace(/\*\*/g, ''));
+        
+        let tipoPergunta = "Reflexão Central:";
+        let pergunta = `Qual é o conceito fundamental da nota "${titulo}"?`;
+
+        if (termosNegrito.length > 0) {
+          const termoOculto = termosNegrito[Math.floor(Math.random() * termosNegrito.length)];
+          tipoPergunta = "Cloze Deletion (Ocultação de Termo):";
+          pergunta = `Na nota "${titulo}", preenche a lacuna: <br><br><span class="font-mono text-amber-400 bg-amber-950/80 px-2 py-1 rounded border border-amber-700">" ${conteudo.replace(/\*\*(.*?)\*\*/g, '[ ... ]').substring(0, 180)}... "</span>`;
+        } else if (conteudo.includes('##')) {
+          // TENTATIVA 2: Extração de Subtítulos
+          const subtitulo = conteudo.split('##')[1].split('\n')[0].trim();
+          tipoPergunta = "Exploração de Subtítulo:";
+          pergunta = `Em relação à nota "${titulo}", como desenvolveste a secção: <em>"${subtitulo}"</em>?`;
+        }
+
+        return {
+          id: obterValorPropriedade(nota, 'id'),
+          titulo: titulo,
+          categoria: categoria,
+          conteudo: conteudo,
+          tipoPergunta: tipoPergunta,
+          pergunta: pergunta
+        };
+      });
+
+      flashcardIndiceAtual = 0;
+      exibirFlashcardAtual();
+      
+      const secção = document.getElementById('seccao-flashcards');
+      secção.classList.remove('hidden');
+      secção.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    function exibirFlashcardAtual() {
+      if (flashcardsFila.length === 0 || flashcardIndiceAtual >= flashcardsFila.length) {
+        alert('🎉 Sessão de Flashcards concluída! Excelente treino de memória.');
+        fecharFlashcards();
+        return;
+      }
+
+      const item = flashcardsFila[flashcardIndiceAtual];
+      flashcardVirado = false;
+
+      const cardInner = document.getElementById('flashcard-inner');
+      if (cardInner) cardInner.classList.remove('flipped');
+
+      document.getElementById('flashcard-contador').textContent = `${flashcardIndiceAtual + 1} / ${flashcardsFila.length}`;
+      document.getElementById('fc-categoria').textContent = item.categoria;
+      document.getElementById('fc-tipo-pergunta').textContent = item.tipoPergunta;
+      document.getElementById('fc-pergunta').innerHTML = item.pergunta;
+      
+      document.getElementById('fc-titulo-nota').textContent = `${item.titulo} (#${item.id})`;
+      document.getElementById('fc-resposta').innerHTML = marked.parse(processarWikilinks(item.conteudo));
+    }
+
+    function virarFlashcard() {
+      flashcardVirado = !flashcardVirado;
+      const cardInner = document.getElementById('flashcard-inner');
+      if (cardInner) {
+        if (flashcardVirado) cardInner.classList.add('flipped');
+        else cardInner.classList.remove('flipped');
+      }
+    }
+
+    function proximoFlashcard(dominado) {
+      if (!dominado) {
+        // Se foi difícil, empurra o flashcard para o fim da fila de revisão
+        flashcardsFila.push(flashcardsFila[flashcardIndiceAtual]);
+      }
+      flashcardIndiceAtual++;
+      exibirFlashcardAtual();
+    }
+
+    function fecharFlashcards() {
+      document.getElementById('seccao-flashcards').classList.add('hidden');
+    }
+
     // --- MÓDULO NOTA DO DIA (SORTEIO ALEATÓRIO DE NOTAS CONCLUÍDAS) ---
     function sortearNotaDoDia(forcarNovoSorteio = false) {
       const secção = document.getElementById('seccao-nota-do-dia');
@@ -1117,7 +1280,7 @@
               👁️ Ler Completa
             </button>
             <button type="button" onclick="prepararEdicao('${escapeHTML(id)}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow">
-              ✏️ Refletir & Atualizar
+              ✏️ Refletir e Atualizar
             </button>
           </div>
         </div>
@@ -1199,14 +1362,12 @@
         
         let eConcluidaHoje = false;
 
-        // Se existir DataConclusao gravada no Sheets, ela é a referência prioritária
         if (dtConclusao) {
           const dConc = new Date(dtConclusao);
           if (!isNaN(dConc.getTime()) && dConc.toISOString().split('T')[0] === isoHoje) {
             eConcluidaHoje = true;
           }
         } else {
-          // Fallback seguro para notas criadas/editadas antes da nova coluna
           if (dtCriacao) {
             const dCria = new Date(dtCriacao);
             if (!isNaN(dCria.getTime()) && dCria.toISOString().split('T')[0] === isoHoje) {
@@ -1655,7 +1816,6 @@
     function gerarPreviewMedia(urlsStr, plataforma, urlImagem, fonte) {
       let htmlFinal = '';
 
-      // 1. Bloco de Fonte / Citação
       if (fonte) {
         htmlFinal += `
           <div class="mt-2 text-xs italic theme-text-muted theme-input p-2 rounded border theme-border flex items-center gap-1.5">
@@ -1664,7 +1824,6 @@
         `;
       }
 
-      // 2. Bloco da Imagem de Capa
       if (urlImagem && urlImagem.trim() !== '') {
         htmlFinal += `
           <div class="mt-3 rounded-xl overflow-hidden border theme-border theme-input shadow-md w-full flex items-center justify-center bg-slate-900/60 p-1.5">
@@ -1673,7 +1832,6 @@
         `;
       }
 
-      // 3. Bloco dos Links de Recursos (YouTube, Instagram, Web)
       if (urlsStr) {
         const urls = urlsStr.split(/[,;\n]+/).map(u => u.trim()).filter(Boolean);
         if (urls.length > 0) {
@@ -1683,7 +1841,6 @@
               urlValida = 'https://' + urlValida;
             }
 
-            // Suporte para vídeos do YouTube Embedded
             const matchYT = urlValida.match(/^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/);
             if (matchYT && matchYT[2].length === 11) {
               const videoId = matchYT[2];
@@ -1696,7 +1853,6 @@
               `;
             }
 
-            // Se o utilizador já colocou uma capa em urlImagem, mostra apenas o botão/link
             if (urlImagem && urlImagem.trim() !== '') {
               return `
                 <a href="${escapeHTML(urlValida)}" target="_blank" rel="noopener noreferrer" class="block mt-2 p-2.5 rounded-lg border theme-border theme-input hover:border-indigo-500 hover:text-indigo-400 transition-all text-xs font-semibold flex items-center gap-2 group">
@@ -1707,7 +1863,6 @@
               `;
             }
 
-            // Renderização para Instagram sem restrições de Rácio (Mostra a imagem no seu estado bruto de renderização)
             const imagemApiUrl = `https://api.microlink.io/?url=${encodeURIComponent(urlValida)}&embed=image.url`;
             return `
               <div class="rounded-lg overflow-hidden border theme-border theme-input group mt-2">
@@ -1775,7 +1930,6 @@
       calcularMetricasTexto();
     }
 
-    // --- RENDERIZAÇÃO DE CARTÕES (ORDEM CRONOLÓGICA DECRESCENTE OU POR CATEGORIA) ---
     function renderizarCartoes(notas) {
       const container = document.getElementById('cards-container');
       const pinnedContainer = document.getElementById('pinned-container');
@@ -2007,7 +2161,6 @@
       const elEstado = document.getElementById('novo-estado');
       const estadoValor = elEstado ? elEstado.value : 'Concluída';
 
-      // LÓGICA DE GESTÃO DA DATACONCLUSÃO
       let notaExistente = idExistente ? mapaNotas.get(idExistente) : null;
       let estadoAnterior = notaExistente ? (obterValorPropriedade(notaExistente, 'estado') || 'Concluída') : null;
       let dataConclusaoAnterior = notaExistente ? obterValorPropriedade(notaExistente, 'dataconclusao') : '';
@@ -2016,17 +2169,13 @@
 
       if (estadoValor === 'Concluída') {
         if (!notaExistente) {
-          // Nota totalmente nova criada como Concluída
           dataConclusaoFinal = isoHoje;
         } else if (estadoAnterior === 'Rascunho') {
-          // Transição de Rascunho para Concluída
           dataConclusaoFinal = isoHoje;
         } else {
-          // Nota já era Concluída anteriormente, mantém a data de conclusão original (ou associa hoje se não existia)
           dataConclusaoFinal = dataConclusaoAnterior || isoHoje;
         }
       } else {
-        // Se é Rascunho, a DataConclusao fica vazia
         dataConclusaoFinal = '';
       }
 
@@ -2048,7 +2197,6 @@
         DataConclusao: dataConclusaoFinal
       };
 
-      // ⚡ ATUALIZAÇÃO IMEDIATA NO CACHE LOCAL (EFEITO INSTANTÂNEO NO INDEX.HTML)
       const indiceLocal = todasAsNotas.findIndex(n => String(obterValorPropriedade(n, 'id')).trim() === String(idFinal).trim());
       if (indiceLocal !== -1) {
         todasAsNotas[indiceLocal] = novaNota;
@@ -2088,7 +2236,6 @@
         return;
       }
 
-      // ⚡ REMOÇÃO INSTANTÂNEA LOCAL
       todasAsNotas = todasAsNotas.filter(n => String(obterValorPropriedade(n, 'id')).trim() !== idLimpo);
       localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
       atualizarInterfaceNotas();
@@ -2368,7 +2515,6 @@
       `;
     }
 
-    // --- EXPORTAÇÃO COMPLETA PARA MICROSOFT WORD (.DOCX) ---
     async function exportarNotaDocx(idNota) {
       const nota = mapaNotas.get(String(idNota).trim());
       if (!nota) return alert('Nota não encontrada.');
@@ -2645,6 +2791,7 @@ ${conteudo}
       if (todasAsNotas.length === 0) return alert('Sem notas para exportar.');
       const jsonContent = JSON.stringify(todasAsNotas, null, 2);
       const blob = new Blob([jsonContent], { type: 'application/json' });
+      const a = document.createElement('a');
       a.href = URL.createObjectURL(blob);
       a.download = `Zettelkasten_Backup_${new Date().toISOString().split('T')[0]}.json`;
       a.click();
@@ -2787,6 +2934,7 @@ ${conteudo}
 
       if (e.key === 'Escape') {
         fecharModal();
+        fecharFlashcards();
         const autocomplete = document.getElementById('autocomplete-list');
         if (autocomplete) autocomplete.classList.add('hidden');
         limparBusca();
