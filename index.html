@@ -943,25 +943,31 @@
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
       const pontuacaoTexto = Math.min(Math.round(Math.log(palavras + 1) * 10), 50);
 
-      // 2. Valorização por tipo de Fonte /Origem intelectual
-      let pontuacaoOrigem = 10; // Valor padrão para Nota Pessoal ou MOC
-      if (plataforma.includes('livro') || plataforma.includes('e-book')) {
-        pontuacaoOrigem = 30; // Livros têm peso máximo
+      // 2. Valorização por tipo de Fonte / Origem intelectual
+      let pontuacaoOrigem = 10; // Valor padrão para Nota Pessoal
+
+      if (plataforma.includes('moc')) {
+        pontuacaoOrigem = 35; // 🗺️ MOCs ganham o topo da pontuação de origem!
+      } else if (plataforma.includes('livro') || plataforma.includes('e-book')) {
+        pontuacaoOrigem = 30;
       } else if (plataforma.includes('revista') || plataforma.includes('artigo') || plataforma.includes('jornal')) {
-        pontuacaoOrigem = 25; // Artigos científicos/periódicos
+        pontuacaoOrigem = 25;
       } else if (plataforma.includes('podcast')) {
         pontuacaoOrigem = 15;
       } else if (plataforma.includes('youtube') || plataforma.includes('vídeo')) {
-        pontuacaoOrigem = 5; // Vídeos valem menos
+        pontuacaoOrigem = 5;
       } else if (plataforma.includes('instagram') || plataforma.includes('x') || plataforma.includes('twitter')) {
-        pontuacaoOrigem = 0; // Redes sociais não adicionam bónus de origem
+        pontuacaoOrigem = 0;
       }
 
-      // 3. Contagem de Conexões (Wikilinks + Ligar a IDs)
+      // 3. Contagem de Conexões (MOCs têm limite expandido para premiar grandes mapas)
       const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
       const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
       const totalLinksUnicos = new Set([...wikilinks, ...conexoesManuais]).size;
-      const pontuacaoConexoes = Math.min(totalLinksUnicos * 15, 60); // Ateliê de links (até 4 links = +60)
+
+      // Se for MOC, aceita até 8 conexões (+120 pts). Se for nota normal, mantém até 4 (+60 pts).
+      const maxLinksPonderados = plataforma.includes('moc') ? 8 : 4;
+      const pontuacaoConexoes = Math.min(totalLinksUnicos * 15, maxLinksPonderados * 15);
 
       // 4. Ponderação Multimédia & Penalização por Falta de Reflexão
       let pontuacaoMedia = 0;
