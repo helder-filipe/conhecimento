@@ -604,7 +604,7 @@
                 <span>4.</span> Captura Rápida de Recursos Multimédia & Fórmula IQR
               </h3>
               <p class="text-xs leading-relaxed theme-text-muted">
-                <strong>Índice de Qualidade (IQR):</strong> Livros (📚 +30) e Artigos (📰 +25) pontuam mais do que Redes Sociais (0 pts) ou Vídeos (🎥 +5). Escreve mais texto e liga várias notas para elevar a qualidade do teu arquivo!
+                <strong>Índice de Qualidade (IQR):</strong> MOCs (🗺️ +35), Livros (📚 +30) e Artigos (📰 +25) pontuam mais. Adicionar **#tags** ativas (+3 pts cada) eleva a indexação da nota!
               </p>
             </div>
 
@@ -929,8 +929,7 @@
 
     /**
      * 🧮 FÓRMULA MATEMÁTICA DE AVALIAÇÃO DA QUALIDADE DA REFLEXÃO (IQR)
-     * Avalia a densidade de texto, tipo de origem (Livro/Artigo vs Redes Sociais),
-     * total de conexões e suporte multimédia.
+     * Avalia a densidade de texto, tipo de origem, total de conexões, suporte multimédia e tags.
      */
     function calcularIndiceQualidade(nota) {
       const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
@@ -938,6 +937,7 @@
       const urlMedia = obterValorPropriedade(nota, 'urlmedia') || '';
       const urlImagem = obterValorPropriedade(nota, 'urlimagem') || obterValorPropriedade(nota, 'linkdaimagem') || obterValorPropriedade(nota, 'imagem') || '';
       const linksStr = obterValorPropriedade(nota, 'linkspara') || '';
+      const tagsStr = obterValorPropriedade(nota, 'tags') || '';
 
       // 1. Contagem e ponderação de palavras (Aplica escala logarítmica)
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
@@ -965,20 +965,23 @@
       const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
       const totalLinksUnicos = new Set([...wikilinks, ...conexoesManuais]).size;
 
-      // Se for MOC, aceita até 8 conexões (+120 pts). Se for nota normal, mantém até 4 (+60 pts).
       const maxLinksPonderados = plataforma.includes('moc') ? 8 : 4;
       const pontuacaoConexoes = Math.min(totalLinksUnicos * 15, maxLinksPonderados * 15);
 
-      // 4. Ponderação Multimédia & Penalização por Falta de Reflexão
+      // 4. Valorização por Tags (+3 pts por tag única, máximo 15 pts)
+      const tagsArr = tagsStr.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
+      const totalTagsUnicas = new Set(tagsArr).size;
+      const pontuacaoTags = Math.min(totalTagsUnicas * 3, 15);
+
+      // 5. Ponderação Multimédia & Penalização por Falta de Reflexão
       let pontuacaoMedia = 0;
       if (urlImagem) pontuacaoMedia += 2;
       
-      // Penaliza se tiver media (imagem/vídeo/redes) mas pouco texto reflexivo escrito
       if ((urlMedia || urlImagem || plataforma.includes('instagram') || plataforma.includes('x')) && palavras < 30) {
         pontuacaoMedia -= 15;
       }
 
-      const scoreFinal = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoMedia);
+      const scoreFinal = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoTags + pontuacaoMedia);
       
       let badgeLabel = '🥉 Superficial';
       let badgeCor = 'bg-slate-700/60 text-slate-300 border-slate-600';
@@ -1391,7 +1394,7 @@
               <span class="font-mono text-amber-500 theme-card px-2 py-0.5 rounded border theme-border font-bold">ID: ${escapeHTML(id)}</span>
               <span class="theme-text-muted">Criada a: ${escapeHTML(dtCriacao)}</span>
               ${categoria ? `<span class="theme-card text-indigo-500 px-2 py-0.5 rounded border theme-border font-semibold">${escapeHTML(categoria)}</span>` : ''}
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">🧮 IQR: ${iqr.score} pts (${iqr.label})</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">IQR: ${iqr.score} pts (${iqr.label})</span>
             </div>
             <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold hover:text-amber-500 transition-colors cursor-pointer break-words">${escapeHTML(titulo)}</h3>
             <div class="markdown-body text-xs line-clamp-2 leading-relaxed">
@@ -1400,9 +1403,6 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
-            <button type="button" onclick="abrirModalNota('${escapeHTML(id)}')" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-semibold px-3 py-2 rounded-lg transition-colors shadow">
-              👁️ Ler Completa
-            </button>
             <button type="button" onclick="prepararEdicao('${escapeHTML(id)}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow">
               ✏️ Refletir & Atualizar
             </button>
@@ -1867,7 +1867,6 @@
     function calcularMetricasTexto() {
       const txt = document.getElementById('novo-conteudo').value.trim();
       const palavras = txt ? txt.split(/\s+/).length : 0;
-      const carateres = txt.length;
       const tempoLeitura = Math.ceil(palavras / 200);
 
       const tempNota = {
@@ -1875,7 +1874,8 @@
         plataforma: document.getElementById('nova-plataforma').value,
         urlmedia: document.getElementById('novo-url').value,
         urlimagem: document.getElementById('novo-url-imagem').value,
-        linkspara: document.getElementById('novos-links').value
+        linkspara: document.getElementById('novos-links').value,
+        tags: document.getElementById('novas-tags').value
       };
       
       const iqr = calcularIndiceQualidade(tempNota);
@@ -2230,7 +2230,6 @@
             </span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
-            <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-500 font-medium px-2 py-0.5 rounded theme-input border theme-border">👁️ Ver</button>
             <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs theme-text-muted font-medium px-2 py-0.5 rounded theme-input border theme-border">✏️</button>
           </div>
         `;
@@ -2256,7 +2255,6 @@
                 ${eRascunho ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2.5 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
                 ${eMOC ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2.5 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
                 ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-500 theme-input px-2.5 py-0.5 rounded border theme-border">${escapeHTML(plataforma)}</span>` : ''}
-                <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-500 font-medium px-2 py-0.5 rounded theme-input border theme-border">👁️ Ver</button>
                 <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs theme-text-muted font-medium px-2 py-0.5 rounded theme-input border theme-border">✏️ Editar</button>
                 <button type="button" onclick="eliminarNota('${escapeHTML(idStr)}')" class="text-xs text-red-500 hover:text-red-400 font-medium px-2 py-0.5 rounded theme-input border theme-border transition-colors" title="Eliminar Nota">🗑️</button>
               </div>
