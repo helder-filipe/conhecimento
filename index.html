@@ -354,7 +354,7 @@
                 🔴 Difícil / Rever
               </button>
               <button type="button" onclick="event.stopPropagation(); proximoFlashcard(true)" class="bg-emerald-800/80 hover:bg-emerald-700 text-emerald-100 text-xs font-semibold px-3 py-1.5 rounded-lg border border-emerald-600 transition-colors w-1/2">
-                🟢 Fáci / Dominado
+                🟢 Fácil / Dominado
               </button>
             </div>
           </div>
@@ -604,7 +604,8 @@
                 <span>4.</span> Captura Rápida de Recursos Multimédia & Fórmula IQR
               </h3>
               <p class="text-xs leading-relaxed theme-text-muted">
-                <strong>Índice de Qualidade (IQR):</strong> MOCs (🗺️ +35), Livros (📚 +30) e Artigos (📰 +25) pontuam mais. Adicionar **#tags** ativas (+3 pts cada) eleva a indexação da nota!
+                <strong>Índice de Qualidade (IQR):</strong> Avalia a densidade do texto (até 50 pts), a origem (MOCs +35, Livros +30, Artigos +25), as conexões (até 60 pts em notas normais ou 120 pts em MOCs) e as #tags (até 15 pts).<br>
+                <strong>Pontuação Máxima:</strong> <strong>157 pts</strong> numa nota normal e <strong>222 pts</strong> num MOC. Alcanças a categoria <em>"🏆 Académica / Profunda"</em> a partir dos 75 pts!
               </p>
             </div>
 
@@ -799,9 +800,12 @@
             <input type="text" id="nova-fonte" placeholder="Ex: Autor - 'Título do Livro', Cap. 4, pág. 120" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
-          <div>
+          <div class="relative">
             <label class="block text-xs font-medium theme-text-muted mb-1">Tags (separadas por vírgulas)</label>
-            <input type="text" id="novas-tags" oninput="atualizarSugestoesConexao()" placeholder="javascript, redes, zettelkasten" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novas-tags" oninput="aoDigitarTags(event)" placeholder="javascript, redes, zettelkasten" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            
+            <!-- DROPDOWN DE AUTOCOMPLETE DE TAGS -->
+            <div id="autocomplete-tags-list" class="autocomplete-dropdown hidden w-full"></div>
           </div>
 
           <div>
@@ -929,7 +933,6 @@
 
     /**
      * 🧮 FÓRMULA MATEMÁTICA DE AVALIAÇÃO DA QUALIDADE DA REFLEXÃO (IQR)
-     * Avalia a densidade de texto, tipo de origem, total de conexões, suporte multimédia e tags.
      */
     function calcularIndiceQualidade(nota) {
       const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
@@ -939,15 +942,16 @@
       const linksStr = obterValorPropriedade(nota, 'linkspara') || '';
       const tagsStr = obterValorPropriedade(nota, 'tags') || '';
 
-      // 1. Contagem e ponderação de palavras (Aplica escala logarítmica)
+      const eMOC = plataforma.includes('moc');
+      const maxTeorico = eMOC ? 222 : 157;
+
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
       const pontuacaoTexto = Math.min(Math.round(Math.log(palavras + 1) * 10), 50);
 
-      // 2. Valorização por tipo de Fonte / Origem intelectual
-      let pontuacaoOrigem = 10; // Valor padrão para Nota Pessoal
+      let pontuacaoOrigem = 10;
 
-      if (plataforma.includes('moc')) {
-        pontuacaoOrigem = 35; // 🗺️ MOCs ganham o topo da pontuação de origem!
+      if (eMOC) {
+        pontuacaoOrigem = 35;
       } else if (plataforma.includes('livro') || plataforma.includes('e-book')) {
         pontuacaoOrigem = 30;
       } else if (plataforma.includes('revista') || plataforma.includes('artigo') || plataforma.includes('jornal')) {
@@ -960,20 +964,17 @@
         pontuacaoOrigem = 0;
       }
 
-      // 3. Contagem de Conexões (MOCs têm limite expandido para premiar grandes mapas)
       const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
       const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
       const totalLinksUnicos = new Set([...wikilinks, ...conexoesManuais]).size;
 
-      const maxLinksPonderados = plataforma.includes('moc') ? 8 : 4;
+      const maxLinksPonderados = eMOC ? 8 : 4;
       const pontuacaoConexoes = Math.min(totalLinksUnicos * 15, maxLinksPonderados * 15);
 
-      // 4. Valorização por Tags (+3 pts por tag única, máximo 15 pts)
       const tagsArr = tagsStr.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
       const totalTagsUnicas = new Set(tagsArr).size;
       const pontuacaoTags = Math.min(totalTagsUnicas * 3, 15);
 
-      // 5. Ponderação Multimédia & Penalização por Falta de Reflexão
       let pontuacaoMedia = 0;
       if (urlImagem) pontuacaoMedia += 2;
       
@@ -997,10 +998,14 @@
         badgeCor = 'bg-amber-950/80 text-amber-300 border-amber-600';
       }
 
+      const tooltipTexto = `Índice de Qualidade da Reflexão: ${scoreFinal} de ${maxTeorico} pts máx. (Académica ≥ 75 pts)`;
+
       return {
         score: scoreFinal,
+        maxTeorico: maxTeorico,
         label: badgeLabel,
         corClasse: badgeCor,
+        tooltip: tooltipTexto,
         palavras: palavras,
         linksCount: totalLinksUnicos
       };
@@ -1394,7 +1399,7 @@
               <span class="font-mono text-amber-500 theme-card px-2 py-0.5 rounded border theme-border font-bold">ID: ${escapeHTML(id)}</span>
               <span class="theme-text-muted">Criada a: ${escapeHTML(dtCriacao)}</span>
               ${categoria ? `<span class="theme-card text-indigo-500 px-2 py-0.5 rounded border theme-border font-semibold">${escapeHTML(categoria)}</span>` : ''}
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">IQR: ${iqr.score} pts (${iqr.label})</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="${iqr.tooltip}">🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span>
             </div>
             <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold hover:text-amber-500 transition-colors cursor-pointer break-words">${escapeHTML(titulo)}</h3>
             <div class="markdown-body text-xs line-clamp-2 leading-relaxed">
@@ -1851,6 +1856,66 @@
       listDiv.classList.add('hidden');
     }
 
+    /**
+     * 🏷️ NOVO AUTOCOMPLETE DE TAGS INTEGRAÇÃO AUTOMÁTICA
+     */
+    function aoDigitarTags(e) {
+      atualizarSugestoesConexao();
+      const input = e.target;
+      const val = input.value;
+      const pos = input.selectionStart;
+
+      const textoAteCursor = val.substring(0, pos);
+      const partes = textoAteCursor.split(',');
+      const tagAtual = partes[partes.length - 1].trim().toLowerCase();
+
+      const listDiv = document.getElementById('autocomplete-tags-list');
+      if (!listDiv) return;
+
+      if (!tagAtual) {
+        listDiv.classList.add('hidden');
+        return;
+      }
+
+      // Extrai todas as tags únicas já registadas na base de conhecimento
+      const conjuntoTags = new Set();
+      todasAsNotas.forEach(nota => {
+        const tagsStr = obterValorPropriedade(nota, 'tags');
+        if (tagsStr) {
+          tagsStr.split(/[,;]+/).forEach(t => {
+            const tLimpa = t.trim();
+            if (tLimpa) conjuntoTags.add(tLimpa);
+          });
+        }
+      });
+
+      const sugestoesTags = Array.from(conjuntoTags).filter(t => t.toLowerCase().includes(tagAtual) && t.toLowerCase() !== tagAtual).slice(0, 6);
+
+      if (sugestoesTags.length > 0) {
+        listDiv.innerHTML = sugestoesTags.map(t => {
+          return `<div class="autocomplete-item flex justify-between items-center" onclick="completarTag('${escapeHTML(t)}')">
+                    <span>🏷️ <strong>${escapeHTML(t)}</strong></span>
+                    <span class="text-[10px] theme-text-muted">Existente</span>
+                  </div>`;
+        }).join('');
+        listDiv.classList.remove('hidden');
+      } else {
+        listDiv.classList.add('hidden');
+      }
+    }
+
+    function completarTag(tagSelecionada) {
+      const input = document.getElementById('novas-tags');
+      const val = input.value;
+      const partes = val.split(',');
+      partes[partes.length - 1] = ' ' + tagSelecionada;
+
+      input.value = partes.join(', ').replace(/^,\s*/, '') + ', ';
+      document.getElementById('autocomplete-tags-list').classList.add('hidden');
+      input.focus();
+      atualizarSugestoesConexao();
+    }
+
     function completarWikilink(idNota) {
       const textarea = document.getElementById('novo-conteudo');
       const val = textarea.value;
@@ -1882,7 +1947,7 @@
 
       const metricsEl = document.getElementById('form-text-metrics');
       if (metricsEl) {
-        let textoStatus = `<span class="${iqr.score >= 50 ? 'text-emerald-500' : 'text-amber-500'} font-bold">🧮 Qualidade Est.: ${iqr.score} pts (${iqr.label})</span> | ${palavras} pal | ~${tempoLeitura} min`;
+        let textoStatus = `<span class="${iqr.score >= 50 ? 'text-emerald-500' : 'text-amber-500'} font-bold" title="${iqr.tooltip}">🧮 Quality Est.: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span> | ${palavras} pal | ~${tempoLeitura} min`;
         metricsEl.innerHTML = textoStatus;
       }
     }
@@ -2056,6 +2121,9 @@
       const elPainel = document.getElementById('painel-sugestoes');
       if (elPainel) elPainel.classList.add('hidden');
       
+      const elAutocompleteTags = document.getElementById('autocomplete-tags-list');
+      if (elAutocompleteTags) elAutocompleteTags.classList.add('hidden');
+
       document.getElementById('btn-cancelar-edicao').classList.add('hidden');
 
       calcularMetricasTexto();
@@ -2225,8 +2293,8 @@
             <span onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-base sm:text-lg font-black hover:text-indigo-500 transition-colors cursor-pointer break-words truncate" title="Clique para abrir a nota">${escapeHTML(titulo)}</span>
             ${categoria ? `<span class="hidden sm:inline theme-input text-indigo-500 text-[10px] px-2 py-0.5 rounded border theme-border shrink-0">${escapeHTML(categoria)}</span>` : ''}
             
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">
-              ${iqr.label} (${iqr.score} pts)
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="${iqr.tooltip}">
+              🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts
             </span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
@@ -2246,8 +2314,8 @@
               <div class="flex items-center gap-1.5">
                 <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
                 
-                <span class="hidden md:inline text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">
-                  ${iqr.label} (${iqr.score} pts)
+                <span class="hidden md:inline text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="${iqr.tooltip}">
+                  🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts
                 </span>
               </div>
               <div class="flex flex-wrap items-center gap-1.5">
@@ -2387,7 +2455,7 @@
 
       } catch (erro) {
         console.error('Erro ao guardar nota:', erro);
-        alert('A nota foi atualizada no teu ecram, mas houve um erro ao sincronizar com o Google Sheets.');
+        alert('A nota foi atualizada no teu ecrã, mas houve um erro ao sincronizar com o Google Sheets.');
       } finally {
         btn.disabled = false;
       }
@@ -2643,7 +2711,7 @@
               <span class="text-xs font-mono theme-text-muted theme-input px-2.5 py-1 rounded border theme-border">ID: ${escapeHTML(id)}</span>
               <button type="button" onclick="alternarNotaFixada('${escapeHTML(id)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs theme-input p-1 rounded border theme-border">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
               ${eRascunho ? `<span class="text-xs font-bold text-amber-500 theme-input px-2.5 py-1 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
-              <span class="text-xs font-bold px-2.5 py-1 rounded border ${iqr.corClasse}">🧮 Quality Index: ${iqr.score} pts (${iqr.label})</span>
+              <span class="text-xs font-bold px-2.5 py-1 rounded border ${iqr.corClasse}" title="${iqr.tooltip}">🧮 Quality Index: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span>
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
@@ -3107,6 +3175,8 @@ ${conteudo}
         fecharFlashcards();
         const autocomplete = document.getElementById('autocomplete-list');
         if (autocomplete) autocomplete.classList.add('hidden');
+        const autocompleteTags = document.getElementById('autocomplete-tags-list');
+        if (autocompleteTags) autocompleteTags.classList.add('hidden');
         limparBusca();
       }
     });
