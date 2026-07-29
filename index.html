@@ -218,7 +218,6 @@
       display: none;
     }
 
-    /* ESTILO PARA A ANIMAÇÃO DO FLASHCARD */
     .perspective-1000 {
       perspective: 1000px;
     }
@@ -236,9 +235,35 @@
     .flashcard-back {
       transform: rotateY(180deg);
     }
+
+    /* ANIMAÇÃO DE DESTAQUE NA NOTA RECÉM-GUARDADA */
+    @keyframes highlightCard {
+      0% { transform: scale(1.03); box-shadow: 0 0 25px rgba(99, 102, 241, 0.8); }
+      100% { transform: scale(1); box-shadow: none; }
+    }
+    .nota-recem-guardada {
+      animation: highlightCard 2.5s ease-out;
+      border-color: #6366f1 !important;
+    }
   </style>
 </head>
-<body class="min-h-screen font-sans antialiased">
+<body class="min-h-screen font-sans antialiased relative">
+
+  <!-- BOTÃO FLUTUANTE LATERAL E GAVETA DE NAVEGAÇÃO RÁPIDA (QUICK-NAV) -->
+  <div id="quick-nav-widget" class="fixed right-3 bottom-6 z-40 flex items-center transition-all duration-300 transform translate-x-[170px]">
+    <button type="button" onclick="alternarGavetaNav()" class="bg-indigo-600 hover:bg-indigo-500 text-white p-3 rounded-l-2xl shadow-2xl border-y border-l border-indigo-400/30 flex items-center gap-1 shrink-0">
+      <span id="quick-nav-icon" class="text-sm">◀</span>
+      <span class="text-xs font-bold uppercase tracking-wider">Nav</span>
+    </button>
+    <div class="theme-card border border-indigo-500/40 p-2 rounded-r-2xl shadow-2xl flex items-center gap-2 backdrop-blur-md">
+      <button type="button" onclick="irParaBuscaEIrTop()" title="Ir para a Barra de Pesquisa" class="bg-indigo-600/80 hover:bg-indigo-600 text-white text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-semibold transition-colors">
+        🔍 Busca
+      </button>
+      <button type="button" onclick="irParaTopo()" title="Ir para o Topo do Ecrã" class="theme-input hover:border-indigo-500 text-xs px-2.5 py-1.5 rounded-lg flex items-center gap-1 font-semibold border theme-border transition-colors">
+        ⬆️ Topo
+      </button>
+    </div>
+  </div>
 
   <!-- Navegação / Cabeçalho -->
   <header class="border-b theme-border sticky top-0 z-40 backdrop-blur-md shadow-lg shadow-black/5" style="background-color: var(--bg-header);">
@@ -298,11 +323,9 @@
         </div>
       </div>
 
-      <!-- CARD DE FLASHCARD INTERATIVO -->
       <div class="perspective-1000 max-w-2xl mx-auto my-4">
         <div id="flashcard-inner" class="flashcard-inner relative w-full min-h-[280px] cursor-pointer" onclick="virarFlashcard()">
           
-          <!-- FRENTE DO FLASHCARD -->
           <div class="flashcard-front absolute inset-0 theme-input border-2 border-purple-500/40 rounded-xl p-6 flex flex-col justify-between shadow-xl">
             <div>
               <div class="flex justify-between items-center text-xs theme-text-muted mb-3">
@@ -317,7 +340,6 @@
             </div>
           </div>
 
-          <!-- VERSO DO FLASHCARD -->
           <div class="flashcard-back absolute inset-0 theme-card border-2 border-emerald-500/40 rounded-xl p-6 flex flex-col justify-between shadow-xl">
             <div class="overflow-y-auto max-h-[190px]">
               <div class="flex justify-between items-center text-xs theme-text-muted mb-2">
@@ -418,7 +440,7 @@
       </div>
     </details>
 
-    <!-- PAINEL DE HÁBITOS, PRODUTIVIDADE E OBJETIVO DIÁRIO (RESPONSIVO / EXPANSÍVEL NO MOBILE E TABLET) -->
+    <!-- PAINEL DE HÁBITOS, PRODUTIVIDADE E OBJETIVO DIÁRIO -->
     <details id="acc-produtividade" class="theme-card border rounded-2xl p-3 sm:p-4 shadow-md transition-all">
       <summary class="flex justify-between items-center font-bold text-xs sm:text-sm text-emerald-400">
         <span class="flex items-center gap-2">🎯 Hábitos & Meta Diária de Escrita</span>
@@ -436,7 +458,6 @@
           <div id="heatmap-container" class="flex flex-wrap gap-1.5 items-center pt-1"></div>
         </div>
 
-        <!-- META DIÁRIA DE QUALIDADE (3 NOTAS COM ≥ 100 PALAVRAS) -->
         <div class="theme-card p-4 rounded-xl border shadow-md flex flex-col justify-between">
           <div class="flex justify-between items-center mb-1">
             <h3 class="text-xs font-bold text-indigo-500 flex items-center gap-1.5">
@@ -453,7 +474,7 @@
       </div>
     </details>
 
-    <!-- 2. SECÇÃO DE FILTROS, ORDENAÇÃO E PESQUISA (SEMPRE VISÍVEL) -->
+    <!-- 2. SECÇÃO DE FILTROS, ORDENAÇÃO E PESQUISA -->
     <section id="secção-pesquisa" class="flex flex-col md:flex-row gap-4 justify-between items-center theme-card p-4 rounded-xl border shadow-lg scroll-mt-24">
       <div class="w-full md:w-80 relative flex items-center">
         <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full theme-input border rounded-lg px-3 py-2 pr-20 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
@@ -535,7 +556,7 @@
         </div>
       </div>
 
-      <!-- GUIA ZETTELKASTEN & CHEATSHEET (EXPANSÍVEL NO MOBILE) -->
+      <!-- GUIA ZETTELKASTEN & CHEATSHEET -->
       <details id="acc-guia" class="mb-6 theme-input border rounded-xl p-4">
         <summary class="flex justify-between items-center font-bold text-xs sm:text-sm text-indigo-500">
           <span class="flex items-center gap-2">🧠 Guia Prático de Utilização Eficiente & Sintaxe Markdown</span>
@@ -866,10 +887,10 @@
     let ocultarOrfasNoGrafo = false;
     let debounceTimer = null;
 
-    // VARIÁVEIS PARA O MÓDULO DE FLASHCARDS
     let flashcardsFila = [];
     let flashcardIndiceAtual = 0;
     let flashcardVirado = false;
+    let gavetaNavAberta = false;
 
     let temaAtual = localStorage.getItem('zettelkasten_tema') || 'dark';
     let notasFixadas = [];
@@ -904,6 +925,37 @@
         '"': '&quot;',
         "'": '&#39;'
       }[match]));
+    }
+
+    function alternarGavetaNav() {
+      gavetaNavAberta = !gavetaNavAberta;
+      const widget = document.getElementById('quick-nav-widget');
+      const icon = document.getElementById('quick-nav-icon');
+      if (widget && icon) {
+        if (gavetaNavAberta) {
+          widget.classList.remove('translate-x-[170px]');
+          widget.classList.add('translate-x-0');
+          icon.textContent = '▶';
+        } else {
+          widget.classList.remove('translate-x-0');
+          widget.classList.add('translate-x-[170px]');
+          icon.textContent = '◀';
+        }
+      }
+    }
+
+    function irParaBuscaEIrTop() {
+      const inputBusca = document.getElementById('input-busca');
+      if (inputBusca) {
+        inputBusca.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => inputBusca.focus(), 400);
+      }
+      alternarGavetaNav();
+    }
+
+    function irParaTopo() {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      alternarGavetaNav();
     }
 
     function ajustarAccordionsPeloTamanhoEcra() {
@@ -1109,7 +1161,6 @@
       renderizarGrafo(todasAsNotas);
     }
 
-    // --- MÓDULO FLASHCARDS (GERAÇÃO DINÂMICA DE PERGUNTAS DE ACTIVE RECALL) ---
     function iniciarSessaoFlashcards() {
       const notasConcluidas = todasAsNotas.filter(n => {
         const estado = obterValorPropriedade(n, 'estado') || 'Concluída';
@@ -1120,7 +1171,6 @@
         return alert('Precisas de ter pelo menos uma nota com estado "Concluída" para usar os Flashcards!');
       }
 
-      // Baralha as notas concluídas
       const notasEmbaralhadas = [...notasConcluidas].sort(() => 0.5 - Math.random());
 
       flashcardsFila = notasEmbaralhadas.map(nota => {
@@ -1128,7 +1178,6 @@
         const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
         const categoria = obterValorPropriedade(nota, 'categoria') || 'Geral';
 
-        // TENTATIVA 1: Cloze Deletion (Procura por termos em negrito)
         const termosNegrito = (conteudo.match(/\*\*(.*?)\*\*/g) || []).map(t => t.replace(/\*\*/g, ''));
         
         let tipoPergunta = "Reflexão Central:";
@@ -1139,7 +1188,6 @@
           tipoPergunta = "Cloze Deletion (Ocultação de Termo):";
           pergunta = `Na nota "${titulo}", preenche a lacuna: <br><br><span class="font-mono text-amber-400 bg-amber-950/80 px-2 py-1 rounded border border-amber-700">" ${conteudo.replace(/\*\*(.*?)\*\*/g, '[ ... ]').substring(0, 180)}... "</span>`;
         } else if (conteudo.includes('##')) {
-          // TENTATIVA 2: Extração de Subtítulos
           const subtitulo = conteudo.split('##')[1].split('\n')[0].trim();
           tipoPergunta = "Exploração de Subtítulo:";
           pergunta = `Em relação à nota "${titulo}", como desenvolveste a secção: <em>"${subtitulo}"</em>?`;
@@ -1196,7 +1244,6 @@
 
     function proximoFlashcard(dominado) {
       if (!dominado) {
-        // Se foi difícil, empurra o flashcard para o fim da fila de revisão
         flashcardsFila.push(flashcardsFila[flashcardIndiceAtual]);
       }
       flashcardIndiceAtual++;
@@ -1207,7 +1254,6 @@
       document.getElementById('seccao-flashcards').classList.add('hidden');
     }
 
-    // --- MÓDULO NOTA DO DIA (SORTEIO ALEATÓRIO DE NOTAS CONCLUÍDAS) ---
     function sortearNotaDoDia(forcarNovoSorteio = false) {
       const secção = document.getElementById('seccao-nota-do-dia');
       const container = document.getElementById('conteudo-nota-do-dia');
@@ -1280,7 +1326,7 @@
               👁️ Ler Completa
             </button>
             <button type="button" onclick="prepararEdicao('${escapeHTML(id)}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow">
-              ✏️ Refletir e Atualizar
+              ✏️ Refletir & Atualizar
             </button>
           </div>
         </div>
@@ -2097,8 +2143,8 @@
               <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
               <div class="flex flex-wrap items-center gap-1.5">
                 <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:opacity-80 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
-                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
-                ${eMOC ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
+                ${eRascunho ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2.5 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
+                ${eMOC ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2.5 py-0.5 rounded border border-amber-500/50">🗺️ MOC</span>` : ''}
                 ${plataforma && !eMOC ? `<span class="text-[11px] font-semibold text-purple-500 theme-input px-2.5 py-0.5 rounded border theme-border">${escapeHTML(plataforma)}</span>` : ''}
                 <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-500 font-medium px-2 py-0.5 rounded theme-input border theme-border">👁️ Ver</button>
                 <button type="button" onclick="prepararEdicao('${escapeHTML(idStr)}')" class="text-xs theme-text-muted font-medium px-2 py-0.5 rounded theme-input border theme-border">✏️ Editar</button>
@@ -2217,6 +2263,19 @@
 
         limparFormulario();
         alert('Nota guardada e sincronizada com sucesso!');
+
+        // 🌟 MELHORIA 1: SCROLL AUTOMÁTICO PARA A NOTA CRIADA
+        setTimeout(() => {
+          const elNotaCriada = document.getElementById(`nota-${idFinal}`);
+          if (elNotaCriada) {
+            elNotaCriada.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            elNotaCriada.classList.add('nota-recem-guardada');
+            setTimeout(() => elNotaCriada.classList.remove('nota-recem-guardada'), 3000);
+          } else {
+            document.getElementById('secção-notas').scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+
         setTimeout(() => carregarZettelkasten(), 2000);
 
       } catch (erro) {
