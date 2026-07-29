@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Zettelkasten Hub Pro</title>
+  <title>gNOTES Pro</title>
 
   <!-- FAVICON -->
   <link rel="icon" type="image/png" href="logo_simplificado.png">
@@ -626,7 +626,7 @@
             </h3>
             <ol class="list-decimal pl-5 text-xs space-y-1 theme-text-muted">
               <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
-              <li>Abres o Zettelkasten Hub ➔ Crias a nota com a tua reflexão (procura atingir $\ge$ 100 palavras).</li>
+              <li>Abres o gNOTES ➔ Crias a nota com a tua reflexão (procura atingir $\ge$ 100 palavras).</li>
               <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
               <li>Olhas para o Grafo/Busca ➔ Descobres 2 notas antigas sobre o mesmo tema e conectas com <code class="text-sky-500 font-mono">[[ID]]</code>.</li>
               <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
@@ -821,7 +821,7 @@
 
         <div class="flex items-center gap-3">
           <button type="submit" id="btn-submeter" class="bg-indigo-600 hover:bg-indigo-500 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors flex items-center gap-2 shadow-md">
-            <span>💾</span> Guardar Nota no Zettelkasten
+            <span>💾</span> Guardar Nota no gNOTES
           </button>
           
           <button type="button" id="btn-cancelar-edicao" onclick="limparFormulario()" class="hidden bg-slate-700 hover:bg-red-600/80 text-white text-sm font-semibold px-4 py-2.5 rounded-lg transition-colors flex items-center gap-1.5 border border-slate-600 shadow-md">
@@ -1409,7 +1409,7 @@
 
           <div class="flex items-center gap-2 shrink-0 self-end md:self-center">
             <button type="button" onclick="prepararEdicao('${escapeHTML(id)}')" class="bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold px-3 py-2 rounded-lg transition-colors shadow">
-              ✏️ Refletir & Atualizar
+              ✏️ Refletir e Atualizar
             </button>
           </div>
         </div>
@@ -1857,7 +1857,7 @@
     }
 
     /**
-     * 🏷️ NOVO AUTOCOMPLETE DE TAGS INTEGRAÇÃO AUTOMÁTICA
+     * 🏷️ AUTOCOMPLETE DE TAGS INTEGRAÇÃO AUTOMÁTICA
      */
     function aoDigitarTags(e) {
       atualizarSugestoesConexao();
@@ -2115,8 +2115,8 @@
     function limparFormulario() {
       document.getElementById('form-nova-nota').reset();
       document.getElementById('form-id').value = '';
-      document.getElementById('btn-submeter').innerHTML = '<span>💾</span> Guardar Nota no Zettelkasten';
-      document.getElementById('form-titulo-header').innerHTML = '<span>➕</span> Criar Nova Nota Zettelkasten';
+      document.getElementById('btn-submeter').innerHTML = '<span>💾</span> Guardar Nota no gNOTES';
+      document.getElementById('form-titulo-header').innerHTML = '<span>➕</span> Criar Nova Nota gNOTES';
       
       const elPainel = document.getElementById('painel-sugestoes');
       if (elPainel) elPainel.classList.add('hidden');
@@ -2314,7 +2314,8 @@
               <div class="flex items-center gap-1.5">
                 <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
                 
-                <span class="hidden md:inline text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="${iqr.tooltip}">
+                <!-- BADGE IQR VISÍVEL EM TODOS OS DISPOSITIVOS (REMOVIDO 'hidden md:inline') -->
+                <span class="inline-flex text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="${iqr.tooltip}">
                   🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts
                 </span>
               </div>
