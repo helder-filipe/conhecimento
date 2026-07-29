@@ -488,6 +488,7 @@
           <span>📑 Ordenar:</span>
           <select id="filtro-ordenacao" onchange="filtrarNotas()" class="theme-input border rounded-lg px-2.5 py-1 text-xs focus:outline-none focus:border-indigo-500 font-semibold text-indigo-400">
             <option value="cronologica">🗓️ Mais Recentes Primeiro</option>
+            <option value="qualidade">🧮 Maior Qualidade (IQR)</option>
             <option value="categoria">🏷️ Categoria (A-Z)</option>
           </select>
         </div>
@@ -600,11 +601,10 @@
 
             <div class="theme-card p-4 rounded-lg border space-y-1.5">
               <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider flex items-center gap-1.5">
-                <span>4.</span> Captura Rápida de Recursos Multimédia
+                <span>4.</span> Captura Rápida de Recursos Multimédia & Fórmula IQR
               </h3>
               <p class="text-xs leading-relaxed theme-text-muted">
-                <strong>Links de apoio:</strong> Usa a caixa de captura rápida ou cola vídeos do YouTube, artigos da Web, Podcasts ou Livros.<br>
-                <strong>Grelha Visual:</strong> A plataforma gera automaticamente as miniaturas e fontes para reveres visualmente a referência original.
+                <strong>Índice de Qualidade (IQR):</strong> Livros (📚 +30) e Artigos (📰 +25) pontuam mais do que Redes Sociais (0 pts) ou Vídeos (🎥 +5). Escreve mais texto e liga várias notas para elevar a qualidade do teu arquivo!
               </p>
             </div>
 
@@ -722,12 +722,12 @@
           
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Plataforma / Origem</label>
-            <select id="nova-plataforma" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <select id="nova-plataforma" onchange="calcularMetricasTexto()" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
               <option value="Nota">Nota Pessoal</option>
               <option value="YouTube">YouTube</option>
               <option value="Podcast">🎙️ Podcast</option>
               <option value="Livro">📚 Livro / E-Book</option>
-              <option value="Revista">📰 Revista / Jornal</option>
+              <option value="Revista">📰 Revista / Artigo Científico</option>
               <option value="Instagram">Instagram</option>
               <option value="X">X (Twitter)</option>
               <option value="Artigo">Artigo / Web</option>
@@ -806,7 +806,7 @@
 
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Ligar a IDs (separados por vírgula)</label>
-            <input type="text" id="novos-links" placeholder="Ex: 202607241010, 202607241012" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novos-links" oninput="calcularMetricasTexto()" placeholder="Ex: 202607241010, 202607241012" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
 
@@ -925,6 +925,76 @@
         '"': '&quot;',
         "'": '&#39;'
       }[match]));
+    }
+
+    /**
+     * 🧮 FÓRMULA MATEMÁTICA DE AVALIAÇÃO DA QUALIDADE DA REFLEXÃO (IQR)
+     * Avalia a densidade de texto, tipo de origem (Livro/Artigo vs Redes Sociais),
+     * total de conexões e suporte multimédia.
+     */
+    function calcularIndiceQualidade(nota) {
+      const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
+      const plataforma = (obterValorPropriedade(nota, 'plataforma') || 'Nota').toLowerCase();
+      const urlMedia = obterValorPropriedade(nota, 'urlmedia') || '';
+      const urlImagem = obterValorPropriedade(nota, 'urlimagem') || obterValorPropriedade(nota, 'linkdaimagem') || obterValorPropriedade(nota, 'imagem') || '';
+      const linksStr = obterValorPropriedade(nota, 'linkspara') || '';
+
+      // 1. Contagem e ponderação de palavras (Aplica escala logarítmica)
+      const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
+      const pontuacaoTexto = Math.min(Math.round(Math.log(palavras + 1) * 10), 50);
+
+      // 2. Valorização por tipo de Fonte /Origem intelectual
+      let pontuacaoOrigem = 10; // Valor padrão para Nota Pessoal ou MOC
+      if (plataforma.includes('livro') || plataforma.includes('e-book')) {
+        pontuacaoOrigem = 30; // Livros têm peso máximo
+      } else if (plataforma.includes('revista') || plataforma.includes('artigo') || plataforma.includes('jornal')) {
+        pontuacaoOrigem = 25; // Artigos científicos/periódicos
+      } else if (plataforma.includes('podcast')) {
+        pontuacaoOrigem = 15;
+      } else if (plataforma.includes('youtube') || plataforma.includes('vídeo')) {
+        pontuacaoOrigem = 5; // Vídeos valem menos
+      } else if (plataforma.includes('instagram') || plataforma.includes('x') || plataforma.includes('twitter')) {
+        pontuacaoOrigem = 0; // Redes sociais não adicionam bónus de origem
+      }
+
+      // 3. Contagem de Conexões (Wikilinks + Ligar a IDs)
+      const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
+      const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
+      const totalLinksUnicos = new Set([...wikilinks, ...conexoesManuais]).size;
+      const pontuacaoConexoes = Math.min(totalLinksUnicos * 15, 60); // Ateliê de links (até 4 links = +60)
+
+      // 4. Ponderação Multimédia & Penalização por Falta de Reflexão
+      let pontuacaoMedia = 0;
+      if (urlImagem) pontuacaoMedia += 2;
+      
+      // Penaliza se tiver media (imagem/vídeo/redes) mas pouco texto reflexivo escrito
+      if ((urlMedia || urlImagem || plataforma.includes('instagram') || plataforma.includes('x')) && palavras < 30) {
+        pontuacaoMedia -= 15;
+      }
+
+      const scoreFinal = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoMedia);
+      
+      let badgeLabel = '🥉 Superficial';
+      let badgeCor = 'bg-slate-700/60 text-slate-300 border-slate-600';
+
+      if (scoreFinal >= 75) {
+        badgeLabel = '🏆 Académica / Profunda';
+        badgeCor = 'bg-emerald-950/80 text-emerald-300 border-emerald-600';
+      } else if (scoreFinal >= 50) {
+        badgeLabel = '🥇 Elevada Qualidade';
+        badgeCor = 'bg-indigo-950/80 text-indigo-300 border-indigo-600';
+      } else if (scoreFinal >= 30) {
+        badgeLabel = '🥈 Consistente';
+        badgeCor = 'bg-amber-950/80 text-amber-300 border-amber-600';
+      }
+
+      return {
+        score: scoreFinal,
+        label: badgeLabel,
+        corClasse: badgeCor,
+        palavras: palavras,
+        linksCount: totalLinksUnicos
+      };
     }
 
     function alternarGavetaNav() {
@@ -1304,16 +1374,18 @@
       const conteudo = obterValorPropriedade(notaFinal, 'conteudo') || '';
       const categoria = obterValorPropriedade(notaFinal, 'categoria');
       const dtCriacao = obterValorPropriedade(notaFinal, 'datacriacao') || 'Data Desconhecida';
+      const iqr = calcularIndiceQualidade(notaFinal);
 
       const conteudoMarkdown = marked.parse(processarWikilinks(conteudo.length > 250 ? conteudo.substring(0, 250) + '...' : conteudo));
 
       container.innerHTML = `
         <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 theme-input p-4 rounded-xl border">
           <div class="space-y-1 max-w-3xl">
-            <div class="flex items-center gap-2 text-xs">
+            <div class="flex flex-wrap items-center gap-2 text-xs">
               <span class="font-mono text-amber-500 theme-card px-2 py-0.5 rounded border theme-border font-bold">ID: ${escapeHTML(id)}</span>
               <span class="theme-text-muted">Criada a: ${escapeHTML(dtCriacao)}</span>
               ${categoria ? `<span class="theme-card text-indigo-500 px-2 py-0.5 rounded border theme-border font-semibold">${escapeHTML(categoria)}</span>` : ''}
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">🧮 IQR: ${iqr.score} pts (${iqr.label})</span>
             </div>
             <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold hover:text-amber-500 transition-colors cursor-pointer break-words">${escapeHTML(titulo)}</h3>
             <div class="markdown-body text-xs line-clamp-2 leading-relaxed">
@@ -1737,8 +1809,8 @@
       const textarea = document.getElementById('novo-conteudo');
       if (estado === 'Rascunho' && !textarea.value.trim()) {
         textarea.value = 'Por concluir...';
-        calcularMetricasTexto();
       }
+      calcularMetricasTexto();
     }
 
     function aoDigitarConteudo(e) {
@@ -1792,14 +1864,20 @@
       const carateres = txt.length;
       const tempoLeitura = Math.ceil(palavras / 200);
 
+      const tempNota = {
+        conteudo: txt,
+        plataforma: document.getElementById('nova-plataforma').value,
+        urlmedia: document.getElementById('novo-url').value,
+        urlimagem: document.getElementById('novo-url-imagem').value,
+        linkspara: document.getElementById('novos-links').value
+      };
+      
+      const iqr = calcularIndiceQualidade(tempNota);
+
       const metricsEl = document.getElementById('form-text-metrics');
       if (metricsEl) {
-        if (palavras >= 100) {
-          metricsEl.innerHTML = `<span class="text-emerald-500 font-bold">✅ Reflexão Aprovada (${palavras} pal | ~${tempoLeitura} min)</span>`;
-        } else {
-          const faltam = 100 - palavras;
-          metricsEl.innerHTML = `<span class="text-amber-500">${palavras} pal | ${carateres} car (faltam ${faltam} pal p/ meta)</span>`;
-        }
+        let textoStatus = `<span class="${iqr.score >= 50 ? 'text-emerald-500' : 'text-amber-500'} font-bold">🧮 Qualidade Est.: ${iqr.score} pts (${iqr.label})</span> | ${palavras} pal | ~${tempoLeitura} min`;
+        metricsEl.innerHTML = textoStatus;
       }
     }
 
@@ -1842,6 +1920,7 @@
         idsAtuais.push(idNota);
         campo.value = idsAtuais.join(', ');
       }
+      calcularMetricasTexto();
     }
 
     function alternarModoVisualizacao(modo) {
@@ -1915,7 +1994,7 @@
                 <a href="${escapeHTML(urlValida)}" target="_blank" rel="noopener noreferrer" class="block hover:opacity-90 transition-opacity">
                   <div class="w-full theme-input flex items-center justify-center overflow-hidden bg-slate-900/80 p-2 min-h-[150px]">
                     <img src="${escapeHTML(imagemApiUrl)}" alt="Preview da publicação" class="w-auto h-auto max-w-full max-h-[380px] block mx-auto rounded" 
-                        onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-3 text-xs text-indigo-500 font-semibold flex items-center gap-1.5 flex-wrap\\'><span>🔗 Abrir Publicação no Instagram:</span> <span class=\\'underline truncate max-w-full\\'>${escapeHTML(urlValida)}</span></div>';" />
+                        onerror="this.onerror=null; this.parentElement.innerHTML='<div class=\\'p-3 text-xs text-indigo-500 font-semibold flex items-center gap-1.5 flex-wrap\\'><span>🔗 Abrir Publicação:</span> <span class=\\'underline truncate max-w-full\\'>${escapeHTML(urlValida)}</span></div>';" />
                   </div>
                 </a>
               </div>
@@ -2009,7 +2088,20 @@
 
       const modoOrdenacao = document.getElementById('filtro-ordenacao') ? document.getElementById('filtro-ordenacao').value : 'cronologica';
 
-      if (modoOrdenacao === 'categoria') {
+      if (modoOrdenacao === 'qualidade') {
+        container.className = modoVisualizacao === 'lista' ? "flex flex-col gap-2" : "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6";
+        const notasOrdenadasQualidade = [...notas].sort((a, b) => {
+          const iqrA = calcularIndiceQualidade(a).score;
+          const iqrB = calcularIndiceQualidade(b).score;
+          return iqrB - iqrA;
+        });
+        const fragQualidade = document.createDocumentFragment();
+        notasOrdenadasQualidade.forEach(nota => {
+          fragQualidade.appendChild(criarElementoCartao(nota, false));
+        });
+        container.appendChild(fragQualidade);
+
+      } else if (modoOrdenacao === 'categoria') {
         container.className = "flex flex-col gap-8";
 
         const gruposCategorias = new Map();
@@ -2085,6 +2177,8 @@
       const tagsStr = obterValorPropriedade(nota, 'tags');
       const linksStr = obterValorPropriedade(nota, 'linkspara');
 
+      const iqr = calcularIndiceQualidade(nota);
+
       const eMOC = plataforma === 'MOC';
       const eRascunho = estado === 'Rascunho';
       const estaNasFixadas = notasFixadas.includes(String(idStr).trim());
@@ -2122,8 +2216,12 @@
             <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="Fixar Nota" class="text-xs shrink-0">${estaNasFixadas ? '📌' : '📍'}</button>
             ${eRascunho ? `<span class="bg-amber-500/20 text-amber-500 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">✏️ Rascunho</span>` : ''}
             ${eMOC ? `<span class="bg-amber-500/20 text-amber-500 text-[10px] px-1.5 py-0.5 rounded border border-amber-500/50 font-bold shrink-0">🗺️ MOC</span>` : ''}
-            <span onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-base sm:text-lg font-black hover:text-indigo-500 transition-colors cursor-pointer break-words" title="Clique para abrir a nota">${escapeHTML(titulo)}</span>
+            <span onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-base sm:text-lg font-black hover:text-indigo-500 transition-colors cursor-pointer break-words truncate" title="Clique para abrir a nota">${escapeHTML(titulo)}</span>
             ${categoria ? `<span class="hidden sm:inline theme-input text-indigo-500 text-[10px] px-2 py-0.5 rounded border theme-border shrink-0">${escapeHTML(categoria)}</span>` : ''}
+            
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">
+              ${iqr.label} (${iqr.score} pts)
+            </span>
           </div>
           <div class="flex items-center gap-1.5 shrink-0">
             <button type="button" onclick="abrirModalNota('${escapeHTML(idStr)}')" class="text-xs text-indigo-500 font-medium px-2 py-0.5 rounded theme-input border theme-border">👁️ Ver</button>
@@ -2140,7 +2238,13 @@
         cartao.innerHTML = `
           <div class="space-y-3 flex-grow">
             <div class="flex flex-wrap items-center justify-between gap-2">
-              <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
+              <div class="flex items-center gap-1.5">
+                <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
+                
+                <span class="hidden md:inline text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="Índice de Qualidade da Reflexão">
+                  ${iqr.label} (${iqr.score} pts)
+                </span>
+              </div>
               <div class="flex flex-wrap items-center gap-1.5">
                 <button type="button" onclick="alternarNotaFixada('${escapeHTML(idStr)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs p-1 hover:opacity-80 rounded">${estaNasFixadas ? '📌' : '📍'}</button>
                 ${eRascunho ? `<span class="text-[11px] font-bold text-amber-500 theme-input px-2.5 py-0.5 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
@@ -2264,7 +2368,6 @@
         limparFormulario();
         alert('Nota guardada e sincronizada com sucesso!');
 
-        // 🌟 MELHORIA 1: SCROLL AUTOMÁTICO PARA A NOTA CRIADA
         setTimeout(() => {
           const elNotaCriada = document.getElementById(`nota-${idFinal}`);
           if (elNotaCriada) {
@@ -2458,6 +2561,8 @@
       const tagsStr = obterValorPropriedade(nota, 'tags');
       const linksStr = obterValorPropriedade(nota, 'linkspara');
 
+      const iqr = calcularIndiceQualidade(nota);
+
       const estaNasFixadas = notasFixadas.includes(id);
       const eRascunho = estado === 'Rascunho';
 
@@ -2534,6 +2639,7 @@
               <span class="text-xs font-mono theme-text-muted theme-input px-2.5 py-1 rounded border theme-border">ID: ${escapeHTML(id)}</span>
               <button type="button" onclick="alternarNotaFixada('${escapeHTML(id)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs theme-input p-1 rounded border theme-border">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
               ${eRascunho ? `<span class="text-xs font-bold text-amber-500 theme-input px-2.5 py-1 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
+              <span class="text-xs font-bold px-2.5 py-1 rounded border ${iqr.corClasse}">🧮 Quality Index: ${iqr.score} pts (${iqr.label})</span>
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
@@ -2562,6 +2668,7 @@
           <div class="text-[11px] theme-text-muted font-mono flex items-center gap-3 pt-1">
             <span>📝 ${palavras} palavras ${palavras >= 100 ? '<span class="text-emerald-500 font-bold">(≥100 reflexão)</span>' : ''}</span>
             <span>⏱️ ~${tempoLeitura} min de leitura</span>
+            <span>🔗 ${iqr.linksCount} conexão(ões)</span>
           </div>
 
           ${tagsHTML ? `<div class="flex flex-wrap gap-1.5 pt-1">${tagsHTML}</div>` : ''}
