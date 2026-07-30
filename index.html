@@ -382,7 +382,7 @@
       <div id="conteudo-nota-do-dia" class="space-y-2"></div>
     </section>
 
-    <!-- 1. PAINEL DE MÉTRICAS DA REDE (RESPONSIVO / EXPANSÍVEL NO MOBILE E TABLET) -->
+    <!-- 1. PAINEL DE MÉTRICAS DA REDE -->
     <details id="acc-metricas" class="theme-card border rounded-2xl p-3 sm:p-4 shadow-md transition-all">
       <summary class="flex justify-between items-center font-bold text-xs sm:text-sm text-indigo-400">
         <span class="flex items-center gap-2">📊 Métricas & Estatísticas da Rede</span>
@@ -604,8 +604,8 @@
                 <span>4.</span> Captura Rápida de Recursos Multimédia & Fórmula IQR
               </h3>
               <p class="text-xs leading-relaxed theme-text-muted">
-                <strong>Índice de Qualidade (IQR):</strong> Avalia a densidade do texto (até 50 pts), a origem (MOCs +35, Livros +30, Artigos +25), as conexões (até 60 pts em notas normais ou 120 pts em MOCs) e as #tags (até 15 pts).<br>
-                <strong>Pontuação Máxima:</strong> <strong>157 pts</strong> numa nota normal e <strong>222 pts</strong> num MOC. Alcanças a categoria <em>"🏆 Académica / Profunda"</em> a partir dos 75 pts!
+                <strong>Índice de Qualidade (IQR):</strong> Avalia a densidade do texto (até 50 pts), a origem (MOCs +35, Livros +30, Artigos +25), conexões (até 60/120 pts), #tags (até 15 pts) e <strong>Tempo Acumulado de Edição + Leitura (até 45 pts)</strong>.<br>
+                <strong>Pontuação Máxima:</strong> Atinge até <strong>202 pts</strong> numa nota normal e <strong>267 pts</strong> num MOC. Alcanças a categoria <em>"🏆 Académica / Profunda"</em> a partir dos 75 pts!
               </p>
             </div>
 
@@ -617,83 +617,6 @@
                 Usa tags abrangentes (ex: <code class="text-indigo-500">#conceito</code>, <code class="text-indigo-500">#tutorial</code>). Clica em qualquer <strong>#tag</strong> num cartão para filtrar.<br>
                 <strong>Atalhos úteis:</strong> <code class="text-indigo-500">Ctrl+N</code> (Nova Nota), <code class="text-indigo-500">Ctrl+K</code> (Pesquisar), <code class="text-indigo-500">Esc</code> (Fechar modal/limpar).
               </p>
-            </div>
-          </div>
-
-          <div class="theme-card border p-4 rounded-lg">
-            <h3 class="font-bold text-indigo-500 text-xs uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              💡 Exemplo Prático de um Fluxo de Trabalho:
-            </h3>
-            <ol class="list-decimal pl-5 text-xs space-y-1 theme-text-muted">
-              <li>Lês um artigo ou vês um vídeo ➔ Extrais a ideia principal.</li>
-              <li>Abres o gNOTES ➔ Crias a nota com a tua reflexão (procura atingir $\ge$ 100 palavras).</li>
-              <li>Associas a Categoria e URLs ➔ Para teres a cor correta no grafo e a miniatura visual.</li>
-              <li>Olhas para o Grafo/Busca ➔ Descobres 2 notas antigas sobre o mesmo tema e conectas com <code class="text-sky-500 font-mono">[[ID]]</code>.</li>
-              <li><strong>A tua rede de conhecimento cresceu organicamente! 🚀</strong></li>
-            </ol>
-          </div>
-
-          <div>
-            <h3 class="font-bold mb-2 text-xs uppercase tracking-wider text-indigo-500 flex items-center gap-1.5">
-              <span>📝</span> Guia Exaustivo de Sintaxe Markdown (Obsidian Style)
-            </h3>
-            <div class="overflow-x-auto">
-              <table class="w-full text-left text-xs border-collapse theme-card rounded-lg overflow-hidden border">
-                <thead>
-                  <tr class="theme-input border-b">
-                    <th class="p-2.5 font-semibold">Símbolo / Elemento</th>
-                    <th class="p-2.5 font-semibold">Como Escrever (Sintaxe)</th>
-                    <th class="p-2.5 font-semibold">Resultado Visual na Nota</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y theme-border font-mono">
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Wikilink / Nota Conectada</td>
-                    <td class="p-2.5 text-sky-500">[[202607241010]]</td>
-                    <td class="p-2.5 font-sans"><span class="wikilink-badge">🔗 Nota #202607241010</span></td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Título Principal (H1)</td>
-                    <td class="p-2.5 text-sky-500"># Título Exemplo</td>
-                    <td class="p-2.5 font-sans text-base font-bold">Título Exemplo</td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Subtítulo Nível 2 (H2)</td>
-                    <td class="p-2.5 text-sky-500">## Seção Importante</td>
-                    <td class="p-2.5 font-sans text-sm font-semibold">Seção Importante</td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Texto em Negrito</td>
-                    <td class="p-2.5 text-sky-500">**conceito chave**</td>
-                    <td class="p-2.5 font-sans font-bold">conceito chave</td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Texto em Itálico</td>
-                    <td class="p-2.5 text-sky-500">*termo em destaque* ou _termo_</td>
-                    <td class="p-2.5 font-sans italic">termo em destaque</td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Bloco de Citação</td>
-                    <td class="p-2.5 text-sky-500">&gt; O conhecimento acumula-se.</td>
-                    <td class="p-2.5 font-sans border-l-2 border-indigo-500 pl-2 italic theme-text-muted">O conhecimento acumula-se.</td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Código em Linha</td>
-                    <td class="p-2.5 text-sky-500">`npm install`</td>
-                    <td class="p-2.5"><code class="theme-input px-1.5 py-0.5 rounded text-sky-500">npm install</code></td>
-                  </tr>
-                  <tr>
-                    <td class="p-2.5 font-sans font-medium">Lista Não-Ordenada</td>
-                    <td class="p-2.5 text-sky-500">- Item 1<br>* Item 2</td>
-                    <td class="p-2.5 font-sans">
-                      <ul class="list-disc pl-4 space-y-0.5">
-                        <li>Item 1</li>
-                        <li>Item 2</li>
-                      </ul>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>
@@ -803,8 +726,6 @@
           <div class="relative">
             <label class="block text-xs font-medium theme-text-muted mb-1">Tags (separadas por vírgulas)</label>
             <input type="text" id="novas-tags" oninput="aoDigitarTags(event)" placeholder="javascript, redes, zettelkasten" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
-            
-            <!-- DROPDOWN DE AUTOCOMPLETE DE TAGS -->
             <div id="autocomplete-tags-list" class="autocomplete-dropdown hidden w-full"></div>
           </div>
 
@@ -896,6 +817,11 @@
     let flashcardVirado = false;
     let gavetaNavAberta = false;
 
+    // --- VARIÁVEIS DE CRONOMETRAGEM DE TEMPOS ---
+    let inicioTempoLeitura = null;
+    let idNotaModalAtual = null;
+    let inicioTempoEdicao = null;
+
     let temaAtual = localStorage.getItem('zettelkasten_tema') || 'dark';
     let notasFixadas = [];
     try {
@@ -932,7 +858,7 @@
     }
 
     /**
-     * 🧮 FÓRMULA MATEMÁTICA DE AVALIAÇÃO DA QUALIDADE DA REFLEXÃO (IQR)
+     * 🧮 FÓRMULA MATEMÁTICA DE AVALIAÇÃO DA QUALIDADE DA REFLEXÃO (IQR) INCLUINDO TEMPO DE EDICÃO E LEITURA
      */
     function calcularIndiceQualidade(nota) {
       const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
@@ -942,8 +868,12 @@
       const linksStr = obterValorPropriedade(nota, 'linkspara') || '';
       const tagsStr = obterValorPropriedade(nota, 'tags') || '';
 
+      const tempoEdicaoSegs = parseFloat(obterValorPropriedade(nota, 'tempodeedicao') || obterValorPropriedade(nota, 'tempoedicao') || 0);
+      const tempoLeituraSegs = parseFloat(obterValorPropriedade(nota, 'tempodeleitura') || obterValorPropriedade(nota, 'tempoleitura') || 0);
+
       const eMOC = plataforma.includes('moc');
-      const maxTeorico = eMOC ? 222 : 157;
+      // Adicionado +45 pts máximos ao IQR relativos ao tempo acumulado (30 pts edição + 15 pts leitura)
+      const maxTeorico = eMOC ? 267 : 202;
 
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
       const pontuacaoTexto = Math.min(Math.round(Math.log(palavras + 1) * 10), 50);
@@ -982,7 +912,16 @@
         pontuacaoMedia -= 15;
       }
 
-      const scoreFinal = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoTags + pontuacaoMedia);
+      // --- PONTUAÇÃO DE TEMPO DE EDICÃO E LEITURA ---
+      const minEdicao = Math.floor(tempoEdicaoSegs / 60);
+      const minLeitura = Math.floor(tempoLeituraSegs / 60);
+
+      // 1 pt por minuto de edição acumulado (até 30 pts)
+      const pontuacaoEdicao = Math.min(minEdicao, 30);
+      // 0.5 pt por minuto de leitura acumulado (até 15 pts)
+      const pontuacaoLeitura = Math.min(Math.floor(minLeitura * 0.5), 15);
+
+      const scoreFinal = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoTags + pontuacaoMedia + pontuacaoEdicao + pontuacaoLeitura);
       
       let badgeLabel = '🥉 Superficial';
       let badgeCor = 'bg-slate-700/60 text-slate-300 border-slate-600';
@@ -998,7 +937,7 @@
         badgeCor = 'bg-amber-950/80 text-amber-300 border-amber-600';
       }
 
-      const tooltipTexto = `Índice de Qualidade da Reflexão: ${scoreFinal} de ${maxTeorico} pts máx. (Académica ≥ 75 pts)`;
+      const tooltipTexto = `Índice de Qualidade da Reflexão: ${scoreFinal} de ${maxTeorico} pts máx. (Edição: ${minEdicao}m, Leitura: ${minLeitura}m)`;
 
       return {
         score: scoreFinal,
@@ -1007,7 +946,9 @@
         corClasse: badgeCor,
         tooltip: tooltipTexto,
         palavras: palavras,
-        linksCount: totalLinksUnicos
+        linksCount: totalLinksUnicos,
+        minEdicao: minEdicao,
+        minLeitura: minLeitura
       };
     }
 
@@ -1856,9 +1797,6 @@
       listDiv.classList.add('hidden');
     }
 
-    /**
-     * 🏷️ AUTOCOMPLETE DE TAGS INTEGRAÇÃO AUTOMÁTICA
-     */
     function aoDigitarTags(e) {
       atualizarSugestoesConexao();
       const input = e.target;
@@ -1877,7 +1815,6 @@
         return;
       }
 
-      // Extrai todas as tags únicas já registadas na base de conhecimento
       const conjuntoTags = new Set();
       todasAsNotas.forEach(nota => {
         const tagsStr = obterValorPropriedade(nota, 'tags');
@@ -1932,7 +1869,10 @@
     function calcularMetricasTexto() {
       const txt = document.getElementById('novo-conteudo').value.trim();
       const palavras = txt ? txt.split(/\s+/).length : 0;
-      const tempoLeitura = Math.ceil(palavras / 200);
+      const tempoLeituraEstimado = Math.ceil(palavras / 200);
+
+      const idAtual = document.getElementById('form-id').value;
+      const notaExistente = idAtual ? mapaNotas.get(idAtual) : null;
 
       const tempNota = {
         conteudo: txt,
@@ -1940,14 +1880,16 @@
         urlmedia: document.getElementById('novo-url').value,
         urlimagem: document.getElementById('novo-url-imagem').value,
         linkspara: document.getElementById('novos-links').value,
-        tags: document.getElementById('novas-tags').value
+        tags: document.getElementById('novas-tags').value,
+        tempodeedicao: notaExistente ? obterValorPropriedade(notaExistente, 'tempodeedicao') : 0,
+        tempodeleitura: notaExistente ? obterValorPropriedade(notaExistente, 'tempodeleitura') : 0
       };
       
       const iqr = calcularIndiceQualidade(tempNota);
 
       const metricsEl = document.getElementById('form-text-metrics');
       if (metricsEl) {
-        let textoStatus = `<span class="${iqr.score >= 50 ? 'text-emerald-500' : 'text-amber-500'} font-bold" title="${iqr.tooltip}">🧮 Quality Est.: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span> | ${palavras} pal | ~${tempoLeitura} min`;
+        let textoStatus = `<span class="${iqr.score >= 50 ? 'text-emerald-500' : 'text-amber-500'} font-bold" title="${iqr.tooltip}">🧮 Quality Est.: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span> | ${palavras} pal | ~${tempoLeituraEstimado} min`;
         metricsEl.innerHTML = textoStatus;
       }
     }
@@ -2086,6 +2028,9 @@
       const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === String(idNota).trim());
       if (!nota) return;
 
+      // Inicia a contagem do tempo de edição
+      inicioTempoEdicao = Date.now();
+
       document.getElementById('form-id').value = obterValorPropriedade(nota, 'id');
       document.getElementById('novo-titulo').value = obterValorPropriedade(nota, 'titulo');
       document.getElementById('novo-conteudo').value = obterValorPropriedade(nota, 'conteudo');
@@ -2113,6 +2058,9 @@
     }
 
     function limparFormulario() {
+      // Inicia contagem para nova criação
+      inicioTempoEdicao = Date.now();
+
       document.getElementById('form-nova-nota').reset();
       document.getElementById('form-id').value = '';
       document.getElementById('btn-submeter').innerHTML = '<span>💾</span> Guardar Nota no gNOTES';
@@ -2314,7 +2262,6 @@
               <div class="flex items-center gap-1.5">
                 <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
                 
-                <!-- BADGE IQR VISÍVEL EM TODOS OS DISPOSITIVOS (REMOVIDO 'hidden md:inline') -->
                 <span class="inline-flex text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="${iqr.tooltip}">
                   🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts
                 </span>
@@ -2402,6 +2349,19 @@
         dataConclusaoFinal = '';
       }
 
+      // --- CÁLCULO CUMULATIVO DO TEMPO DE EDIÇÃO ---
+      let deltaEdicaoSegundos = 0;
+      if (inicioTempoEdicao) {
+        deltaEdicaoSegundos = Math.floor((Date.now() - inicioTempoEdicao) / 1000);
+        // Teto de 30 minutos por sessão (1800 segundos)
+        if (deltaEdicaoSegundos > 1800) deltaEdicaoSegundos = 1800;
+      }
+
+      const tempoEdicaoAnterior = parseFloat(notaExistente ? (obterValorPropriedade(notaExistente, 'tempodeedicao') || obterValorPropriedade(notaExistente, 'tempoedicao') || 0) : 0);
+      const tempoEdicaoTotal = tempoEdicaoAnterior + deltaEdicaoSegundos;
+
+      const tempoLeituraAtual = parseFloat(notaExistente ? (obterValorPropriedade(notaExistente, 'tempodeleitura') || obterValorPropriedade(notaExistente, 'tempoleitura') || 0) : 0);
+
       const novaNota = {
         ID: idFinal,
         Titulo: document.getElementById('novo-titulo').value,
@@ -2417,8 +2377,13 @@
         LinksPara: document.getElementById('novos-links').value,
         DataCriacao: notaExistente ? obterValorPropriedade(notaExistente, 'datacriacao') : isoHoje,
         DataAtualizacao: isoHoje,
-        DataConclusao: dataConclusaoFinal
+        DataConclusao: dataConclusaoFinal,
+        TempoDeEdicao: tempoEdicaoTotal,
+        TempoDeLeitura: tempoLeituraAtual
       };
+
+      // Reset do cronómetro de edição após guardar
+      inicioTempoEdicao = null;
 
       const indiceLocal = todasAsNotas.findIndex(n => String(obterValorPropriedade(n, 'id')).trim() === String(idFinal).trim());
       if (indiceLocal !== -1) {
@@ -2590,6 +2555,10 @@
       const nota = todasAsNotas.find(n => obterValorPropriedade(n, 'id') === idLimpo);
       if (!nota) return;
 
+      // Inicia a contagem do tempo de leitura
+      inicioTempoLeitura = Date.now();
+      idNotaModalAtual = idLimpo;
+
       if (!adicionarAoHistorico) {
         historicoModal = [];
       }
@@ -2640,7 +2609,7 @@
       const eRascunho = estado === 'Rascunho';
 
       const palavras = conteudo ? conteudo.trim().split(/\s+/).length : 0;
-      const tempoLeitura = Math.ceil(palavras / 200);
+      const tempoLeituraEstimado = Math.ceil(palavras / 200);
 
       const tagsArr = tagsStr ? tagsStr.split(',') : [];
       const linksArr = linksStr ? linksStr.split(',') : [];
@@ -2738,9 +2707,10 @@
             ${markdownRenderizado}
           </div>
 
-          <div class="text-[11px] theme-text-muted font-mono flex items-center gap-3 pt-1">
+          <div class="text-[11px] theme-text-muted font-mono flex items-center gap-3 pt-1 flex-wrap">
             <span>📝 ${palavras} palavras ${palavras >= 100 ? '<span class="text-emerald-500 font-bold">(≥100 reflexão)</span>' : ''}</span>
-            <span>⏱️ ~${tempoLeitura} min de leitura</span>
+            <span>⏱️ ~${tempoLeituraEstimado} min est.</span>
+            <span class="text-amber-500 font-semibold" title="Tempo real acumulado no ecossistema">⏱️ Edição: ${iqr.minEdicao}m | Leitura: ${iqr.minLeitura}m</span>
             <span>🔗 ${iqr.linksCount} conexão(ões)</span>
           </div>
 
@@ -3049,7 +3019,8 @@ ${conteudo}
       });
     }
 
-    function fecharModal() {
+    // --- FECHO DO MODAL E CONTAGEM CUMULATIVA DO TEMPO DE LEITURA ---
+    async function fecharModal() {
       if (sintetizadorVoz) sintetizadorVoz.cancel();
       aLeraudio = false;
       emModoZen = false;
@@ -3057,6 +3028,45 @@ ${conteudo}
       if (box) box.classList.remove('modo-zen-container');
       const modalContainer = document.getElementById('modal-nota');
       if (modalContainer) modalContainer.classList.add('hidden');
+
+      // Calcular tempo de leitura e atualizar no Google Sheets
+      if (inicioTempoLeitura && idNotaModalAtual) {
+        let deltaLeituraSegundos = Math.floor((Date.now() - inicioTempoLeitura) / 1000);
+        
+        // Aplica o limite máximo de 30 minutos (1800 segundos)
+        if (deltaLeituraSegundos > 1800) deltaLeituraSegundos = 1800;
+
+        // Só faz chamada se a leitura tiver durado mais do que 3 segundos (para ignorar cliques acidentais)
+        if (deltaLeituraSegundos >= 3) {
+          const nota = mapaNotas.get(idNotaModalAtual);
+          if (nota) {
+            const leituraAnterior = parseFloat(obterValorPropriedade(nota, 'tempodeleitura') || obterValorPropriedade(nota, 'tempoleitura') || 0);
+            const leituraTotal = leituraAnterior + deltaLeituraSegundos;
+
+            nota.TempoDeLeitura = leituraTotal;
+            localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
+            atualizarInterfaceNotas();
+
+            // Envia para o Sheets de forma silenciosa
+            try {
+              fetch(API_URL, {
+                method: 'POST',
+                mode: 'no-cors',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  ID: idNotaModalAtual,
+                  TempoDeLeitura: leituraTotal
+                })
+              });
+            } catch(e) {
+              console.warn('Erro ao atualizar tempo de leitura no Sheets:', e);
+            }
+          }
+        }
+      }
+
+      inicioTempoLeitura = null;
+      idNotaModalAtual = null;
     }
 
     function verificarParametrosURL() {
