@@ -557,7 +557,7 @@
         </div>
       </div>
 
-      <!-- GUIA ZETTELKASTEN & CHEATSHEET -->
+      <!-- GUIA ZETTELKASTEN & CHEATSHEET ATUALIZADO (FÓRMULA 0-100 PTS) -->
       <details id="acc-guia" class="mb-6 theme-input border rounded-xl p-4">
         <summary class="flex justify-between items-center font-bold text-xs sm:text-sm text-indigo-500">
           <span class="flex items-center gap-2">🧠 Guia Prático de Utilização Eficiente & Sintaxe Markdown</span>
@@ -604,8 +604,8 @@
                 <span>4.</span> Captura Rápida de Recursos Multimédia & Fórmula IQR
               </h3>
               <p class="text-xs leading-relaxed theme-text-muted">
-                <strong>Índice de Qualidade (IQR):</strong> Avalia a densidade do texto (até 50 pts), a origem (MOCs +35, Livros +30, Artigos +25), conexões (até 60/120 pts), #tags (até 15 pts) e <strong>Tempo Acumulado de Edição + Leitura (até 45 pts)</strong>.<br>
-                <strong>Pontuação Máxima:</strong> Atinge até <strong>202 pts</strong> numa nota normal e <strong>267 pts</strong> num MOC. Alcanças a categoria <em>"🏆 Académica / Profunda"</em> a partir dos 75 pts!
+                <strong>Índice de Qualidade (IQR):</strong> Avalia a densidade do texto (até 50 pts), a origem (MOCs +35, Livros +30, Artigos +25), conexões diretas, #tags (até 15 pts) e <strong>Tempo Acumulado de Edição + Leitura (até 45 pts)</strong>.<br>
+                <strong>Pontuação Máxima Normalizada:</strong> <strong>100 pts</strong> (tanto para notas atómicas normais como para MOCs). Alcanças a classificação <em>"🏆 Académica / Profunda"</em> a partir dos 70 pts!
               </p>
             </div>
 
@@ -857,9 +857,7 @@
       }[match]));
     }
 
-    /**
-     * 🧮 FÓRMULA MATEMÁTICA DE AVALIAÇÃO DA QUALIDADE DA REFLEXÃO (IQR) INCLUINDO TEMPO DE EDICÃO E LEITURA
-     */
+    /** 🧮 FÓRMULA MATEMÁTICA DO IQR NORMALIZADA (ESCALA FIXA 0-100 PTS) */
     function calcularIndiceQualidade(nota) {
       const conteudo = obterValorPropriedade(nota, 'conteudo') || '';
       const plataforma = (obterValorPropriedade(nota, 'plataforma') || 'Nota').toLowerCase();
@@ -872,14 +870,16 @@
       const tempoLeituraSegs = parseFloat(obterValorPropriedade(nota, 'tempodeleitura') || obterValorPropriedade(nota, 'tempoleitura') || 0);
 
       const eMOC = plataforma.includes('moc');
-      // Adicionado +45 pts máximos ao IQR relativos ao tempo acumulado (30 pts edição + 15 pts leitura)
-      const maxTeorico = eMOC ? 267 : 202;
+      
+      // Tetos de pontos brutos possíveis antes da conversão para 100%
+      const maxTeoricoBruto = eMOC ? 267 : 202;
 
+      // 1. Texto / Reflexão (Até 50 pts)
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
       const pontuacaoTexto = Math.min(Math.round(Math.log(palavras + 1) * 10), 50);
 
+      // 2. Origem / Plataforma (Até 35 pts)
       let pontuacaoOrigem = 10;
-
       if (eMOC) {
         pontuacaoOrigem = 35;
       } else if (plataforma.includes('livro') || plataforma.includes('e-book')) {
@@ -894,6 +894,7 @@
         pontuacaoOrigem = 0;
       }
 
+      // 3. Conexões Diretas (Até 60 pts em notas normais ou 120 pts em MOCs)
       const wikilinks = (conteudo.match(/\[\[(\d+)\]\]/g) || []).map(w => w.replace(/[\[\]]/g, ''));
       const conexoesManuais = linksStr ? linksStr.split(/[,;]+/).map(s => s.trim()).filter(Boolean) : [];
       const totalLinksUnicos = new Set([...wikilinks, ...conexoesManuais]).size;
@@ -901,10 +902,12 @@
       const maxLinksPonderados = eMOC ? 8 : 4;
       const pontuacaoConexoes = Math.min(totalLinksUnicos * 15, maxLinksPonderados * 15);
 
+      // 4. Categorização por Tags (Até 15 pts)
       const tagsArr = tagsStr.split(/[,;]+/).map(s => s.trim().toLowerCase()).filter(Boolean);
       const totalTagsUnicas = new Set(tagsArr).size;
       const pontuacaoTags = Math.min(totalTagsUnicas * 3, 15);
 
+      // 5. Suporte Multimédia
       let pontuacaoMedia = 0;
       if (urlImagem) pontuacaoMedia += 2;
       
@@ -912,21 +915,24 @@
         pontuacaoMedia -= 15;
       }
 
-      // --- PONTUAÇÃO DE TEMPO DE EDICÃO E LEITURA ---
+      // 6. Tempos Acumulados de Trabalho (Até 45 pts: 30 de edição + 15 de leitura)
       const minEdicao = Math.floor(tempoEdicaoSegs / 60);
       const minLeitura = Math.floor(tempoLeituraSegs / 60);
 
-      // 1 pt por minuto de edição acumulado (até 30 pts)
       const pontuacaoEdicao = Math.min(minEdicao, 30);
-      // 0.5 pt por minuto de leitura acumulado (até 15 pts)
       const pontuacaoLeitura = Math.min(Math.floor(minLeitura * 0.5), 15);
 
-      const scoreFinal = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoTags + pontuacaoMedia + pontuacaoEdicao + pontuacaoLeitura);
+      // --- CÁLCULO BRUTO E NORMALIZAÇÃO PARA A ESCALA FIXA DE 0 A 100 ---
+      const scoreBruto = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoTags + pontuacaoMedia + pontuacaoEdicao + pontuacaoLeitura);
       
+      // Converte para percentagem (0 a 100 pts)
+      const scoreFinal = Math.min(100, Math.round((scoreBruto / maxTeoricoBruto) * 100));
+      
+      // Reajuste dos limiares de classificação para a nova escala (0 a 100)
       let badgeLabel = '🥉 Superficial';
       let badgeCor = 'bg-slate-700/60 text-slate-300 border-slate-600';
 
-      if (scoreFinal >= 75) {
+      if (scoreFinal >= 70) {
         badgeLabel = '🏆 Académica / Profunda';
         badgeCor = 'bg-emerald-950/80 text-emerald-300 border-emerald-600';
       } else if (scoreFinal >= 50) {
@@ -937,11 +943,11 @@
         badgeCor = 'bg-amber-950/80 text-amber-300 border-amber-600';
       }
 
-      const tooltipTexto = `Índice de Qualidade da Reflexão: ${scoreFinal} de ${maxTeorico} pts máx. (Edição: ${minEdicao}m, Leitura: ${minLeitura}m)`;
+      const tooltipTexto = `IQR: ${scoreFinal}/100 pts (Pontos brutos: ${scoreBruto}/${maxTeoricoBruto} | Edição: ${minEdicao}m | Leitura: ${minLeitura}m)`;
 
       return {
         score: scoreFinal,
-        maxTeorico: maxTeorico,
+        maxTeorico: 100, // Fixo em 100 para todas as notas e MOCs
         label: badgeLabel,
         corClasse: badgeCor,
         tooltip: tooltipTexto,
@@ -1340,7 +1346,10 @@
               <span class="font-mono text-amber-500 theme-card px-2 py-0.5 rounded border theme-border font-bold">ID: ${escapeHTML(id)}</span>
               <span class="theme-text-muted">Criada a: ${escapeHTML(dtCriacao)}</span>
               ${categoria ? `<span class="theme-card text-indigo-500 px-2 py-0.5 rounded border theme-border font-semibold">${escapeHTML(categoria)}</span>` : ''}
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded border ${iqr.corClasse}" title="${iqr.tooltip}">🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span>
+              
+              <span class="inline-flex text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="${iqr.tooltip}">
+                🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts
+              </span>
             </div>
             <h3 onclick="abrirModalNota('${escapeHTML(id)}')" class="text-lg font-bold hover:text-amber-500 transition-colors cursor-pointer break-words">${escapeHTML(titulo)}</h3>
             <div class="markdown-body text-xs line-clamp-2 leading-relaxed">
@@ -2261,7 +2270,6 @@
             <div class="flex flex-wrap items-center justify-between gap-2">
               <div class="flex items-center gap-1.5">
                 <span class="text-[11px] font-mono theme-text-muted theme-input px-2 py-0.5 rounded border theme-border">ID: ${escapeHTML(idStr)}</span>
-                
                 <span class="inline-flex text-[10px] font-bold px-2 py-0.5 rounded border shrink-0 ${iqr.corClasse}" title="${iqr.tooltip}">
                   🧮 IQR: ${iqr.score}/${iqr.maxTeorico} pts
                 </span>
@@ -2681,7 +2689,9 @@
               <span class="text-xs font-mono theme-text-muted theme-input px-2.5 py-1 rounded border theme-border">ID: ${escapeHTML(id)}</span>
               <button type="button" onclick="alternarNotaFixada('${escapeHTML(id)}')" title="${estaNasFixadas ? 'Desafixar Nota' : 'Fixar Nota'}" class="text-xs theme-input p-1 rounded border theme-border">${estaNasFixadas ? '📌 Fixada' : '📍 Fixar'}</button>
               ${eRascunho ? `<span class="text-xs font-bold text-amber-500 theme-input px-2.5 py-1 rounded border border-amber-500/50">✏️ Rascunho</span>` : ''}
-              <span class="text-xs font-bold px-2.5 py-1 rounded border ${iqr.corClasse}" title="${iqr.tooltip}">🧮 Quality Index: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})</span>
+              <span class="text-xs font-bold px-2.5 py-1 rounded border ${iqr.corClasse}" title="${iqr.tooltip}">
+                🧮 Quality Index: ${iqr.score}/${iqr.maxTeorico} pts (${iqr.label})
+              </span>
             </div>
             
             <div class="flex flex-wrap items-center gap-2">
