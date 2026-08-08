@@ -2,7 +2,7 @@
 <html lang="pt-PT" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
   <title>gNOTES Pro</title>
 
   <!-- FAVICON -->
@@ -628,7 +628,7 @@
           <span>⚡</span> Captura Rápida por Link (YouTube, Podcasts, Livros, X, Instagram ou Web):
         </label>
         <div class="flex gap-2">
-          <input type="url" id="input-captura-rapida" placeholder="Cola aqui um link (ex: https://www.youtube.com/watch?v=... ou podcast/artigo)" class="w-full theme-card border rounded-lg px-3 py-2 text-xs focus:border-indigo-500 focus:outline-none">
+          <input type="url" id="input-captura-rapida" placeholder="Cola aqui um link (ex: https://www.youtube.com/watch?v=... ou podcast/artigo)" class="w-full theme-card border rounded-lg px-3 py-2 text-base sm:text-xs focus:border-indigo-500 focus:outline-none">
           <button type="button" onclick="processarCapturaRapida(event)" class="bg-indigo-600 hover:bg-indigo-500 text-white text-xs font-bold px-4 py-2 rounded-lg transition-colors shrink-0 flex items-center gap-1">
             <span>🚀</span> Extrair Dados
           </button>
@@ -954,7 +954,7 @@
         maxTeorico: 100,
         label: badgeLabel,
         corClasse: badgeCor,
-        icone: badgeIcone, // <-- Novo campo com o ícone dinâmico
+        icone: badgeIcone,
         tooltip: tooltipTexto,
         palavras: palavras,
         linksCount: totalLinksUnicos,
@@ -3101,7 +3101,16 @@ ${conteudo}
 
     async function processarCapturaRapida(e) {
       const inputUrl = document.getElementById('input-captura-rapida');
-      const urlValido = inputUrl.value.trim();
+      const urlValido = inputUrl ? inputUrl.value.trim() : '';
+
+      if (inputUrl) {
+        inputUrl.blur(); // Remove o foco para fechar o teclado virtual no telemóvel e repor o zoom
+      }
+
+      // Força o reposicionamento do ecrã a 100% no telemóvel
+      if (window.visualViewport) {
+        window.scrollTo({ top: window.scrollY, behavior: 'smooth' });
+      }
 
       if (!urlValido) return alert('Por favor, insere um URL válido.');
 
@@ -3170,7 +3179,7 @@ ${conteudo}
           document.getElementById('novo-titulo').focus();
         }
 
-        inputUrl.value = '';
+        if (inputUrl) inputUrl.value = '';
         calcularMetricasTexto();
       } catch (erro) {
         console.error('Erro na captura rápida:', erro);
