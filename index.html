@@ -3116,6 +3116,7 @@ ${conteudo}
       }
 
       try {
+        // 1. Atribui o URL imediatamente ao campo de destino
         document.getElementById('novo-url').value = urlValido;
 
         const selectEstado = document.getElementById('novo-estado');
@@ -3128,20 +3129,21 @@ ${conteudo}
 
         const selectPlataforma = document.getElementById('nova-plataforma');
         let tituloObtido = '';
+        let imagemObtida = '';
 
+        // 2. Identificação da plataforma
         if (urlValido.includes('youtube.com') || urlValido.includes('youtu.be')) {
           selectPlataforma.value = 'YouTube';
-          
           try {
             const resYT = await fetch(`https://www.youtube.com/oembed?url=${encodeURIComponent(urlValido)}&format=json`);
             if (resYT.ok) {
               const dadosYT = await resYT.json();
               tituloObtido = dadosYT.title || '';
+              imagemObtida = dadosYT.thumbnail_url || '';
             }
           } catch (errYT) {
             console.warn('Erro ao obter dados do YouTube:', errYT);
           }
-
         } else if (urlValido.includes('spotify.com') || urlValido.includes('apple.com/podcast') || urlValido.includes('podcast')) {
           selectPlataforma.value = 'Podcast';
         } else if (urlValido.includes('twitter.com') || urlValido.includes('x.com')) {
@@ -3152,33 +3154,46 @@ ${conteudo}
           selectPlataforma.value = 'Artigo';
         }
 
-        if (!tituloObtido) {
+        // 3. Fallback genérico via Microlink API se título ou imagem falharem
+        if (!tituloObtido || !imagemObtida) {
           try {
             const resposta = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(urlValido)}`);
-            const dados = await resposta.json();
-            if (dados.status === 'success' && dados.data) {
-              if (dados.data.title) tituloObtido = dados.data.title;
-              if (dados.data.image && dados.data.image.url) {
-                document.getElementById('novo-url-imagem').value = dados.data.image.url;
+            if (resposta.ok) {
+              const dados = await resposta.json();
+              if (dados && dados.status === 'success' && dados.data) {
+                if (!tituloObtido && dados.data.title) {
+                  tituloObtido = dados.data.title;
+                }
+                if (!imagemObtida && dados.data.image && dados.data.image.url) {
+                  imagemObtida = dados.data.image.url;
+                }
               }
             }
           } catch (e) {
-            console.warn('Erro no fallback de metadados:', e);
+            console.warn('Erro na Microlink API:', e);
           }
         }
 
+        // 4. Inserção final nos inputs do formulário
         if (tituloObtido) {
           document.getElementById('novo-titulo').value = tituloObtido;
         }
+        if (imagemObtida) {
+          document.getElementById('novo-url-imagem').value = imagemObtida;
+        }
 
+        // 5. Limpeza do campo e remoção do foco (mantém a escala do ecrã a 100%)
         if (inputUrl) {
           inputUrl.value = '';
-          inputUrl.blur(); // Remove o foco apenas após concluir para esconder o teclado virtual e repor o zoom
+          setTimeout(() => {
+            inputUrl.blur();
+            if (document.activeElement) document.activeElement.blur();
+          }, 50);
         }
 
         calcularMetricasTexto();
       } catch (erro) {
-        console.error('Erro na captura rápida:', erro);
+        console.error('Erro global na captura rápida:', erro);
       } finally {
         if (btn) {
           btn.innerHTML = textoOriginal;
