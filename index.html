@@ -2,7 +2,7 @@
 <html lang="pt-PT" data-theme="dark">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta id="viewport-meta" name="viewport" content="width=device-width, initial-scale=1.0">
   <title>gNOTES Pro</title>
 
   <!-- FAVICON -->
@@ -362,7 +362,7 @@
       </div>
     </section>
 
-    <!-- BANNER DA NOTA DO DIA (MÓDULO DE REFLEXÃO SERENDIPITY) -->
+    <!-- BANNER DA NOTA DO DIA -->
     <section id="seccao-nota-do-dia" class="hidden theme-card border-2 border-amber-500/60 p-5 rounded-2xl shadow-xl relative overflow-hidden transition-all">
       <div class="flex flex-wrap justify-between items-center mb-3 gap-2">
         <div class="flex items-center gap-2">
@@ -521,7 +521,7 @@
       </div>
     </section>
 
-    <!-- SECÇÃO DE NOTAS FIXADAS (PINNED) -->
+    <!-- SECÇÃO DE NOTAS FIXADAS -->
     <section id="secção-fixadas" class="hidden scroll-mt-24">
       <h2 class="text-sm font-bold text-indigo-500 mb-3 flex items-center gap-2">
         <span>📌</span> Notas Fixadas / Destaques
@@ -854,14 +854,22 @@
       }[match]));
     }
 
-    /** 📱 REPOUSO DO ZOOM MOBILE (FORÇA TECLADO A FECHAR E RETORNA A ESCALA A 100%) */
+    /** 📱 REPOSIÇÃO RÍGIDA DE ZOOM EM DISPOSITIVOS MÓVEIS (RESETA O VIEWPORT E O FOCO) */
     function reporZoomMobile() {
       if (document.activeElement && typeof document.activeElement.blur === 'function') {
         document.activeElement.blur();
       }
-      setTimeout(() => {
-        window.scrollTo({ top: window.scrollY, behavior: 'smooth' });
-      }, 100);
+      
+      const isMobile = window.innerWidth <= 768 || /Mobi|Android|iPhone/i.test(navigator.userAgent);
+      if (isMobile) {
+        const viewportMeta = document.getElementById('viewport-meta');
+        if (viewportMeta) {
+          viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+          setTimeout(() => {
+            viewportMeta.setAttribute('content', 'width=device-width, initial-scale=1.0');
+          }, 300);
+        }
+      }
     }
 
     /** 🧮 FÓRMULA MATEMÁTICA DO IQR NORMALIZADA (ESCALA FIXA 0-100 PTS) */
@@ -877,7 +885,6 @@
       const tempoLeituraSegs = parseFloat(obterValorPropriedade(nota, 'tempodeleitura') || obterValorPropriedade(nota, 'tempoleitura') || 0);
 
       const eMOC = plataforma.includes('moc');
-      
       const maxTeoricoBruto = eMOC ? 267 : 202;
 
       const palavras = conteudo.trim() ? conteudo.trim().split(/\s+/).length : 0;
@@ -923,7 +930,6 @@
       const pontuacaoLeitura = Math.min(Math.floor(minLeitura * 0.5), 15);
 
       const scoreBruto = Math.max(0, pontuacaoTexto + pontuacaoOrigem + pontuacaoConexoes + pontuacaoTags + pontuacaoMedia + pontuacaoEdicao + pontuacaoLeitura);
-      
       const scoreFinal = Math.min(100, Math.round((scoreBruto / maxTeoricoBruto) * 100));
       
       let badgeLabel = '🥉 Superficial';
@@ -1675,7 +1681,7 @@
 
         nodesArray.push({
           id: idStr,
-          label: eMOC ? `MAPA ${tituloStr}` : (eRascunho ? `RASCUNHO ${tituloStr}` : tituloStr),
+          label: eMOC ? `🗺️ ${tituloStr}` : (eRascunho ? `✏️ ${tituloStr}` : tituloStr),
           shape: formatoForma,
           size: eMOC ? 28 : (eCategoriaAtiva ? 20 : 12),
           color: {
@@ -2320,6 +2326,8 @@
     async function guardarNota(evento) {
       evento.preventDefault();
       
+      reporZoomMobile();
+
       const btn = document.getElementById('btn-submeter');
       btn.disabled = true;
       btn.innerText = 'A guardar...';
@@ -2399,9 +2407,6 @@
 
       localStorage.setItem('zettelkasten_cache', JSON.stringify(todasAsNotas));
       atualizarInterfaceNotas();
-
-      // REPOSIÇÃO DE ZOOM EM TELEMÓVEIS APÓS GUARDAR
-      reporZoomMobile();
 
       try {
         await fetch(API_URL, {
@@ -3039,7 +3044,6 @@ ${conteudo}
 
       if (inicioTempoLeitura && idNotaModalAtual) {
         let deltaLeituraSegundos = Math.floor((Date.now() - inicioTempoLeitura) / 1000);
-        
         if (deltaLeituraSegundos > 1800) deltaLeituraSegundos = 1800;
 
         if (deltaLeituraSegundos >= 3) {
@@ -3087,7 +3091,7 @@ ${conteudo}
       }
     }
 
-    /** ⚡ PROCESSAMENTO REFORMULADO DE EXTRAÇÃO E CAPTURA RÁPIDA */
+    /** ⚡ PROCESSAMENTO REFORMULADO E MULTI-API PARA GARANTIR A EXTRAÇÃO */
     async function processarCapturaRapida(e) {
       const inputUrl = document.getElementById('input-captura-rapida');
       const urlValido = inputUrl ? inputUrl.value.trim() : '';
@@ -3100,6 +3104,9 @@ ${conteudo}
         btn.innerText = 'A obter dados...';
         btn.disabled = true;
       }
+
+      // Executa o reset do zoom antes da requisição para fechar o teclado e focar nos resultados
+      reporZoomMobile();
 
       try {
         document.getElementById('novo-url').value = urlValido;
@@ -3116,6 +3123,7 @@ ${conteudo}
         let tituloObtido = '';
         let imagemObtida = '';
 
+        // 1. Identificação da plataforma
         if (urlValido.includes('youtube.com') || urlValido.includes('youtu.be')) {
           selectPlataforma.value = 'YouTube';
           try {
@@ -3138,41 +3146,64 @@ ${conteudo}
           selectPlataforma.value = 'Artigo';
         }
 
-        // Fallback genérico para obter título e imagem via Microlink API
+        // 2. Método Principal: Microlink API
         if (!tituloObtido || !imagemObtida) {
           try {
             const resposta = await fetch(`https://api.microlink.io/?url=${encodeURIComponent(urlValido)}`);
             if (resposta.ok) {
               const dados = await resposta.json();
               if (dados && dados.status === 'success' && dados.data) {
-                if (!tituloObtido && dados.data.title) {
-                  tituloObtido = dados.data.title;
-                }
-                if (!imagemObtida && dados.data.image && dados.data.image.url) {
-                  imagemObtida = dados.data.image.url;
-                }
+                if (!tituloObtido && dados.data.title) tituloObtido = dados.data.title;
+                if (!imagemObtida && dados.data.image && dados.data.image.url) imagemObtida = dados.data.image.url;
               }
             }
           } catch (errMicro) {
-            console.warn('Erro Microlink API:', errMicro);
+            console.warn('Erro Microlink API direct:', errMicro);
           }
         }
 
+        // 3. Fallback de Segurança via Proxy CORS e extração de meta tags HTML (AllOrigins)
+        if (!tituloObtido) {
+          try {
+            const resProxy = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(urlValido)}`);
+            if (resProxy.ok) {
+              const dadosProxy = await resProxy.json();
+              if (dadosProxy && dadosProxy.contents) {
+                const docHTML = new DOMParser().parseFromString(dadosProxy.contents, 'text/html');
+                
+                const ogTitle = docHTML.querySelector('meta[property="og:title"]') || docHTML.querySelector('meta[name="twitter:title"]');
+                const pageTitle = docHTML.querySelector('title');
+                
+                if (ogTitle && ogTitle.getAttribute('content')) {
+                  tituloObtido = ogTitle.getAttribute('content');
+                } else if (pageTitle && pageTitle.innerText) {
+                  tituloObtido = pageTitle.innerText;
+                }
+
+                const ogImage = docHTML.querySelector('meta[property="og:image"]') || docHTML.querySelector('meta[name="twitter:image"]');
+                if (!imagemObtida && ogImage && ogImage.getAttribute('content')) {
+                  imagemObtida = ogImage.getAttribute('content');
+                }
+              }
+            }
+          } catch (errProxy) {
+            console.warn('Erro Fallback Proxy AllOrigins:', errProxy);
+          }
+        }
+
+        // 4. Preenchimento do formulário
         if (tituloObtido) {
-          document.getElementById('novo-titulo').value = tituloObtido;
+          document.getElementById('novo-titulo').value = tituloObtido.trim();
         }
         if (imagemObtida) {
-          document.getElementById('novo-url-imagem').value = imagemObtida;
+          document.getElementById('novo-url-imagem').value = imagemObtida.trim();
         }
 
         inputUrl.value = '';
         calcularMetricasTexto();
 
-        // REPOSIÇÃO DO ZOOM NO TELEMÓVEL
-        reporZoomMobile();
-
       } catch (erro) {
-        console.error('Erro ao extrair dados:', erro);
+        console.error('Erro global na captura rápida:', erro);
       } finally {
         if (btn) {
           btn.innerHTML = textoOriginal;
