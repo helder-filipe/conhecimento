@@ -477,7 +477,7 @@
     <!-- 2. SECÇÃO DE FILTROS, ORDENAÇÃO E PESQUISA -->
     <section id="secção-pesquisa" class="flex flex-col md:flex-row gap-4 justify-between items-center theme-card p-4 rounded-xl border shadow-lg scroll-mt-24">
       <div class="w-full md:w-80 relative flex items-center">
-        <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full theme-input border rounded-lg px-3 py-2 pr-20 text-sm focus:outline-none focus:border-indigo-500 transition-colors">
+        <input type="text" id="input-busca" oninput="aoDigitarBusca()" placeholder="Pesquisar por título, tags, conteúdo..." class="w-full theme-input border rounded-lg px-3 py-2 pr-20 text-base sm:text-sm focus:outline-none focus:border-indigo-500 transition-colors">
         <button type="button" id="btn-limpar-busca" onclick="limparBusca()" class="hidden absolute right-12 theme-text-muted hover:opacity-100 p-1 font-bold text-xs" title="Limpar Pesquisa">✕</button>
         <span class="absolute right-2.5 text-[10px] font-mono theme-text-muted border theme-border px-1.5 py-0.5 rounded pointer-events-none">Ctrl+K</span>
       </div>
@@ -641,12 +641,12 @@
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div class="md:col-span-1">
             <label class="block text-xs font-medium theme-text-muted mb-1">Título da Nota</label>
-            <input type="text" id="novo-titulo" required placeholder="Ex: Algoritmo de Busca em Grafos" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novo-titulo" required placeholder="Ex: Algoritmo de Busca em Grafos" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
           
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Plataforma / Origem</label>
-            <select id="nova-plataforma" onchange="calcularMetricasTexto()" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <select id="nova-plataforma" onchange="calcularMetricasTexto()" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
               <option value="Nota">Nota Pessoal</option>
               <option value="YouTube">YouTube</option>
               <option value="Podcast">🎙️ Podcast</option>
@@ -661,7 +661,7 @@
 
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Estado da Nota</label>
-            <select id="novo-estado" onchange="aoMudarEstadoFormulario()" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <select id="novo-estado" onchange="aoMudarEstadoFormulario()" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
               <option value="Concluída">✅ Concluída (Permanente)</option>
               <option value="Rascunho">✏️ Rascunho (Provisória)</option>
             </select>
@@ -671,12 +671,12 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Categoria</label>
-            <input type="text" id="nova-categoria" oninput="atualizarSugestoesConexao()" placeholder="Ex: Marketing, Programação, Padel" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="nova-categoria" oninput="atualizarSugestoesConexao()" placeholder="Ex: Marketing, Programação, Padel" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Subcategoria</label>
-            <input type="text" id="nova-subcategoria" placeholder="Ex: SEO, JavaScript, Tática" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="nova-subcategoria" placeholder="Ex: SEO, JavaScript, Tática" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
 
@@ -700,7 +700,7 @@
             <button type="button" onclick="inserirMarkdown('[[', ']]')" class="px-2 py-0.5 rounded theme-card text-indigo-500 border theme-border font-mono" title="Wikilink">[[ Link ]]</button>
           </div>
 
-          <textarea id="novo-conteudo" rows="4" required oninput="aoDigitarConteudo(event)" placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full theme-input border rounded-b-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"></textarea>
+          <textarea id="novo-conteudo" rows="4" required oninput="aoDigitarConteudo(event)" placeholder="Escreve a ideia atómica em Markdown. Exemplo: Como vimos na nota [[202607241010]], este conceito aplica-se..." class="w-full theme-input border rounded-b-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none"></textarea>
           
           <div id="autocomplete-list" class="autocomplete-dropdown hidden"></div>
         </div>
@@ -708,30 +708,30 @@
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">URLs dos Recursos (separados por vírgula)</label>
-            <input type="text" id="novo-url" placeholder="https://youtube.com/..., https://artigo.com/..." class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novo-url" placeholder="https://youtube.com/..., https://artigo.com/..." class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">🖼️ Link da Imagem / Capa (Capa da nota/miniatura)</label>
-            <input type="text" id="novo-url-imagem" placeholder="https://site.com/imagem.jpg" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novo-url-imagem" placeholder="https://site.com/imagem.jpg" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">📖 Fonte / Citação (Livro, Revista, Autor, Cap, Pág)</label>
-            <input type="text" id="nova-fonte" placeholder="Ex: Autor - 'Título do Livro', Cap. 4, pág. 120" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="nova-fonte" placeholder="Ex: Autor - 'Título do Livro', Cap. 4, pág. 120" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
 
           <div class="relative">
             <label class="block text-xs font-medium theme-text-muted mb-1">Tags (separadas por vírgulas)</label>
-            <input type="text" id="novas-tags" oninput="aoDigitarTags(event)" placeholder="javascript, redes, zettelkasten" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novas-tags" oninput="aoDigitarTags(event)" placeholder="javascript, redes, zettelkasten" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
             <div id="autocomplete-tags-list" class="autocomplete-dropdown hidden w-full"></div>
           </div>
 
           <div>
             <label class="block text-xs font-medium theme-text-muted mb-1">Ligar a IDs (separados por vírgula)</label>
-            <input type="text" id="novos-links" oninput="calcularMetricasTexto()" placeholder="Ex: 202607241010, 202607241012" class="w-full theme-input border rounded-lg px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none">
+            <input type="text" id="novos-links" oninput="calcularMetricasTexto()" placeholder="Ex: 202607241010, 202607241012" class="w-full theme-input border rounded-lg px-3 py-2 text-base sm:text-sm focus:border-indigo-500 focus:outline-none">
           </div>
         </div>
 
@@ -1082,7 +1082,6 @@
     function irParaFormulario() {
       limparFormulario();
       document.getElementById('form-container').scrollIntoView({ behavior: 'smooth' });
-      document.getElementById('novo-titulo').focus();
     }
 
     function irParaNotas() {
@@ -2326,6 +2325,11 @@
     async function guardarNota(evento) {
       evento.preventDefault();
       
+      // Fecha o teclado virtual em mobile e remove focos ativos para impedir zoom automático
+      if (document.activeElement) {
+        document.activeElement.blur();
+      }
+
       const btn = document.getElementById('btn-submeter');
       btn.disabled = true;
       btn.innerText = 'A guardar...';
@@ -2492,7 +2496,6 @@
       input.value = '';
       document.getElementById('btn-limpar-busca').classList.add('hidden');
       filtrarNotas();
-      input.focus();
     }
 
     function filtrarNotas() {
@@ -3103,15 +3106,6 @@ ${conteudo}
       const inputUrl = document.getElementById('input-captura-rapida');
       const urlValido = inputUrl ? inputUrl.value.trim() : '';
 
-      if (inputUrl) {
-        inputUrl.blur(); // Remove o foco para fechar o teclado virtual no telemóvel e repor o zoom
-      }
-
-      // Força o reposicionamento do ecrã a 100% no telemóvel
-      if (window.visualViewport) {
-        window.scrollTo({ top: window.scrollY, behavior: 'smooth' });
-      }
-
       if (!urlValido) return alert('Por favor, insere um URL válido.');
 
       const btn = e ? e.currentTarget : null;
@@ -3175,11 +3169,13 @@ ${conteudo}
 
         if (tituloObtido) {
           document.getElementById('novo-titulo').value = tituloObtido;
-        } else {
-          document.getElementById('novo-titulo').focus();
         }
 
-        if (inputUrl) inputUrl.value = '';
+        if (inputUrl) {
+          inputUrl.value = '';
+          inputUrl.blur(); // Remove o foco apenas após concluir para esconder o teclado virtual e repor o zoom
+        }
+
         calcularMetricasTexto();
       } catch (erro) {
         console.error('Erro na captura rápida:', erro);
